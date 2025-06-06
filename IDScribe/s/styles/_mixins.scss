@@ -1,0 +1,57 @@
+@mixin cursor_idle {
+  cursor: url('../cursors/CursorIdle.png'), url('../cursors/CursorIdleMirror.png') 34 0, url('../cursors/CursorIdleFlip.png') 0 34, url('../cursors/CursorIdleMirrorFlip.png') 34 34, default;
+}
+
+@mixin cursor_clickable {
+  cursor: url('../cursors/CursorClickable.png'), url('../cursors/CursorClickableMirror.png') 34 0, url('../cursors/CursorClickableFlip.png') 0 34, url('../cursors/CursorClickableMirrorFlip.png') 34 34, pointer;
+}
+
+@mixin cursor_graph {
+  cursor: url('../cursors/CursorGraph.png'), url('../cursors/CursorGraphMirror.png') 34 0, url('../cursors/CursorGraphFlip.png') 0 34, url('../cursors/CursorGraphMirrorFlip.png') 34 34, crosshair;
+}
+
+@mixin cursor_text {
+  cursor: url('../cursors/CursorText.png'), url('../cursors/CursorTextMirror.png') 34 0, url('../cursors/CursorTextFlip.png') 0 34, url('../cursors/CursorTextMirrorFlip.png') 34 34, default;
+}
+
+@mixin cursor_disabled {
+  cursor: url('../cursors/CursorDisabled.png'), url('../cursors/CursorDisabledMirror.png') 34 0, url('../cursors/CursorDisabledFlip.png') 0 34, url('../cursors/CursorDisabledMirrorFlip.png') 34 34, none;
+}
+
+@mixin box_shadow($size, $color) {
+  -webkit-box-shadow: inset 0 0 $size $color; 
+  box-shadow: inset 0 0 $size $color; 
+}
+
+@mixin bounce {
+  -webkit-box-shadow: inset 0 0 $size $color; 
+  box-shadow: inset 0 0 $size $color; 
+}
+
+@keyframes red_glow {
+  77% {
+    box-shadow: 0 10px 30px red;
+  }
+}
+
+@mixin center($width: null, $height: null) {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+
+  @if not $width and not $height {
+    transform: translate(-50%, -50%);
+  } @else if $width and $height {
+    width: $width;
+    height: $height;
+    margin: -($width / 2) #{0 0} -($height / 2);
+  } @else if not $height {
+    width: $width;
+    margin-left: -($width / 2);
+    transform: translateY(-50%);
+  } @else {
+    height: $height;
+    margin-top: -($height / 2);
+    transform: translateX(-50%);
+  }
+}

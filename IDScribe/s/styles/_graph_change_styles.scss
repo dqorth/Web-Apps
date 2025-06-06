@@ -1,0 +1,113 @@
+/* Graph Change Panel Styles */
+#newStitchesHeight,
+#newStitchesWidth,
+#newInchesHeight,
+#newInchesWidth {
+    position: relative;
+    float: right;
+
+    width: 90px;
+    height: 25px;
+
+    font-size: 15px;
+}
+
+#newStitchesWidth,
+#newInchesWidth {
+    margin-right: 10px;
+}
+
+#newInchesHeight,
+#newInchesWidth {
+    top: 15px;
+}
+
+#resizeButton {
+    position: relative;
+    float: top;
+    top: 25px;
+    height: 60px;
+    width: 300px;
+    margin-bottom: 50px;
+    border-radius: 15px;
+    font-size: 30px;
+}
+
+#newSizeContainer {
+    position: relative;
+    right: 25px;
+    font-size: 15px;
+}
+
+#newWidthLabel #ogWidthLabel {
+    margin-right: 35px;
+}
+
+#newGraphSize {
+    display: block;
+    position: relative;
+    right: 15px;
+    top: 15px;
+    float: top;
+    font-size: 20px;
+}
+
+#newSizeLabels,
+#ogSizeLabels {
+    display: block;
+    position: relative;
+    float: top;
+    right: 5px;
+    margin-bottom: 10px;
+}
+
+#ogStitchesLabel {
+    position: relative;
+    top: 39%;
+    float: right;
+    right: 10px;
+}
+
+#ogInchesLabel {
+    position: relative;
+    top: 53%;
+    float: right;
+    right: 10px;
+}
+
+#ogStableLabels {
+    float: left;
+    width: 31%;
+    height: 80%;
+    font-size: 20px;
+    bottom: 0;
+}
+
+#ogInchesWidth {
+    position: relative;
+    margin-right: 10px;
+}
+
+#ogInchesHeight,
+#ogInchesWidth {
+    width: 90px;
+    height: 25px;
+    float: right;
+}
+
+#ogStitchesWidth {
+    position: relative;
+    margin-right: 10px;
+}
+
+#ogStitchesHeight,
+#ogStitchesWidth {
+    width: 90px;
+    height: 25px;
+    float: right;
+}
+
+#ogSizeContainer {
+    position: relative;
+    right: 25px;
+}

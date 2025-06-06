@@ -1,0 +1,5 @@
+$totalLayers: 10;
+
+@function layer($level) {
+    $layerReturn: $level;
+}

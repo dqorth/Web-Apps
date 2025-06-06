@@ -1,0 +1,240 @@
+@import "./mixins";
+@import "./var";
+
+
+#ink1PickHeader {
+    background-color: $black;
+}
+
+#ink2PickHeader {
+    background-color: $white;
+}
+
+/* Colors */
+#ink1PickHeader,
+#ink2PickHeader {
+    position: relative;
+    float: right;
+    width: 45px;
+    height: 45px;
+    margin-right: 10px;
+    bottom: 47px;
+}
+
+#shadeTool {
+    @include cursor_clickable;
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background-image: 
+        linear-gradient(180deg, 
+        transparent 0%, 
+        $black 100%);
+    border-radius: 100px;
+    margin-left: 25px;
+}
+
+#solidTool {
+    @include cursor_clickable;
+    position: relative;
+    width: 50px;
+    height: 50px;
+    background-color: $black;
+    border-radius: 100px;
+    margin-right: 25px;
+}
+
+#toolOptionDown {
+    @include cursor_clickable;
+    position: relative;
+    float: right;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    bottom: 48px;
+    margin-right: 10px;
+    z-index: 2;
+    transition: 
+    transform 1s cubic-bezier(.5, -.5, .5, 2), 
+        top 1s cubic-bezier(.5, -.5, .5, 2), 
+        bottom 1s cubic-bezier(.5, -.5, .5, 2), 
+        right 1s cubic-bezier(.5, -.5, .5, 2);
+    border-radius: 25px;
+    border: 1px outset grey;
+
+}
+
+#toolOptionDownInner {
+    @include cursor_clickable;
+    position: relative;
+    right: 0px;
+    top: 6px;
+    height: 33px;
+    width: 33px;
+    border-radius: 25px;
+}
+
+#toolOptions {
+    background-color: $light_teal;
+    border: 1px solid $black;
+    border-radius: 5px;
+    height: 0px;
+    position: fixed;
+    top: 52px;
+    right: 35px;
+    z-index: 9;
+    width: 300px;
+    opacity: 0%;
+    visibility: hidden;
+    display: block;
+    transition: height 1s, opacity 1s, width 1s, cubic-bezier(.5, -.5, .5, 2), visibility 0s;
+}
+
+#toolOptionsBottom {
+    position: relative;
+    display: block;
+    float: top;
+    transition: height 1s cubic-bezier(.5, -.5, .5, 2);
+}
+
+#toolOptionContainer {
+    position: relative;
+    float: top;
+    display: block;
+    width: 300px;
+    margin-bottom: 15px;
+}
+
+
+.toolOptionsLabel {
+    position: relative;
+    float: right;
+    margin-right: 15px;
+}
+
+.colorChangeLabelContainer {
+    float: left;
+    position: relative;
+    width: 110px;
+    text-align: right;
+}
+
+/* Shading */
+#shadingOptions {
+    background-color: $light_teal;
+    display: block;
+    border: 1px solid $black;
+    border-radius: 5px;
+    height: 0px;
+    position: fixed;
+    top: 112px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    right: 35px;
+    z-index: 9;
+    width: 75px;
+    opacity: 0%;
+    visibility: hidden;
+    transition: height 1s cubic-bezier(.5, -.5, .5, 2),
+        opacity 1s cubic-bezier(.5, -.5, .5, 2),
+        width 1s cubic-bezier(.5, -.5, .5, 2),
+        visibility 1s;
+
+}
+
+#shadeOptionContainer {
+    position: relative;
+    margin-top: 10px;
+    float: top;
+    display: block;
+    width: 300px;
+    opacity: 0%;
+    transition: opacity 1s,
+        display 1s;
+}
+
+/* #markSizeOptionContainer{
+      position: relative;
+      margin: auto auto;
+      margin-top: 10px;
+      float: right;
+      display: block;
+      width: 150px;
+      bottom: 165px;
+      transition: bottom 1s cubic-bezier(.5, -.5, .5, 2);
+      right: 15px;
+    }*/
+
+#shadingVert,
+#shadingHorz,
+#shadingHatch {
+    @include cursor_clickable;
+    position: relative;
+    height: 50px;
+    width: 50px;
+    border-radius: 100px;
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    margin-top: 10px;
+    z-index: 10;
+    transition: opacity 1s;
+}
+
+#shadingHorz {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#shadingVert {
+    margin-right: 10px;
+}
+
+#shadingHatch {
+    margin-left: 10px;
+}
+
+#shadePicked {
+    position: relative;
+    /*margin-left: 10px;*/
+}
+
+#toolOptionsColorArea {
+    position: relative;
+    display: block;
+    margin-block-end: auto;
+    height: 120px;
+    padding-top: 40px;
+}
+
+.colorSlider {
+    float: right;
+    position: relative;
+    width: 160px;
+}
+
+.sliderLabel {
+    display: inline-block;
+    width: auto;
+    padding-top: 10px;
+    padding-right: 10px;
+    text-align: right;
+}
+
+.hslLabel {
+    position: relative;
+}
+
+input[type=range].colorSlider::-webkit-slider-thumb {
+    @include box_shadow(10px, $black);
+    border: 2px solid transparentize($black, $amount: .77);
+    outline: 2px solid transparentize($white, $amount: .77);
+    outline-offset: -2px;
+    border-radius: 25px;
+    appearance: none;
+    -webkit-appearance: none;
+    height: 34px;
+    width: 34px;
+    bottom: 0px;
+}

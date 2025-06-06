@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Lobster&family=Open+Sans:wght@400;700&display=swap');
+
+body {
+  font-family: $font-body;
+  background-color: $light-cream;
+  color: $accent-black;
+  margin: 0;
+  padding: 20px;
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  font-family: $font-display;
+  color: $primary-red;
+  margin-bottom: 0.5em;
+}
+
+h1 {
+  text-align: center;
+  font-size: 3em;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px $accent-black;
+  color: $pure-white; // White text on potential red header background
+}
+
+a {
+  color: $primary-red;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+// Basic form styling
+input[type="text"],
+input[type="number"],
+input[type="time"],
+input[type="date"],
+select {
+  padding: $input-padding;
+  margin-bottom: 10px;
+  border: 2px solid $border-color;
+  border-radius: $border-radius;
+  background-color: $pure-white;
+  color: $accent-black;
+  font-family: $font-body;
+  width: calc(100% - 24px); // Account for padding and border
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: $primary-red;
+    box-shadow: 0 0 5px rgba($primary-red, 0.5);
+  }
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: $accent-black;
+}

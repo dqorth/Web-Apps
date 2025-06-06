@@ -1,0 +1,1844 @@
+
+/*////******Main*******/
+    /*****************/
+   /*****************/
+  /*****************/
+ /******Main*******/
+
+    * {
+      text-align:center;
+      font-family: Cooper;
+      cursor: url('CursorIdle.png'), url('CursorIdleMirror.png') 34 0, url('CursorIdleFlip.png') 0 34, url('CursorIdleMirrorFlip.png') 34 34, default;
+    }
+    
+    html{
+      overflow: hidden;
+      cursor: url('CursorIdle.png'), url('CursorIdleMirror.png') 34 0, url('CursorIdleFlip.png') 0 34, url('CursorIdleMirrorFlip.png') 34 34, default;
+    }
+    
+  /*////******Main*******/
+      /*****************/
+     /*****************/
+    /*****************/
+   /** Scroll  Bar **/
+
+    ::-webkit-scrollbar {
+      width: 30px;
+      height: 30px;
+      cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+        -webkit-border-radius: 35px;
+        border-radius: 35px;
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        -webkit-border-radius: 40px;
+        border-radius: 40px;
+        background: rgba(0,115,90,0.8); 
+        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.5); 
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+    }
+    ::-webkit-scrollbar-thumb:window-inactive {
+        background: rgba(255,0,0,0.4); 
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+    }
+
+    ::-webkit-scrollbar-corner {
+    
+      background-color: hsla(0, 100%, 50%, 0);
+    }
+
+    header {display:none}
+
+  /*////******Main*******/
+      /*****************/
+     /*****************/
+    /*****************/
+   /**** Sliders ****/
+    input[type=range] {
+      height: 15px;
+      appearance: none;
+      -webkit-appearance: none;
+      margin: 12px 0;
+      box-shadow: 0px 0px 10px #000000;
+      border-radius: 25px;
+      border: 1px solid #000000;
+    }
+
+    input[class=colorSlider] {
+      width: 90%;
+    }
+
+    input[id=zoomSlider] {
+      height: 33px;
+      appearance: none;
+      -webkit-appearance: none;
+      background-color: hsla(0, 100%, 50%, 0);
+      box-shadow: 0px 0px 0px #000000;
+      border-radius: 25px;
+      border: 0px solid #000000;
+    }
+
+    input[type=range]:focus {
+      outline: none;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 15px;
+        
+      box-shadow: 0px 0px 10px #000000;
+      border-radius: 25px;
+      border: 1px solid #000000;
+    }
+
+    input[id=zoomSlider]::-webkit-slider-runnable-track {
+      height: 0px;
+      box-shadow: 0px 0px 0px #000000;
+      border-radius: 25px;
+      border: 0px solid #000000;
+
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      box-shadow: 0px 0px 10px #000000;
+      border-radius: 25px;
+      border: 1px solid #000000;
+      position: relative;
+      width: 25px;
+      height: 30px;
+      bottom: 8px;
+    }
+
+    input[id=zoomSlider]::-webkit-slider-thumb {
+      box-shadow: 0px 0px 15px #000000;
+      border: 2px solid #000000;
+      height: 34px;
+      width: 34px;
+      border-radius: 25px;
+      -webkit-appearance: none;
+      bottom: 14px;
+    }
+
+    input[type=range]:focus::-webkit-slider-runnable-track {
+      background-image: "Zoom.png";
+    }
+
+    /*Colors*/
+
+
+    /*Firefox*/
+      input[type=range]::-moz-range-track {
+        width: 100%;
+        height: 18px;
+        box-shadow: 0px 0px 10px #00FFEE;
+        background: #C7E4F0;
+        border-radius: 25px;
+        border: 1px solid #00EEFF;
+      }
+
+      input[type=range]::-moz-range-thumb {
+        box-shadow: 0px 0px 10px #43FFE0;
+        border: 2px solid #2BFFFF;
+        height: 50px;
+        width: 30px;
+        border-radius: 12px;
+        background: #D483DA;
+      }
+
+    /*Edge / Explorer*/
+      input[type=range]::-ms-track {
+        width: 100%;
+        height: 18px;
+        background: transparent;
+        border-color: transparent;
+        color: transparent;
+      }
+
+      input[type=range]::-ms-fill-lower {
+        background: #C7E4F0;
+        border: 1px solid #00EEFF;
+        border-radius: 50px;
+        box-shadow: 0px 0px 10px #00FFEE;
+      }
+
+      input[type=range]::-ms-fill-upper {
+        background: #C7E4F0;
+        border: 1px solid #00EEFF;
+        border-radius: 50px;
+        box-shadow: 0px 0px 10px #00FFEE;
+      }
+
+      input[type=range]::-ms-thumb {
+        margin-top: 1px;
+        box-shadow: 0px 0px 10px #43FFE0;
+        border: 2px solid #2BFFFF;
+        height: 50px;
+        width: 30px;
+        border-radius: 12px;
+        background: #D483DA;
+      }
+
+      input[type=range]:focus::-ms-fill-lower {
+        background: #C7E4F0;
+      }
+
+      input[type=range]:focus::-ms-fill-upper {
+        background: #C7E4F0;
+      }
+
+      
+
+  /*////******Main*******/
+      /*****************/
+     /*****************/
+    /*****************/
+   /** Animations  **/
+    @keyframes mymove {
+      50% {box-shadow: 0 10px 30px red;}
+    }
+
+  /*////******Main*******/
+      /*****************/
+     /*****************/
+    /*****************/
+   /*** Landing *****/
+
+   #landing {
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      background-color: lightskyblue;
+      display: block;
+      z-index: 200000;
+      overflow: scroll;
+      padding: 25px;
+    }
+
+    #landingLogo {
+      width: 300px;
+      max-width: 360px;
+    }
+
+    .landingButton {
+      height: 50px;
+      width: 300px;
+      display: inline-block;
+      max-width: 300px;
+      position: relative;
+      margin: 10px;
+      font-size: 25px;
+      border-radius: 90px;
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,1);
+      box-shadow: inset 0 0 10px rgba(0,0,0,1);
+    }
+                    
+    .landingButton:hover { 
+      background: #426662;
+      color: #ffffff
+    }
+
+    #siteLogo{
+      height: 100px;
+      width: auto;
+      top: 5px; 
+      left: 5px;
+      position: fixed; 
+      display: block;
+    }
+
+  /*///******Main*******/
+      /*****************/
+     /*****************/
+    /*****************/
+   /* Select Inputs */
+    select {
+      position: relative;
+      border: 2px outset;
+      width: 300px;
+      height: 30px;
+      font-size: 15px;
+      outline: none;
+      top: 5px;
+      margin-bottom: 20px;
+      margin-top: 3px;
+      animation: mymove 5s infinite;
+      border-radius: 15px;
+    }
+    
+    select:hover{
+      background: #426662;
+      color: white;
+      border-radius: 15px;
+    }    
+
+    select option{
+      border-radius: 15px;
+    }
+
+    #page{
+      width: 0px;
+      height: 0px;
+      z-index: -10000;
+    }
+
+    #footer-sections{
+      width: 0px;
+      height: 0px;
+      z-index: -10000;
+      visibility: hidden;
+    }
+
+    .sizeInput{
+      position: relative;
+      top: 8px;
+      width: 100px;
+      height: 20px;
+      font-size: 15px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      animation: mymove 5s infinite;
+    }
+
+    #graphPageInput,#graphSizePageInput{
+      border-radius: 5px;
+      position: relative;
+      width: 50px;
+      height: 20px;
+      font-size: 15px;
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
+    #graphPageInput::-webkit-outer-spin-button,#graphPageInput::-webkit-inner-spin-button,#graphSizePageInput::-webkit-outer-spin-button,#graphSizePageInput::-webkit-inner-spin-button{
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .sizeInput2{
+      position: relative;
+      top: 8px;
+      width: 90px;
+      height: 20px;
+      font-size: 15px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+    .sizeInput2::-webkit-outer-spin-button,.sizeInput2::-webkit-inner-spin-button{
+        -webkit-appearance: none;
+        margin: 0;
+      }
+  /*////******Main*******/
+      /*****************/
+     /*****************/
+    /*****************/
+   /*****Header******/
+
+    .header-display-desktop, .header-announcement-bar-wrapper{
+      visibility: hidden;
+    }
+
+    #headerBar{
+      border: 1px solid black;
+      width: 100vw;
+      height: 50px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-color: white;
+      text-align: left;
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);  
+    }
+
+    #uiOptionsLabel{
+      position: fixed;
+      border: 1px solid black;
+      border-radius: 10px;
+      padding-right: 5px;
+      padding-left: 5px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      font-size: 20px;
+      background-color: hsla(310, 70%, 70%, 1);
+      bottom: 10px;
+      top: 0px; 
+      left: 0;
+      width: 200px;
+      height: 59px;
+      z-index: 1000;
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+    }
+
+    #patternUpload{
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      font-size: 15px;
+      color: rgba(0,0,0,1);
+      border-radius: 10px;
+      background-color: rgba(0,180,180,.2);
+      width: 225px;
+      padding-left: 10px;
+      padding-top: 10px;
+      height: 37px;
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+    }
+
+    #imageUpload {
+      position: relative;
+      z-index: -5;
+      font-size: 15px;
+      color: rgba(0,0,0,1);
+      border-radius: 10px;
+      background-color: rgba(0,180,180,.2);
+      width: 225px;
+      padding-left: 10px;
+      padding-top: 10px;
+      height: 37px;
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      bottom: 37px;
+    }
+
+    .uploadButton {
+      display: inline-block;
+      padding: 10px 10px;
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      border-radius: 2px;
+      background-color: rgba(100,220,200,1);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+      box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+      font-size: 16px;
+      font-weight: bold;
+      color: #000000;
+      height: 20px;
+      width: 215px;
+    }
+
+    .uploadImageButton {
+      display: inline-block;
+      padding: 25px 10px;
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      border-radius: 25px;
+      background-color: rgba(100,220,200,1);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+      box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+      font-size: 25px;
+      font-weight: bold;
+      color: #000000;
+      height: 30px;
+      width: 215px;
+    }
+
+    .uploadButton:hover, .uploadImageButton:hover
+    { background: #426662;
+      color: #ffffff
+    }
+
+    /* Header Dropdown */
+
+      #headerBar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        height: 57px;
+      }
+
+      #headerBar ul li {
+        display: block;
+        position: relative;
+        float: left;
+        height: 50px;
+        background-color: #76d0c6;
+        -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+        box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+        border-radius: 5px;
+        font-size: 17px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #headerBar li ul { display: none; }
+
+      #headerBar ul li a {
+        display: block;
+        padding: 8px;
+        text-decoration: none;
+        text-align: center;
+        white-space: nowrap;
+        background-color: rgba(0,180,180,0);
+        -webkit-box-shadow: inset 0 0 5px #000000; 
+        box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+        z-index: 10000;
+        color: black;
+        height: 24px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #headerBar ul li a:hover { 
+        background: #426662; 
+        color: white;
+        z-index: 10000;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #headerBar li:hover> ul {
+        display: block;
+        position: absolute;
+        z-index: 10000;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #headerBar li:hover li { 
+        float: none; 
+        z-index: 10000;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #headerBar li:hover a { 
+        background: #76d0c6; 
+        z-index: 10000;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #headerBar li:focus li a:focus { 
+        background: #426662; 
+        z-index: 10000;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      .main-navigation li ul li { 
+        border-top: 0; 
+        z-index: 10000;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #headerBar ul ul ul {
+        left: 100%;
+        top: 0;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #headerBar ul:before,
+      #headerBar ul:after {
+        content: " ";
+        display: table;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #headerBar ul:after { 
+        clear: both; 
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+ 
+    /* Save */
+      #saveName { 
+        margin-top: 5px;
+        width: 175px;}
+
+      .saveButton { 
+        margin-top: 5px;
+        width: 200px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        -webkit-box-shadow: inset 0 0 3px #426662; 
+        box-shadow: inset 0 0 3px #426662; 
+        border-radius: 5px;
+        height: 40px;
+        font-size: 17px;}
+
+      .saveButton:hover {
+        background: #426662;
+        color: white;
+      }
+
+      #saveContainer{
+        width: 225px;
+        height: 80px;
+      }   
+
+    /* Colors */
+      #ink1PickHeader, #ink2PickHeader{
+        position: relative;
+        float: right;
+        width: 45px;
+        height: 45px;
+        margin-right: 10px;
+        bottom: 55px;
+      }
+
+      #shadeTool{
+        position: relative;
+        width: 50px;
+        height: 50px;
+        background-image: linear-gradient(180deg, hsla(180, 0%, 0%, 1%) 0%, 
+                                                  hsla(180, 0%, 0%, 0%) 100%);
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        border-radius: 100px;
+        margin-left: 25px;
+      }
+
+      #solidTool{
+        position: relative;
+        width: 50px;
+        height: 50px;
+        background-color: black;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        border-radius: 100px;
+        margin-right: 25px;
+      }
+
+    /*  #fillTool{
+        background-color: black;
+        position: relative;
+        width: 50px;
+        height: 50px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        border-radius: 100px;
+        margin: auto;
+        margin-top: 10px;
+      }*/
+
+    /*  .markerSize{
+        background-color: hsla(180, 0%, 0%, 0%);
+        position: relative;
+        width: 50px;
+        height: 50px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        border-radius: 100px;
+        margin-top: 10px;
+        margin-bottom: 7px;
+        float: left;
+        margin-left: 17px;
+      }*/
+
+   /*   #markerSize1{
+        border: 3px dashed black;
+      }*/
+
+      /*#markerSizeInner1{
+        background-color: black;
+        position: relative;
+        width: 10px;
+        height: 10px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        margin: auto;
+        border-radius: 100px;
+        border: 2px outset grey;
+      }
+
+      #markerSizeInner3{
+        background-color: black;
+        position: relative;
+        width: 20px;
+        height: 20px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        margin: auto;
+        border-radius: 100px;
+        border: 2px outset grey;
+      }*/
+
+      /*#markerSizeInner5{
+        background-color: black;
+        position: relative;
+        width: 30px;
+        height: 30px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        margin: auto;
+        border-radius: 100px;
+        border: 2px outset grey;
+      }
+
+      #markerSizeInner7{
+        background-color: black;
+        position: relative;
+        width: 40px;
+        height: 40px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        margin: auto;
+        border-radius: 100px;
+        right: 5px;
+        border: 2px outset grey;
+      }*/
+
+      #toolOptionDown{
+        position: relative;
+        float: right;
+        right: 0;
+        width: 45px;
+        height: 45px;
+        bottom: 56px;
+        margin-right: 10px;
+        z-index: 2;
+        transition: 
+          transform 1s cubic-bezier(.5, -.5, .5, 2), 
+          top 1s cubic-bezier(.5, -.5, .5, 2),
+          bottom 1s cubic-bezier(.5, -.5, .5, 2),
+          right 1s cubic-bezier(.5, -.5, .5, 2);
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        border-radius: 25px;
+        border: 1px outset grey;
+
+      }
+
+      #toolOptionDownInner{
+        position: relative;
+        right: 0px;
+        top: 6px;
+        height: 33px;
+        width: 33px;
+        border-radius: 25px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+      }
+
+      #toolOptions{
+        background-color:hsla(172, 27%, 72%, 1);
+        border: 1px solid black;
+        border-radius: 5px;
+        height: 0px;
+        position: fixed;
+        top: 52px;
+        right: 35px;
+        z-index: 9;
+        width: 300px;
+        transition: height 1s,
+                    opacity 1s,
+                    width 1s cubic-bezier(.5, -.5, .5, 2),
+                    visibility 0s;
+        opacity: 0%;
+        visibility: hidden;
+        display:block
+      }
+
+      #toolOptionsBottom{
+        position: relative;
+        display: block;
+        float: top;
+        /*margin-right: 10px;*/
+        /*margin-left: 10px;*/
+        /*height: 250px;*/
+        transition: height 1s cubic-bezier(.5, -.5, .5, 2);
+      }
+
+      #toolOptionContainer{
+                position: relative;
+                float: top;
+                display: block;
+                width: 300px;
+                margin-bottom: 15px;
+      }
+
+
+      .toolOptionsLabel{
+        text-align: right;
+        position: relative;
+        padding-top: 17px;
+        float: right;
+      }
+
+      .colorChangeLabelContainer{
+        float: left;
+        position: relative;
+        width: 110px;
+        text-align: right;
+      }
+
+    /* Shading */
+      #shadingOptions{
+        background-color:hsla(172, 27%, 72%, 1);
+        display:block;
+        border: 1px solid black;
+        border-radius: 5px;
+        height: 0px;
+        position: fixed;
+        top: 112px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 10px;
+        right: 35px;
+        z-index: 9;
+        width: 75px;
+        transition: height 1s cubic-bezier(.5, -.5, .5, 2), 
+                    opacity 1s cubic-bezier(.5, -.5, .5, 2), 
+                    width 1s cubic-bezier(.5, -.5, .5, 2),
+                    visibility 1s;
+        opacity: 0%;
+        visibility: hidden;
+
+      }
+      #shadeOptionContainer{
+        position: relative;
+        /*margin: auto auto;*/
+        margin-top: 10px;
+        float: top;
+        display: block;
+        width: 300px;
+        opacity: 0%;
+        /*visibility: hidden;*/
+        /*left: 10px;*/
+        transition: opacity 1s,
+                    display 1s;
+      }
+
+     /* #markSizeOptionContainer{
+        position: relative;
+        margin: auto auto;
+        margin-top: 10px;
+        float: right;
+        display: block;
+        width: 150px;
+        bottom: 165px;
+        transition: bottom 1s cubic-bezier(.5, -.5, .5, 2);
+        right: 15px;
+      }*/
+
+      #shadingVert, #shadingHorz, #shadingHatch{
+        position: relative;
+        height: 50px;
+        width: 50px;
+        border-radius: 100px;
+        border-spacing: 0;
+        border-collapse: collapse;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        margin-bottom: 15px ;
+        margin-top: 10px ;
+        z-index: 10;
+        transition: opacity 1s;
+      }
+
+      #shadingHorz{
+        margin-left: 10px;
+        margin-right: 10px;
+      }
+
+      #shadingVert{
+        margin-right: 10px;
+      }
+
+      #shadingHatch{
+        margin-left: 10px;
+      }
+
+      #shadePicked{
+        position: relative;
+        /*margin-left: 10px;*/
+      }
+
+/*////**** Pattern ****/
+    /*****************/
+   /*****************/
+  /*****************/
+ /** Graph Stuff **/
+  #program{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+  }
+
+  #graph{
+    overflow-x: scroll;
+    overflow-y: scroll;
+    position: fixed;
+    border: 1px solid grey;
+    border-radius: 15px;
+    right: 0;
+    left: 0;
+    top: 52px;
+    bottom: 38px;
+    touch-action: pinch-zoom;
+    background-color: rgba(0, 0, 0, .2);
+    transition: width 1s cubic-bezier(.5, -.5, .5, 2);          
+  }
+
+  #graphBack{
+    overflow-x: scroll;
+    overflow-y: scroll;
+    position: fixed;
+    border: 1px solid grey;
+    border-radius: 15px;
+    width: 0%;
+    right: 0;
+    top: 52px;
+    bottom: 38px;
+    touch-action: pinch-zoom;
+    background-color: rgba(0, 0, 0, .2);
+    transition: width 1s cubic-bezier(.5, -.5, .5, 2);
+    direction: rtl;
+  }
+
+  #graphPreview{
+    position: fixed;
+    border: 1px solid grey;
+    border-radius: 15px;
+    width: 0%;
+    right: 0;
+    top: 53px;
+    bottom: 38px;
+    touch-action: pinch-zoom;
+    transition: width 1s cubic-bezier(.5, -.5, .5, 2);
+    float: right;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    
+    background-color: rgba(0, 255, 255, .1);
+    overflow: scroll;
+    font-size: 10px;
+  }
+
+  #canvasContainer, #canvasBackContainer, #previewGraphContainer, #previewGridLinesContainer, #previewStitchesContainer{
+    position: absolute;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+    padding-top: 50px;
+    top: 0;
+  }
+
+  #previewRowContainer{
+    position: absolute;
+    /*padding-top: 50px;*/
+    width: 100%;
+    /*z-index: 1000000;*/
+  }
+  #previewColumnContainer{
+    position: absolute;
+    padding-left: 50px;
+  }
+
+  #cells, #cellsBack, #previewTicking{
+    position: relative;
+    margin: auto auto;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+  }
+
+  #previewGraph,#previewRow,#previewColumn{
+    position: relative;
+    margin: auto auto;
+    width: 100%;
+    /*height: 100%;*/
+  }
+
+  #gridLines, #gridLinesBack, #previewGridLines{
+    margin: auto auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  #stitchesOverlay, #stitchesOverlayBack, #previewStitches{
+    position: relative;
+    margin: auto auto;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  #symLineHorz, #symLineHorzBack, #symLineVert, #symLineVertBack{
+    margin: auto auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 90%;
+  }
+
+  #stitchesOverlayContainer, #stitchesOverlayBackContainer, #previewStitchesContainer, #previewTickingContainer{
+    position: absolute;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+    padding-top: 50px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
+    /*IE11 Conditional*/
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='s/your_transparent.png', sizingMethod='scale');
+  }
+
+  #gridLinesContainer, #gridLinesBackContainer, #previewGridLinesContainer{
+    position: absolute;
+    padding-bottom: 50px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 50px;
+    top: 0;
+    pointer-events: none;
+  }
+
+  #symLineHorzContainer, #symLineHorzBackContainer{
+    position: absolute;
+    padding-bottom: 50px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 50px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  #symLineVertContainer,#symLineVertBackContainer{
+    position: absolute;
+    padding-bottom: 50px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 50px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .arrow{
+      cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+  }
+
+  #rightArrowGraph{
+    position: fixed;
+    bottom: 38px;
+    z-index: 2;
+    left: 100%;
+    transition: left 1s cubic-bezier(.5, -.5, .5, 2);
+    
+  }
+
+  #leftArrowGraph{
+    position: fixed;
+    bottom: 38px;
+    z-index: 2;
+    right: 1%;
+    transition: right 1s cubic-bezier(.5, -.5, .5, 2);
+    visibility: hidden;
+  }
+
+/*////**** Landing ****/
+    /*****************/
+   /*User Interface**/
+  /*****************/
+ /******Main*******/
+
+    #newPatternContainer{
+      width: 360px;
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      align-content: center;
+      background-image: url(https://images.squarespace-cdn.com/content/v1/6029fdcbf6b7c4321ae22893/1634702298950-D137LW6J7GCXQJRKMH6I/IDScribeBackground.png?format=600w);
+      background-size: auto;
+      background-color: lavender;
+      border: 1px solid black;
+      font-size: 20px;
+      line-height: 1.88vh;
+      z-index: 10;
+      overflow-y: scroll;
+      overflow-x: hidden;
+    }
+
+    #newPattGo,#importGo{
+      border: 3px outset;
+      width: 300px;
+      height: 100px;
+      position: relative;
+      font-size: 40px;
+      top:15px;
+      border-radius: 15px;
+    }
+
+    #importGo{
+      transition: top 1s cubic-bezier(.5, -.5, .5, 2);
+
+    }
+
+    #newPattGo:hover,#importGo:hover {
+      background-color: black;
+      color: white;
+    }  
+
+  /*////**** Landing ****/
+      /*****************/
+     /*User Interface**/
+    /*****************/
+   /**** Footer *****/
+
+    #footer{
+      position: fixed;
+      bottom: 0;
+      border: 1px solid grey;
+      background-color: white;
+      width: 100vw;
+      height: 37px;
+      z-index: 2;
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
+      left: 0;
+      right: 0;
+    }
+
+    .footerLabel{
+      position: relative;
+      float: right;
+      font-size: 15px;
+      text-align: center;
+      padding: 10px;
+      height: 37px;
+      left: 8px;
+      width: 125px;
+      word-wrap: false;
+    }
+
+    #zoomSlider{
+      position: relative;
+      font-size: 15px;
+      text-align: center;
+      z-index: 9;
+      width: 33vw;
+      min-width: 100px;
+      max-width: 300px;
+      bottom: 13px;
+      float: left;
+      animation: none;
+      margin-right: 10px;
+      left: 5px;
+    }
+
+    #zoomImage{
+      position: fixed;
+      width: 33vw;
+      min-width: 100px;
+      max-width: 300px;        
+      bottom: 3px;
+      left: 5px;
+      height: 33px;
+      z-index: 9;
+    }
+
+    #undoButton{
+      position: fixed;
+      height: 35px;
+      border-radius: 15px;
+      background-color: lightpink;
+      font-size: 20px;
+      right: 50.5%;
+      bottom: 0;
+    }
+
+    #undoButton:hover{
+      background-color: darkred;
+      color: white;
+    }
+
+    #redoButton{
+      position: fixed;
+      height: 35px;
+      border-radius: 15px;
+      background-color: lightgreen;
+      font-size: 20px;
+      left: 50.5%;
+      bottom: 0;
+    }
+
+    #redoButton:hover{
+      background-color: darkgreen;
+      color: white;
+    }
+
+    #unitSelect, #viewOptionsSelect, #edittingOptionsSelect{
+      position: relative;
+      font-size: 15px;
+      text-align: left;
+      height: 37px;
+      top: 0;
+      float: left;
+      width: 100px;
+      margin-bottom: 0;
+      margin-top: 0;
+      animation: none;
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
+    }
+
+
+  /*////**** Landing ****/
+      /*****************/
+     /*User Interface**/
+    /*****************/
+   /**Color Picker***/
+
+    .hslLabel{position: relative;
+    }
+
+/*////**Interlocking***/
+    /*****************/
+   /*User Interface**/
+  /*****************/
+ /******Main*******/
+
+    #interlockingPattern{
+      position: absolute;
+      top: 162px;
+      width: 100%;
+    }
+    
+    #instructionsBack{
+      text-align: left;
+      align-content:  center;
+      position: fixed;
+      border: 1px solid grey;
+      right: 0px;
+      left: 0px;
+      top: 0px;
+      bottom: 38px;
+      background-color: rgba(255, 255, 255, .9);
+      z-index: -50;
+      visibility: hidden;
+    }
+
+    /* Header Dropdown Instuctions*/
+
+      #headerBarInstructions li {
+        min-width: 100px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+       }
+
+      #headerBarInstructions ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+       }
+
+      #headerBarInstructions ul li {
+        display: block;
+        position: relative;
+        float: left;
+        height: 50px;
+        background-color: #76d0c6;
+        -webkit-box-shadow: inset 0 0 5px #000000; 
+        box-shadow: inset 0 0 5px #000000; 
+        border-radius: 5px;
+        font-size: 17px;
+      }
+
+      #headerBarInstructions li ul { display: none; }
+
+      #headerBarInstructions ul li a {
+        display: block;
+        padding: 10px;
+        text-decoration: none;
+        text-align: center;
+        white-space: nowrap;
+        background-color: rgba(0,180,180,0);
+        -webkit-box-shadow: inset 0 0 5px #000000; 
+        box-shadow: inset 0 0 5px #000000; 
+        border-radius: 5px;
+        z-index: 10000;
+        color: black;
+      }
+
+      #headerBarInstructions ul li a:hover { 
+        background: #426662; 
+        color: white;
+        z-index: 10000;}
+
+      #headerBarInstructions li:hover> ul {
+        display: block;
+        position: absolute;
+        z-index: 10000;
+      }
+
+      #headerBarInstructions li:hover li { 
+        float: none; 
+        z-index: 10000;
+      }
+
+      #headerBarInstructions li:hover a { 
+        background: #76d0c6; 
+        z-index: 10000;
+      }
+
+      #headerBarInstructions li:focus li a:focus { 
+        background: #426662; 
+        z-index: 10000;
+      }
+
+      .main-navigation li ul li { 
+        border-top: 0; 
+        z-index: 10000;
+      }
+
+      #headerBarInstructions ul ul ul {
+        left: 100%;
+        top: 0;
+      }
+
+      #headerBarInstructions ul:before,
+      #headerBarInstructions ul:after {
+        content: " ";
+        display: table;
+      }
+
+      #headerBarInstructions ul:after { clear: both; }
+      #headerBarInstructions{
+        position: relative;
+        margin-left: 60px;
+        z-index: 11;
+        width: 200px;
+        border: 1px solid black;
+        height: 50px;
+        background-color: white;
+        -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.5); 
+        border-radius: 5px;
+      }
+   
+    #instructions{
+      text-align: center;
+      float: left;
+      align-content: center;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      overflow-wrap: break-word;
+      position: fixed;
+      right: 0px;
+      left: 0px;
+      top: 53px;
+      bottom: 38px;
+      z-index: -50;
+      visibility: hidden;
+      padding-top: 10px;
+      padding-bottom: 25px;
+      width: 50%;
+      font-family: Arial;
+      transition: width 1s cubic-bezier(.5, -.5, .5, 2);
+      border: 1px solid black;
+      border-radius: 15px;
+    }
+
+    #keyPageContainer{
+      float: right;
+      width: 50%;
+      position: fixed;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      top: 53px;
+      bottom: 38px;
+      right: 0%;
+      background-color: rgba(0, 255, 255, .1);
+      overflow-y: scroll;
+      transition: width 1s cubic-bezier(.5, -.5, .5, 2);
+      font-size: 10px;
+      border: 1px solid black;
+      border-radius: 15px;        
+    }
+
+    #instKeyGraphButton{
+      position: relative;
+      text-align: center;
+      left: 0px;
+      top: 1px;
+      border: 1px solid black;
+      border-radius: 15px;   
+      background-color: #76d0c6;
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+      box-shadow: inset 0 0 5px rgba(0,0,0,1); 
+      height: 20px;
+      width: 100px;
+      font-size: 17px;
+      padding: 13px;
+      color: black;
+    }
+    #previewGraphBar{
+      height: 50px;
+      width: 100%;
+      background-color: rgb(255,255,255);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1);
+      box-shadow: inset 0 0 5px rgba(0,0,0,1);
+      border-radius: 10px;
+      position: relative;
+      left: 0px;
+      top: -50px;
+    }
+
+    #instKeyGraphButton:hover{
+      background: #426662; 
+      color: white;
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+    }
+
+    #mosaicInstructions{
+      margin-bottom: 25px;
+      display: block;
+      margin-top: 10px;
+      align-content: center;
+      text-align: center;
+      align-self: center;
+      margin: auto auto;
+    }
+
+    .mosaicInstructions div{
+      float: left;
+      display: block;
+
+    }
+    
+    #mosaicChunk {
+      margin: 0 auto;
+    }
+
+    .mosCell{
+      width: 60px;
+      max-width: 60px;
+      min-width: 50px;
+      height: 20px;
+      max-height: 20px;
+      min-height: 20px;
+      border: 1px solid rgba(132, 130, 131, 0.75);
+      text-align: center;
+      border-spacing: 0;
+      border-collapse: collapse;
+      position: relative;
+      float: left;
+      display: block;
+    }
+
+    .mosRow{
+      width: 100%;
+      max-height: 20px;
+      min-height: 20px;
+      position: relative;
+      border: 1px solid rgba(132, 130, 131, 0.75);
+      float: top;
+      display: block;
+      margin-top: 15px;
+    }
+
+    #closeInstructions{
+      position: fixed;
+      top: 112px;
+      height: 50px;
+      width: 50px;
+      z-index: 11;
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+    }
+
+
+
+    #graphThumbnail{ 
+      position: fixed;
+      right: -33vw;
+      bottom: 67px;
+      opacity: 50%;
+      z-index: 25;
+      width: 10%;
+      max-width: 25%;
+      max-height: 80%;
+      transition: right 1s cubic-bezier(.5, -.5, .5, 2);
+      z-index: 2;
+    }
+
+    #graphThumbnail:active{ 
+      position: fixed;
+      right: 15px;
+      bottom: 67px;
+      width: 25%;
+      opacity: 100%;
+    }
+
+    #rightArrowPreview{
+      position: fixed;
+      bottom: 38px;
+      z-index: 11;
+      left: 51%;
+      transition: left 1s cubic-bezier(.5, -.5, .5, 2);
+        cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+    }
+
+    #leftArrowPreview{
+      position: fixed;
+      bottom: 38px;
+      z-index: 11;
+      right: 51%;
+      transition: right 1s cubic-bezier(.5, -.5, .5, 2);
+    }
+
+    #graphSizeChange, #exportMenu, #prefMenu, #importMenu{
+      background-color: lavender;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0px;
+      z-index: 100000;
+      bottom: 0;
+      opacity: 100%;
+      border: 1px solid black;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      visibility: hidden;
+      transition: opacity 1s cubic-bezier(.5, -.5, .5, 2), 
+                  width 1s cubic-bezier(.5, -.5, .5, 2),
+                  visibility 1s;
+    }
+
+    #closeGraphChange, #closeExport, #closeNew, #closePref {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      height: 50px;
+      width: 50px;
+      z-index: 1000000;
+    }
+
+    #sizeChangeBox{
+      position: relative;
+      height: 200px;
+      width: 200px;
+      border: 1px solid black;
+      background-color: white;
+      left: 76px;
+      top: 15px;
+      display: block;
+    }
+
+    #pxSizeFooter, #inchSizeFooter, #zoomImage, .arrow, #closeInstructions, .noSelect{
+      -webkit-user-select: none; /* Safari */        
+      -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* IE10+/Edge */
+      user-select: none; /* Standard */
+    }
+
+/* Graph Change Panel Styles */
+  #newStitchesHeight, #newStitchesWidth, #newInchesHeight, #newInchesWidth{
+    position: relative;
+    float: right;
+
+    width: 90px; 
+    height: 25px;
+
+    font-size: 15px;
+  }
+
+  #newStitchesWidth, #newInchesWidth{
+    margin-right: 10px;
+  }
+
+  #newInchesHeight, #newInchesWidth{
+    top: 15px;
+  }
+
+  #resizeButton{
+    position: relative;
+    float: top;
+    top: 25px;
+    height: 60px;
+    width: 300px;
+    margin-bottom: 50px;
+    border-radius: 15px;
+    font-size: 30px;
+  } 
+
+  #newSizeContainer{
+    position: relative;
+    right: 25px;
+    font-size: 15px;
+  }
+
+  #newWidthLabel #ogWidthLabel{
+    margin-right: 35px;
+  }
+
+  #newGraphSize{
+    display: block;
+    position: relative;
+    right: 15px;
+    top: 15px;
+    float: top; 
+    font-size: 20px; 
+  }
+
+  #newSizeLabels, #ogSizeLabels{
+    display: block;
+    position: relative;
+    float: top;
+    right: 5px;
+    margin-bottom: 10px;
+  }
+
+  #ogStitchesLabel{
+    position:relative;
+    top: 39%;
+    float: right;
+    right: 10px;
+  }
+
+  #ogInchesLabel{
+    position:relative;
+    top: 53%;
+    float: right;
+    right: 10px;
+  }
+
+  #ogStableLabels{
+    float:left;
+    width: 31%;
+    height: 80%;
+    font-size: 20px;
+    bottom: 0;
+  }
+
+  #ogInchesWidth{
+    position: relative;
+    margin-right: 10px;
+  }
+
+  #ogInchesHeight, #ogInchesWidth{
+    width: 90px; 
+    height: 25px;
+    float: right;
+  }
+
+  #ogStitchesWidth{
+    position: relative;
+    margin-right: 10px;
+  }
+
+  #ogStitchesHeight, #ogStitchesWidth{
+    width: 90px; 
+    height: 25px;
+    float: right;
+  }
+
+  #ogSizeContainer{
+    position: relative;
+    right: 25px;
+  }
+
+    #versionLabel{
+      top: 5px; 
+      right: 5px;
+      font-size: 21px;
+      position: fixed; 
+      display: block;
+      color: hsla(300, 100%, 50%, 0.50);
+    }
+
+    .horzDivider{
+      height: 1px;
+      background-color: grey;
+      width: 100%;
+      float: top;
+    }
+
+    .vertDivider{
+      position: relative;
+      width: 1px;
+      background-color: grey;
+      height: 100%;
+      float: left;
+    }
+
+    /* The containers */
+      .exportContainer {
+        display: block;
+        position: relative;
+        padding-left: 29px;
+        margin-bottom: 10px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        font-size: 20px;
+        float: left;
+        width: 120px;
+        border: inset grey 1px;
+        border-radius: 20px;
+        height: 27px;
+      }
+
+      .prefContainer {
+        display: block;
+        position: relative;
+        padding-left: 39px;
+        margin-bottom: 10px;
+          cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 34 0, url('CursorClickableFlip.png') 0 34, url('CursorClickableMirrorFlip.png') 34 34, pointer;
+        font-size: 20px;
+        width: 250px;
+        border: inset grey 1px;
+        border-radius: 20px;
+        height: 27px;
+      }
+      .prefContainer:hover { 
+        background: #426662;
+        color: #ffffff
+      }
+    /* Hide the browser's default radio button */
+      .exportContainer input, .prefContainer input {
+        position: absolute;
+        opacity: 0;
+      }
+
+    /* Create a custom radio button */
+      .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 25px;
+        width: 25px;
+        background-color: rgb(125, 100, 150);
+        border-radius: 75%;
+        border: outset grey 1px;
+
+      }
+
+    /* On mouse-over, add a grey background color */
+      .exportContainer:hover input ~ .checkmark, .prefContainer:hover input ~ .checkmark {
+        background-color: #f69bea;
+      }
+
+    /* When the radio button is checked, add a blue background */
+      .exportContainer input:checked ~ .checkmark, .prefContainer input:checked ~ .checkmark {
+        background-color: rgb(237, 92, 215);
+        border: inset grey 1px;
+      }
+
+      .exportContainer:hover input:checked ~ .checkmark, .prefContainer:hover input:checked ~ .checkmark {
+        background-color: #f69bea;
+      }
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+/* Show the indicator (dot/circle) when checked */
+  .exportContainer input:checked ~ .checkmark:after, .prefContainer input:checked ~ .checkmark:after {
+    display: block;
+  }
+
+/* Style the indicator (dot/circle) */
+  .exportContainer .checkmark:after, .prefContainer .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+
+    #imageExportButtonButton, #instructionsExportButton, #keyPageExportButtonButton {
+      height: 60px;
+      width: 300px;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 20px;
+      margin-bottom: 25px;
+      margin-top: 10px;
+      background-color: rgb(50,230,230);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1);
+      box-shadow: inset 0 0 5px rgba(0,0,0,1);
+    }
+
+    #imageExportButtonButton:hover {
+      background-color: rgb(100,255,255);
+    }
+
+    body {
+      background-color:#dbdbdb; 
+      overflow: hidden; 
+      z-index: 0;
+    }
+
+    #loadingOverlay {
+      background-color: rgba(0, 0, 0, 0.5);
+      font-size: 30px;
+      width: 100%;
+      height: 100%;
+      z-index: 100002;
+      display: none;
+      position: fixed;
+      left: 0;
+      top: 0;
+    }
+
+    #ink1PickHeader {
+      background-color: rgb(0,0,0);
+    }
+
+    #ink2PickHeader {
+      background-color: rgb(255,255,255);
+    }
+
+    #toolOptionsColorArea {
+      position: relative;
+      display: block;
+      float: top;
+      margin-top: 15px;
+      margin-left: 15px;
+      margin-right: 15px;
+      height: 125px;
+    }
+
+    #colorSliders {
+      float: left;
+      position: relative;
+      display: block;
+      width: 160px;
+    }
+
+    #patternNameNew {
+      margin-top: 5px; 
+      height: 35px;
+      width: 225px;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 20px;
+      position: fixed;
+      top: 0;
+      left: 75px;
+      z-index: 1001;
+    }
+
+/* Clickable Cursors */
+    .pointerCursor, .clickableButton, .arrow
+    #ink2PickHeader, #ink2PickHeader, #siteLogo, #imageExportButtonButton, #instructionsExportButton, #keyPageExportButtonButton, #closeGraphChange, #closeExport, #closeNew, #closePref, 
+    select, input, button, li, 
+    ::-webkit-scrollbar, ::-webkit-scrollbar-thumb, ::-webkit-scrollbar-track {
+      cursor: url('CursorClickable.png'), url('CursorClickableMirror.png') 35 0, url('CursorClickableFlip.png') 0 35, url('CursorClickableMirrorFlip.png') 35 35, pointer;
+    }
+/* Idle Cursors */
+    label {
+      cursor: url('CursorIdle.png'), url('CursorIdleMirror.png') 35 0, url('CursorIdleFlip.png') 0 35, url('CursorIdleMirrorFlip.png') 35 35, pointer;
+    }
+/* Diasbled Cursors */
+    :disabled {
+      cursor: url('CursorClickableDisabled.png'), url('CursorClickableDisabledMirror.png') 35 0, url('CursorClickableDisabledFlip.png') 0 35, url('CursorClickableDisabledMirrorFlip.png') 35 35, default;
+    }
+/* Text Input Cursors */
+    input[type=text], input[type=number] {
+        cursor: url('CursorText.png'), url('CursorTextMirror.png') 35 0, url('CursorTextFlip.png') 0 35, url('CursorTextMirrorFlip.png') 35 35, default;
+    }
+
+    #importImageHolder {
+      z-index: -20000000;
+      visibility: hidden;
+      position: fixed;
+    }
+
+    #impShadeOptionContainer {
+      margin-left: 37px;
+      display: none;
+    }

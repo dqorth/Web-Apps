@@ -1,0 +1,944 @@
+@use "sass:color";
+@import "./mixins";
+@import "./var";
+@import "./new_pat_styles";
+@import "./header_styles";
+@import "./footer_styles";
+@import "./tool_styles";
+@import "./landing_styles";
+@import "./pop_up_styles";
+
+/******Main*******/
+
+* {
+    @include cursor_idle;
+    text-align: center;
+    font-family: Cooper;
+}
+
+html {
+    @include cursor_idle;
+    overflow: hidden;
+}
+
+/** Scroll  Bar **/
+
+::-webkit-scrollbar {
+    @include cursor_clickable;
+    width: 30px;
+    height: 30px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    @include box_shadow(5px, $black);
+    @include cursor_clickable;
+    -webkit-border-radius: 35px;
+    border-radius: 35px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    @include box_shadow(5px, $black);
+    @include cursor_clickable;
+    -webkit-border-radius: 40px;
+    border-radius: 40px;
+    background: transparentize($dark_teal, $amount: .8);
+
+    &:window-inactive {
+        @include cursor_clickable;
+        background: transparentize($color: #ff0000, $amount: .4);
+    }
+}
+
+::-webkit-scrollbar-corner {
+    background-color: transparent;
+}
+
+header {
+    display: none
+}
+
+/* Sliders */
+input[type=range] {
+    @include box_shadow(5px, $black);
+    height: 30px;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 25px;
+    border: 1px solid $black;
+
+    :focus {
+        outline: none;
+    }
+
+    ::-webkit-slider-runnable-track {
+        @include box_shadow(10px, $black);
+        height: 15px;
+        border: 1px solid $black;
+    }
+
+    ::-webkit-slider-thumb {
+        @include box_shadow(10px, $black);
+        appearance: none;
+        -webkit-appearance: none;
+        border: 1px solid $black;
+        border-radius: 25px;
+        position: relative;
+        width: 25px;
+        height: 30px;
+        bottom: 15px;
+    }
+}
+
+#page {
+    width: 0px;
+    height: 0px;
+    z-index: -1;
+}
+
+#footer-sections {
+    width: 0px;
+    height: 0px;
+    z-index: -1;
+    visibility: hidden;
+}
+
+.sizeInput {
+    position: relative;
+    top: 8px;
+    width: 100px;
+    height: 20px;
+    font-size: 15px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    animation: red_glow 5s infinite;
+}
+
+#graphPageInput,
+#graphSizePageInput {
+    border-radius: 5px;
+    position: relative;
+    width: 50px;
+    height: 20px;
+    font-size: 15px;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+#graphPageInput::-webkit-outer-spin-button,
+#graphPageInput::-webkit-inner-spin-button,
+#graphSizePageInput::-webkit-outer-spin-button,
+#graphSizePageInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+.sizeInput2 {
+    position: relative;
+    top: 8px;
+    width: 90px;
+    height: 20px;
+    font-size: 15px;
+    margin: 5px;
+}
+
+.sizeInput2::-webkit-outer-spin-button,
+.sizeInput2::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+/*////******Main*******/
+/*****************/
+/*****************/
+/*****************/
+/*****Header******/
+
+
+
+/* Save */
+#saveName {
+    margin-top: 5px;
+    width: 175px;
+}
+
+.saveButton {
+    @include cursor_clickable;
+    @include box_shadow(3px, $dark_teal);
+    margin-top: 5px;
+    width: 200px;
+    border-radius: 5px;
+    height: 40px;
+    font-size: 17px;
+}
+
+.saveButton:hover {
+    background: $dark_teal;
+    color: $white;
+}
+
+#saveContainer {
+    width: 225px;
+    height: 80px;
+}
+
+/*////**** Pattern ****/
+/*****************/
+/*****************/
+/*****************/
+/** Graph Stuff **/
+#program {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+}
+
+#graph {
+    overflow-x: scroll;
+    overflow-y: scroll;
+    position: fixed;
+    border: 1px solid grey;
+    border-radius: 15px;
+    right: 0;
+    left: 0;
+    top: 52px;
+    bottom: 38px;
+    touch-action: pinch-zoom;
+    background-color: rgba(0, 0, 0, .2);
+    transition: width 1s cubic-bezier(.5, -.5, .5, 2);
+}
+
+#graphBack {
+    overflow-x: scroll;
+    overflow-y: scroll;
+    position: fixed;
+    border: 1px solid grey;
+    border-radius: 15px;
+    width: 0%;
+    right: 0;
+    top: 52px;
+    bottom: 38px;
+    touch-action: pinch-zoom;
+    background-color: rgba(0, 0, 0, .2);
+    transition: width 1s cubic-bezier(.5, -.5, .5, 2);
+    direction: rtl;
+}
+
+#graphPreview {
+    position: fixed;
+    border: 1px solid grey;
+    border-radius: 15px;
+    width: 0%;
+    right: 0;
+    top: 53px;
+    bottom: 38px;
+    touch-action: pinch-zoom;
+    transition: width 1s cubic-bezier(.5, -.5, .5, 2);
+    float: right;
+    padding-top: 50px;
+    padding-bottom: 50px;
+
+    background-color: rgba(0, 255, 255, .1);
+    overflow: scroll;
+    font-size: 10px;
+}
+
+#canvasContainer,
+#canvasBackContainer,
+#previewGraphContainer,
+#previewGridLinesContainer,
+#previewStitchesContainer {
+    position: absolute;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+    padding-top: 50px;
+    top: 0;
+}
+
+#previewRowContainer {
+    position: absolute;
+    /*padding-top: 50px;*/
+    width: 100%;
+    /*z-index: 400;*/
+}
+
+#previewColumnContainer {
+    position: absolute;
+    padding-left: 50px;
+}
+
+#cells,
+#cellsBack,
+#previewTicking {
+    @include cursor_graph;
+    position: relative;
+    margin: auto auto;
+    width: 100%;
+    height: 100%;
+}
+
+#previewGraph,
+#previewRow,
+#previewColumn {
+    position: relative;
+    margin: auto auto;
+    width: 100%;
+    /*height: 100%;*/
+}
+
+#gridLines,
+#gridLinesBack,
+#previewGridLines {
+    margin: auto auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#stitchesOverlay,
+#stitchesOverlayBack,
+#previewStitches {
+    position: relative;
+    margin: auto auto;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#symLineHorz,
+#symLineHorzBack,
+#symLineVert,
+#symLineVertBack {
+    margin: auto auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 90%;
+}
+
+#stitchesOverlayContainer,
+#stitchesOverlayBackContainer,
+#previewStitchesContainer,
+#previewTickingContainer {
+    position: absolute;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+    padding-top: 50px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
+    /*IE11 Conditional*/
+    filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='s/your_transparent.png', sizingMethod='scale');
+}
+
+#gridLinesContainer,
+#gridLinesBackContainer,
+#previewGridLinesContainer {
+    position: absolute;
+    padding-bottom: 50px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 50px;
+    top: 0;
+    pointer-events: none;
+}
+
+#symLineHorzContainer,
+#symLineHorzBackContainer {
+    position: absolute;
+    padding-bottom: 50px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 50px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+#symLineVertContainer,
+#symLineVertBackContainer {
+    position: absolute;
+    padding-bottom: 50px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 50px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.arrow {
+    @include cursor_clickable;
+}
+
+#rightArrowGraph {
+    position: fixed;
+    bottom: 38px;
+    z-index: 2;
+    left: 100%;
+    transition: left 1s cubic-bezier(.5, -.5, .5, 2);
+
+}
+
+#leftArrowGraph {
+    position: fixed;
+    bottom: 38px;
+    z-index: 2;
+    right: 1%;
+    transition: right 1s cubic-bezier(.5, -.5, .5, 2);
+    visibility: hidden;
+}
+
+/*////**** Landing ****/
+/*****************/
+/*User Interface**/
+/*****************/
+/******Main*******/
+
+
+
+.goButton {
+    border: 3px outset;
+    width: 300px;
+    height: 100px;
+    position: relative;
+    font-size: 40px;
+    top: 15px;
+    border-radius: 15px;
+}
+
+#importGo {
+    transition: top 1s cubic-bezier(.5, -.5, .5, 2);
+
+}
+
+#newPattGo:hover,
+#importGo:hover {
+    background-color: $black;
+    color: $white;
+}
+
+/*////**** Landing ****/
+/*****************/
+/*User Interface**/
+/*****************/
+/**** Footer *****/
+
+
+
+#unitSelect,
+#viewOptionsSelect,
+#edittingOptionsSelect {
+    position: relative;
+    font-size: 15px;
+    text-align: left;
+    height: 37px;
+    top: 0;
+    float: left;
+    width: 100px;
+    margin-bottom: 0;
+    margin-top: 0;
+    animation: none;
+    -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+
+/*////**Interlocking***/
+/*****************/
+/*User Interface**/
+/*****************/
+/******Main*******/
+
+#interlockingPattern {
+    position: absolute;
+    top: 162px;
+    width: 100%;
+}
+
+#instructionsBack {
+    text-align: left;
+    align-content: center;
+    position: fixed;
+    border: 1px solid grey;
+    right: 0px;
+    left: 0px;
+    top: 0px;
+    bottom: 38px;
+    background-color: rgba(255, 255, 255, .9);
+    z-index: -50;
+    visibility: hidden;
+}
+
+/* Header Dropdown Instuctions*/
+
+
+#instructions {
+    text-align: center;
+    float: left;
+    align-content: center;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    overflow-wrap: break-word;
+    position: fixed;
+    right: 0px;
+    left: 0px;
+    top: 53px;
+    bottom: 38px;
+    z-index: -50;
+    visibility: hidden;
+    padding-top: 10px;
+    padding-bottom: 25px;
+    width: 50%;
+    font-family: Arial;
+    transition: width 1s cubic-bezier(.5, -.5, .5, 2);
+    border: 1px solid $black;
+    border-radius: 15px;
+}
+
+#keyPageContainer {
+    float: right;
+    width: 50%;
+    position: fixed;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    top: 53px;
+    bottom: 38px;
+    right: 0%;
+    background-color: rgba(0, 255, 255, .1);
+    overflow-y: scroll;
+    transition: width 1s cubic-bezier(.5, -.5, .5, 2);
+    font-size: 10px;
+    border: 1px solid $black;
+    border-radius: 15px;
+}
+
+#instKeyGraphButton {
+    position: relative;
+    text-align: center;
+    left: 0px;
+    top: 1px;
+    border: 1px solid $black;
+    border-radius: 15px;
+    background-color: #76d0c6;
+    -webkit-box-shadow: inset 0 0 5px $black;
+    box-shadow: inset 0 0 5px $black;
+    height: 20px;
+    width: 100px;
+    font-size: 17px;
+    padding: 13px;
+    color: $black;
+}
+
+#previewGraphBar {
+    height: 50px;
+    width: 100%;
+    background-color: $white;
+    -webkit-box-shadow: inset 0 0 5px $black;
+    box-shadow: inset 0 0 5px $black;
+    border-radius: 10px;
+    position: relative;
+    left: 0px;
+    top: -50px;
+}
+
+#instKeyGraphButton:hover {
+    background: $dark_teal;
+    color: $white;
+    @include cursor_clickable;
+}
+
+#mosaicInstructions {
+    margin-bottom: 25px;
+    display: block;
+    margin-top: 10px;
+    align-content: center;
+    text-align: center;
+    align-self: center;
+    margin: auto auto;
+}
+
+.mosaicInstructions div {
+    float: left;
+    display: block;
+
+}
+
+#mosaicChunk {
+    margin: 0 auto;
+}
+
+.mosCell {
+    width: 60px;
+    max-width: 60px;
+    min-width: 50px;
+    height: 20px;
+    max-height: 20px;
+    min-height: 20px;
+    border: 1px solid rgba(132, 130, 131, 0.75);
+    text-align: center;
+    border-spacing: 0;
+    border-collapse: collapse;
+    position: relative;
+    float: left;
+    display: block;
+}
+
+.mosRow {
+    width: 100%;
+    max-height: 20px;
+    min-height: 20px;
+    position: relative;
+    border: 1px solid rgba(132, 130, 131, 0.75);
+    float: top;
+    display: block;
+    margin-top: 15px;
+}
+
+
+
+
+
+#graphThumbnail {
+    position: fixed;
+    right: -33vw;
+    bottom: 67px;
+    opacity: 50%;
+    z-index: 25;
+    width: 10%;
+    max-width: 25%;
+    max-height: 80%;
+    transition: right 1s cubic-bezier(.5, -.5, .5, 2);
+    z-index: 2;
+}
+
+#graphThumbnail:active {
+    position: fixed;
+    right: 15px;
+    bottom: 67px;
+    width: 25%;
+    opacity: 100%;
+}
+
+#rightArrowPreview {
+    position: fixed;
+    bottom: 38px;
+    z-index: 11;
+    left: 51%;
+    transition: left 1s cubic-bezier(.5, -.5, .5, 2);
+    @include cursor_clickable;
+}
+
+#leftArrowPreview {
+    position: fixed;
+    bottom: 38px;
+    z-index: 11;
+    right: 51%;
+    transition: right 1s cubic-bezier(.5, -.5, .5, 2);
+}
+
+#graphSizeChange,
+#exportMenu,
+#prefMenu,
+#importMenu {
+    background-color: lavender;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0px;
+    z-index: 40;
+    bottom: 0;
+    opacity: 100%;
+    border: 1px solid $black;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    visibility: hidden;
+    transition: opacity 1s cubic-bezier(.5, -.5, .5, 2),
+        width 1s cubic-bezier(.5, -.5, .5, 2),
+        visibility 1s;
+}
+
+.sidePanelX {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    height: 50px;
+    width: 50px;
+    z-index: 15;
+    &:hover {
+        top: 15px;
+        left: 15px;
+        height: 40px;
+        width: 40px;
+    }
+}
+
+#closeInstructions {
+    position: fixed;
+    top: 0px;
+    left: none;
+    right: 0px;
+    height: 50px;
+    width: 50px;
+    z-index: 15;
+    @include cursor_clickable;
+    &:hover {
+        top: 5px;
+        left: none;
+        right: 5px;
+        height: 40px;
+        width: 40px;
+    }
+    
+}
+
+#sizeChangeBox {
+    position: relative;
+    height: 200px;
+    width: 200px;
+    border: 1px solid $black;
+    background-color: $white;
+    left: 76px;
+    top: 15px;
+    display: block;
+}
+
+#pxSizeFooter,
+#inchSizeFooter,
+#zoomImage,
+.arrow,
+#closeInstructions,
+.noSelect {
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* IE10+/Edge */
+    user-select: none;
+    /* Standard */
+}
+
+#versionLabel {
+    top: 5px;
+    right: 5px;
+    font-size: 21px;
+    position: fixed;
+    display: block;
+    color: hsla(300, 100%, 50%, 0.50);
+}
+
+.horzDivider {
+    height: 1px;
+    background-color: grey;
+    width: 100%;
+    float: top;
+}
+
+.vertDivider {
+    position: relative;
+    width: 1px;
+    background-color: grey;
+    height: 100%;
+    float: left;
+}
+
+/* The containers */
+.exportContainer {
+    display: block;
+    position: relative;
+    padding-left: 29px;
+    margin-bottom: 10px;
+    @include cursor_clickable;
+    font-size: 20px;
+    float: left;
+    width: 120px;
+    border: inset grey 1px;
+    border-radius: 20px;
+    height: 27px;
+}
+
+.prefContainer {
+    display: block;
+    position: relative;
+    padding-left: 39px;
+    margin-bottom: 10px;
+    @include cursor_clickable;
+    font-size: 20px;
+    width: 250px;
+    border: inset grey 1px;
+    border-radius: 20px;
+    height: 27px;
+}
+
+.prefContainer:hover {
+    background: $dark_teal;
+    color: #ffffff
+}
+
+/* Hide the browser's default radio button */
+.exportContainer input,
+.prefContainer input {
+    position: absolute;
+    opacity: 0;
+}
+
+/* Create a custom radio button */
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: rgb(125, 100, 150);
+    border-radius: 75%;
+    border: outset grey 1px;
+
+}
+
+/* On mouse-over, add a grey background color */
+.exportContainer:hover input~.checkmark,
+.prefContainer:hover input~.checkmark {
+    background-color: #f69bea;
+}
+
+/* When the radio button is checked, add a blue background */
+.exportContainer input:checked~.checkmark,
+.prefContainer input:checked~.checkmark {
+    background-color: rgb(237, 92, 215);
+    border: inset grey 1px;
+}
+
+.exportContainer:hover input:checked~.checkmark,
+.prefContainer:hover input:checked~.checkmark {
+    background-color: #f69bea;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.exportContainer input:checked~.checkmark:after,
+.prefContainer input:checked~.checkmark:after {
+    display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.exportContainer .checkmark:after,
+.prefContainer .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid $white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+#imageExportButtonButton,
+#instructionsExportButton,
+#keyPageExportButtonButton {
+    height: 60px;
+    width: 300px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 20px;
+    margin-bottom: 25px;
+    margin-top: 10px;
+    background-color: rgb(50, 230, 230);
+    -webkit-box-shadow: inset 0 0 5px $black;
+    box-shadow: inset 0 0 5px $black;
+}
+
+#imageExportButtonButton:hover {
+    background-color: rgb(100, 255, 255);
+}
+
+body {
+    background-color: #dbdbdb;
+    overflow: hidden;
+    z-index: 0;
+}
+
+#loadingOverlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    font-size: 30px;
+    width: 100%;
+    height: 100%;
+    z-index: 42;
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+
+
+
+
+/* Clickable Cursors */
+.pointerCursor,
+.clickableButton,
+.arrow #ink2PickHeader,
+#ink2PickHeader,
+#siteLogo,
+#imageExportButtonButton,
+#instructionsExportButton,
+#keyPageExportButtonButton,
+#closeGraphChange,
+#closeExport,
+#closeNew,
+#closePref,
+select,
+input,
+button,
+li,
+::-webkit-scrollbar,
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-track {
+    @include cursor_clickable;
+}
+
+/* Idle Cursors */
+label {
+    @include cursor_idle;
+}
+
+/* Diasbled Cursors */
+:disabled {
+    @include cursor_disabled;
+}
+
+/* Text Input Cursors */
+input[type=text],
+input[type=number] {
+    @include cursor_text;
+}
+
+#importImageHolder {
+    z-index: -20000000;
+    visibility: hidden;
+    position: fixed;
+}
+
+#impShadeOptionContainer {
+    margin-left: 37px;
+    display: none;
+}

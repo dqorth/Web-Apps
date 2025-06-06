@@ -1,0 +1,108 @@
+.button {
+  background-color: $primary-red;
+  color: $pure-white;
+  border: 2px solid $accent-black;
+  padding: $button-padding;
+  border-radius: $border-radius;
+  font-family: $font-body;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 2px 2px 0px $accent-black;
+  margin-top: 10px;
+  margin-right: 5px;
+
+  &:hover {
+    background-color: darken($primary-red, 10%);
+    box-shadow: 1px 1px 0px $accent-black;
+    transform: translate(1px, 1px);
+  }
+
+  &:disabled {
+    background-color: $disabled-gray;
+    color: #777;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+.checkbox-group {
+  label {
+    font-weight: normal;
+    margin-right: 15px;
+    input[type="checkbox"] {
+      margin-right: 5px;
+      accent-color: $primary-red;
+    }
+  }
+}
+
+// Style for lists (e.g., employee roster, shift list)
+.item-list {
+  li {
+    background-color: $light-cream;
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 1px solid darken($light-cream, 10%);
+    border-left: 5px solid $primary-red;
+    border-radius: $border-radius;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.position-entry-group {
+  border: 2px dashed var(--border-color);
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: var(--border-radius);
+  background-color: lighten(var(--light-cream), 5%);
+
+  .position-checkbox-label-group {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .pay-rate-input-wrapper { // Container for label and input for pay rate
+    margin-top: 8px;
+    padding-left: 25px; // Indent under its checkbox
+  }
+}
+
+.week-navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+
+  .button {
+    margin: 0 10px;
+    font-size: 1.1em; // Slightly smaller for nav buttons
+    padding: 8px 15px;
+  }
+  #currentlyViewedWeekDisplay { // New element for displaying the week being reported
+    font-family: var(--font-display);
+    font-size: 1.5em;
+    color: var(--accent-black);
+    min-width: 250px; // Give it some space
+    text-align: center;
+  }
+}
+
+.support-tip-detail {
+  list-style-type: none;
+  padding-left: 20px;
+  margin-top: 5px;
+  font-size: 0.9em;
+  li {
+    padding: 3px 0;
+    border-bottom: 1px dotted #eee;
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}

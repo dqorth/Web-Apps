@@ -1,0 +1,36 @@
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba($pure-white, 0.8); // Semi-transparent white over cream
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba($accent-black, 0.3);
+}
+
+header {
+  background-color: $primary-red;
+  padding: 20px;
+  border-radius: $border-radius $border-radius 0 0;
+  margin: -20px -20px 20px -20px; // Extend to container edges
+  border-bottom: 5px solid $accent-black;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.section-card {
+  background-color: $pure-white;
+  padding: 20px;
+  border-radius: $border-radius;
+  border: 2px solid $accent-black;
+  box-shadow: 3px 3px 0px $accent-black; // 50s hard shadow
+
+  h2 {
+    border-bottom: 3px dashed $primary-red;
+    padding-bottom: 10px;
+    margin-top: 0;
+  }
+}

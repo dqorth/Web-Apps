@@ -1,0 +1,50 @@
+@use "sass:color";
+@import "./mixins";
+@import "./var";
+
+#saveAsMenu {
+    background-color: $white;
+    border-radius: 15px;
+    font-size: 25px;
+    top: 2em;
+    padding: 1em;
+    margin-left: auto;
+    margin-right: auto;
+    height: 7.5em;
+    width: 15em;
+    z-index: 10;
+    display: none;
+    position: relative;
+    border: 1px outset grey;
+}
+
+.popUpButton{
+    position: relative;
+    border-radius: 15px;
+    @include box_shadow(5px, $black);
+    // display: block;
+    bottom: 0;
+    font-size: 20px;
+    padding: 1em;
+    width: 7em;
+    margin-left: 1em;
+    margin-right: 1em;
+    background-color: $light_teal;
+    color: $black;
+
+    &:hover {
+        background-color: $dark_teal;
+        color: $white;
+    }
+}
+
+#patternNameSaveAs {
+    font-size: 20px;
+    height: 1.5em;
+    width: 15em;
+    padding: .5em;
+    border-radius: 10px;
+    position: relative;
+    top: 0;
+    margin: 1em;
+}

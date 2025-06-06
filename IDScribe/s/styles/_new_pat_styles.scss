@@ -1,0 +1,58 @@
+@use "sass:color";
+@import "./mixins";
+@import "./var";
+
+select {
+    position: relative;
+    border: 2px outset;
+    width: 300px;
+    height: 30px;
+    font-size: 15px;
+    outline: none;
+    top: 5px;
+    margin-bottom: 20px;
+    margin-top: 3px;
+    animation: red_glow 5s infinite;
+    border-radius: 15px;
+
+    &:hover {
+        background: $dark_teal;
+        color: $white;
+        border-radius: 15px;
+    }
+
+    & option {
+        border-radius: 15px;
+    }
+}
+
+#newPatternContainer {
+    width: 360px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    align-content: center;
+    background-image: url(https://images.squarespace-cdn.com/content/v1/6029fdcbf6b7c4321ae22893/1634702298950-D137LW6J7GCXQJRKMH6I/IDScribeBackground.png?format=600w);
+    background-size: auto;
+    background-color: lavender;
+    border: 1px solid $black;
+    font-size: 20px;
+    line-height: 1.88vh;
+    z-index: 10;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#patternNameNew {
+    margin-top: 5px;
+    height: 35px;
+    width: 225px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 20px;
+    position: fixed;
+    top: 0;
+    left: 75px;
+    z-index: 1001;
+}

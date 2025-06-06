@@ -1,0 +1,47 @@
+@use "sass:color";
+@import "./mixins";
+@import "./var";
+
+#landing {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background-color: $main_color;
+    display: block;
+    z-index: 200000;
+    overflow: scroll;
+    padding: 25px;
+}
+
+#landingLogo {
+    width: 300px;
+    max-width: 360px;
+}
+
+.landingButton {
+    height: 50px;
+    width: 300px;
+    display: inline-block;
+    max-width: 300px;
+    position: relative;
+    margin: 10px;
+    font-size: 25px;
+    border-radius: 90px;
+    @include box_shadow(10px, $black);
+}
+
+.landingButton:hover {
+    background: $dark_teal;
+    color: $white;
+}
+
+#siteLogo {
+    height: 100px;
+    width: auto;
+    top: 5px;
+    left: 5px;
+    position: fixed;
+    display: block;
+}

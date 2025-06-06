@@ -1,0 +1,94 @@
+@use "sass:color";
+@import "./mixins";
+@import "./var";
+
+#footer {
+    position: fixed;
+    bottom: 0;
+    border: 1px solid grey;
+    background-color: $white;
+    width: 100vw;
+    height: 37px;
+    z-index: 2;
+    -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    left: 0;
+    right: 0;
+}
+
+.footerLabel {
+    position: relative;
+    float: right;
+    font-size: 15px;
+    text-align: center;
+    padding: 10px;
+    height: 37px;
+    left: 8px;
+    width: 125px;
+    word-wrap: false;
+}
+
+
+
+#undoButton {
+    position: fixed;
+    height: 35px;
+    border-radius: 15px;
+    background-color: lightpink;
+    font-size: 20px;
+    right: 50.5%;
+    bottom: 0;
+}
+
+#undoButton:hover {
+    background-color: darkred;
+    color: $white;
+}
+
+#redoButton {
+    position: fixed;
+    height: 35px;
+    border-radius: 15px;
+    background-color: lightgreen;
+    font-size: 20px;
+    left: 50.5%;
+    bottom: 0;
+}
+
+#redoButton:hover {
+    background-color: darkgreen;
+    color: $white;
+}
+
+input[id=zoomSlider] {
+    background-color: transparent;
+    position: relative;
+    z-index: 9;
+    width: 33vw;
+    min-width: 100px;
+    max-width: 300px;
+    animation: none;
+    float: left;
+}
+
+input[id=zoomSlider]::-webkit-slider-thumb {
+    @include box_shadow(10px, $black);
+    border: 2px solid $black;
+    border-radius: 25px;
+    appearance: none;
+    -webkit-appearance: none;
+    height: 34px;
+    width: 34px;
+    bottom: 0px;
+}
+
+#zoomImage {
+    position: fixed;
+    width: 33vw;
+    min-width: 100px;
+    max-width: 300px;
+    bottom: 3px;
+    left: 5px;
+    height: 33px;
+    z-index: 9;
+}

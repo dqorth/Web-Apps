@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--This website may NOT be copied or used elsewhere -->
+<!-- Author: David Q Orth -->
+<!-- 05/27/2025 -->
+
+<head>
+
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+
+	<link rel="stylesheet" href="s/styles/Styles.css">
+
+	<title>
+		D.Q. Orth's ID Scribe
+	</title>
+
+</head>
+
+<!-- Save as Menu -->
+
+
+<body class="noSelect" draggable="false" onLoad="browserAlert(); getInches(); getCentimetres(); footerChange(); instructionsChange(); fuckSquarespace(); presetColors()" onkeydown="shortcuts(event)">
+	<section id="program" draggable="false" oncontextmenu="return false;">
+		<!-- Graph Preview Thumbnail on Bottom Right -->
+		<canvas id='graphThumbnail'>
+		</canvas>
+
+		<!-- Loading Screen -->
+		<div id="loadingOverlay">
+			Loading
+		</div>
+
+		<div id="saveAsMenu">
+			Choose a name for the file...
+			<input id="patternNameSaveAs" type="text" placeholder="Pattern Name" onkeyup="checkSaveAsText()">
+			<br>
+			<button class="popUpButton" id="saveAsCancel" onclick="toggleSaveAsMenu()">
+				Cancel
+			</button>
+			<button class="popUpButton" id="saveAsSave" onclick="saveAsSteps()">
+				Save
+			</button>
+		</div>
+
+		<!-- Header Bar -->
+		<div id='headerBar' class="headerBar">
+			<ul class="headerOptions">
+				<li class="noSelect clickableButton headerDropdown" onclick="openMenu()">
+					Menu
+				</li>
+				<li class="noSelect clickableButton headerDropdown">
+					File
+					<ul>
+						<li class="noSelect clickableButton" onclick="saveGraph()">
+							Save
+						</li>
+
+						<li class="noSelect clickableButton" onclick="toggleSaveAsMenu()">
+							Save As
+						</li>
+
+						<li class="noSelect clickableButton" onclick="uiClick(); footerChange();">
+							New
+						</li>
+
+						<li class="noSelect clickableButton" onclick="document.getElementById('patternUpload').click();">
+								Load
+							<input id="patternUpload" class="noSelect clickableButton" type="file"
+								accept=".idpat" oninput="loadPattern();presetColors();">
+						</li>
+
+						<li class="noSelect clickableButton" onclick="impOpenClose()">
+							Import
+						</li>
+
+						<li class="noSelect clickableButton" onclick="instructionsGraph(); exportOpenClose()">
+							Export
+						</li>
+
+						<li class="noSelect clickableButton" onclick="prefOpenClose()">
+							Preferences
+						</li>
+					</ul>
+				</li>
+				<li class="noSelect clickableButton headerDropdown">
+					View
+					<ul>
+						<li id="viewType" class="noSelect clickableButton" onclick="instructionsGraph(); drawKeyPage()">
+							Instructions
+						</li>
+
+						<li id="gridView" class="noSelect clickableButton" onclick="gridLineChange()">
+							Hide Grid
+						</li>
+
+						<li id="stitchedView" class="noSelect clickableButton" onclick="stitchesChange()">
+							Stitched
+						</li>
+
+						<li id="previewGraphButton" class="noSelect clickableButton" onclick="previewGraphToggle()">
+							Preview
+						</li>
+					</ul>
+				</li>
+				<li class="noSelect clickableButton headerDropdown">
+					Edit
+					<ul>
+						<li id="symButton" class="noSelect">
+							Symmetry
+							<ul>
+								<li id="symButtonNone" class="noSelect" onclick="symNone()">
+									None
+								</li>
+
+								<li id="symButtonHorz" class="noSelect" onclick="symHorz()">
+									Horizontal
+								</li>
+
+								<li id="symButtonVert" class="noSelect" onclick="symVert()">
+									Vertical</label>
+								</li>
+
+								<li id="symButtonBoth" class="noSelect" onclick="symBoth()">
+									Both
+								</li>
+							</ul>
+						</li>
+
+						<li class="noSelect" onclick="switchColors()">
+							Reverse Colors
+						</li>
+
+						<li class="noSelect" onclick="graphSizeOpenClose()">
+							Graph Size
+						</li>
+
+						<li class="noSelect" onclick="changeStyle()">
+							Switch Style
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<button id="ink2PickHeader" class="noSelect clickableButton" onclick="changeMainColorToInk2()">
+			</button>
+
+			<button id="ink1PickHeader" class="noSelect clickableButton" onclick="changeMainColorToInk1()">
+			</button>
+			<div id="toolOptionDown" class="noSelect clickableButton" onclick="toolOption();">
+				<canvas id="toolOptionDownInner" class="noSelect"></canvas>
+			</div>
+
+			<section id="toolOptions">
+				<div id="toolOptionsColorArea">
+
+					<div class="toolOptionsLabel noSelect">
+						<label class="noSelect sliderLabel" for="hueSlider">
+							Hue
+						</label>
+						<input id="hueSlider" class="noSelect colorSlider" type="range" min="0" max="360">
+					</div>
+					<div class="toolOptionsLabel noSelect">
+						<label class="noSelect sliderLabel" for="saturationSlider">
+							Saturation
+						</label>
+						<input id="saturationSlider" class="noSelect colorSlider" type="range" min="0" max="100">
+					</div>
+					<div class="toolOptionsLabel noSelect">
+						<label class="noSelect sliderLabel" for="lightnessSlider">
+							Lightness
+						</label>
+						<input id="lightnessSlider" class="noSelect colorSlider" type="range" min="0" max="100">
+					</div>
+				</div>
+
+				<div class="horzDivider noSelect" style="position: relative; margin-top: 15px; margin-bottom: 15px;">
+				</div>
+
+				<div id="toolOptionsBottom" class="noSelect">
+					<div id="toolOptionContainer" class="noSelect">
+						<button id="solidTool" class="noSelect" onclick="changeToolToSolid()"></button>
+						<button id="shadeTool" class="noSelect" onclick="changeToolToShade()"></button>
+
+					</div>
+					<div id="toolOptionsDivider" class="horzDivider noSelect" style="position: relative;">
+					</div>
+					<div id="shadeOptionContainer" class="noSelect">
+						<div class="noSelect">
+
+							<div id="shadePicked" class="noSelect">
+								<label class="noSelect">Vertical</label>
+							</div>
+
+							<div class="noSelect" style="position: relative; margin: auto;">
+								<canvas id="shadingVert" class="noSelect" onclick="shadingVertClick()"></canvas>
+
+								<canvas id="shadingHorz" class="noSelect" onclick="shadingHorzClick()"></canvas>
+
+								<canvas id="shadingHatch" class="noSelect" onclick="shadingHatchClick()" disabled></canvas>
+							</div>
+						</div>
+					</div>
+
+					<div id="markSizeOptionContainer" class="noSelect">
+					</div>
+				</div>
+			</section>
+		</div>
+
+		<!------ General Screen ------>
+		<section id='generalScreen'>
+			<img id="leftArrowGraph" class="noSelect arrow" src='s/img/IDScribeLeftArrow.webp' alt="See Back of Work" onclick="graphViewLeft()">
+
+			<img id="rightArrowGraph" class="noSelect arrow" src='s/img/IDScribeRightArrow.webp' alt="See Front of Work" onclick="graphViewRight()">
+
+			<div id="graph" class="noSelect" draggable="false" onscroll="changeScroll()" onclick="setToFront()">
+
+				<div id="canvasContainer" onclick="setToFront()">
+					<canvas id="cells" draggable="false"></canvas>
+				</div>
+
+				<div id="stitchesOverlayContainer">
+					<canvas id="stitchesOverlay" draggable="false"></canvas>
+				</div>
+
+				<div id="gridLinesContainer">
+					<canvas id="gridLines" draggable="false"></canvas>
+				</div>
+
+				<div id="symLineHorzContainer">
+					<canvas id="symLineHorz" draggable="false"></canvas>
+				</div>
+
+				<div id="symLineVertContainer">
+					<canvas id="symLineVert" draggable="false"></canvas>
+				</div>
+			</div>
+
+			<div id="graphBack" class="noSelect" draggable="false" onscroll="changeScroll()" onclick="setToBack()">
+
+				<div id=canvasBackContainer onclick="setToBack()">
+
+					<canvas id="cellsBack" draggable="false"></canvas>
+				</div>
+
+				<div id="stitchesOverlayBackContainer">
+					<canvas id="stitchesOverlayBack" draggable="false"></canvas>
+				</div>
+
+				<div id="gridLinesBackContainer">
+					<canvas id="gridLinesBack" draggable="false"></canvas>
+				</div>
+
+				<div id="symLineHorzBackContainer">
+					<canvas id="symLineHorzBack" draggable="false"></canvas>
+				</div>
+
+				<div id="symLineVertBackContainer">
+					<canvas id="symLineVertBack" draggable="false"></canvas>
+				</div>
+			</div>
+		</section>
+
+		<!----- Instructions Menu ---->
+		<div id="instructionsBack">
+			
+			<section>
+
+				<!-- Instructions Menu Header -->
+				<div id="headerBarInstructions" class="headerBar">
+					
+					<ul class="headerOptions">
+						<li class="noSelect clickableButton" onclick="instructionsGraph()">
+							Close
+						</li>
+						<li class="noSelect clickableButton">
+							File
+							<ul>
+								<li class="noSelect" onclick="exportOpenClose(); getInstructions()">
+									Export
+								</li>
+							</ul>
+						</li>
+						<li>
+							View
+							<ul>
+								<li id="instructionsViewOptions" class="noSelect clickableButton">
+										Instructions
+									<ul>
+										<li id="mosTypeOption" class="noSelect clickableButton" onclick="instructionsTypeToggle(); getInstructions()">
+											Block
+										</li>
+
+										<li id="mosDSOption" class="noSelect clickableButton" onclick="mosaicInstructionsToggle(); getInstructions()">
+											No DS
+										</li>
+
+
+										<li id="instructionsViewButton" class="noSelect clickableButton" onclick="instructionsViewOption(); drawKeyPage()">
+											See Ilosaic
+										</li>
+									</ul>
+								</li>
+								<li class="noSelect">
+									Graph
+									<ul>
+										<li id="gridViewPreview" class="noSelect" onclick="gridLineChange()">
+											Hide Grid
+										</li>
+										<li id="stitchedViewPreview" class="noSelect" onclick="stitchesChange()">
+											Stitched View
+										</li>
+									</ul>
+								</li>
+								<li class="noSelect" onclick="instUnitPick()">
+									Switch Units
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+
+				<div id="instructions" oncontextmenu="return true;">
+				</div>
+
+				<!------- Graph Preview ------>
+				<section>
+					<div id="graphPreview" class="noSelect" draggable="false" onscroll="drawRowMarkers()">
+
+						<div id="previewGraphContainer">
+							<canvas id="previewGraph"></canvas>
+						</div>
+
+						<div id="previewStitchesContainer">
+							<canvas id="previewStitches"></canvas>
+						</div>
+
+						<div id="previewTickingContainer">
+							<canvas id="previewTicking"></canvas>
+						</div>
+
+						<div id="previewGridLinesContainer">
+							<canvas id="previewGridLines"></canvas>
+						</div>
+
+						<div id="previewColumnContainer">
+							<canvas id="previewColumn"></canvas>
+						</div>
+
+						<div id="previewRowContainer">
+							<canvas id="previewRow"></canvas>
+						</div>
+
+						<div id="keyPageContainer" hidden=true>
+							<canvas id="keyPage"></canvas>
+						</div>
+
+						<div id="previewGraphBar">
+							<div id="instKeyGraphButton" onclick="getKeyPage()" style="z-index: 14;">
+								See Key
+							</div>
+						</div>
+					</div>
+				</section>
+
+
+				<img id="rightArrowPreview" class="noSelect arrow" src="s/img/IDScribeRightArrow.webp" alt="Written" onclick="instructionsViewRight()">
+				<img id="leftArrowPreview" class="noSelect arrow" src="s/img/IDScribeLeftArrow.webp" alt="Graph" onclick="instructionsViewLeft()">
+		</div>
+
+		<!---------- Footer ---------->
+		<div id="footer" class="noSelect" onload="footerChange()">
+			<div id="pxSizeFooterContainer" class="footerLabel noSelect" onclick="showInch()">
+				<label id="pxSizeFooter" class="noSelect">
+					Stitches: ---
+				</label>
+			</div>
+			<div id="inchSizeFooterContainer" class="footerLabel noSelect" onclick="showInch()">
+				<label id="inchSizeFooter" class="noSelect">
+					Inch / Cm: ---
+				</label>
+			</div>
+
+			<div id=zoomBar class="noSelect">
+				<img id="zoomImage" class="noSelect" src="s/img/Zoom.webp">
+				<input id=zoomSlider class="noSelect pointerCursor" type="range" value="10" min="5" max="30" oninput="zoomGraph(this)">
+			</div>
+			<button id="undoButton" class="noSelect" onclick="loadUndoState()">
+				Undo
+			</button>
+			<button id="redoButton" class="noSelect" onclick="loadRedoState()">
+				Redo
+			</button>
+		</div>
+
+		<!---------- Landing ---------->
+		<section id='landing'>
+			<div class="noSelect" draggable=false>
+				<img id="siteLogo" class="noSelect" src="s/img/IDCLogoEye.webp" alt="Back To dqorthdesigns.com"
+					onclick="location.href='https://www.dqorthdesigns.com/'">
+				</img>
+				<label id="versionLabel" class="noSelect">
+					Version 2.999 Test
+				</label>
+			</div>
+
+			<img id="landingLogo" class="noSelect" src="s/img/IDScribeLogo.webp" alt="David Q Orth's I.D. Scribe">
+			</img>
+
+			<br>
+			<button id="saveLanding" class="landingButton noSelect" onclick="landingToggle();saveGraph()" style="display: none;">
+				Save Pattern
+			</button>
+			<br>
+			<button id="continueLanding" class="landingButton noSelect" onclick="landingToggle()" disabled="true">
+				Continue
+			</button>
+			<br>
+			<br>
+
+			<div style="border: 1px solid black;width: 300px;border-radius: 15px;margin: auto;padding: 25px;background-color:#ff77ff;">
+				<label style="font-size: 30px;">
+					New Pattern
+				</label>
+				<br>
+				<button id='newPattern' class='landingButton noSelect clickableButton' onclick="landingToggle();uiClick();">
+					From Scratch
+				</button>
+				<button class='landingButton noSelect clickableButton' onclick="landingToggle();impOpenClose();uiClick();uiClick();">
+					From Image
+				</button>
+			</div>
+			<br>
+			<div style="border: 1px solid black; width: 300px; border-radius: 15px; margin: auto; padding: 25px; background-color:#ff77ff;">
+				<label style="font-size: 30px;">
+					Load Pattern
+				</label>
+				<button class='landingButton noSelect clickableButton' onclick="document.getElementById('patternUpload').click();">
+					From .IDPAT
+				</button>
+			</div>
+
+			<br>
+			<button class='landingButton noSelect clickableButton' onclick="prefOpenClose();">
+				Preferences
+			</button>
+		</section>
+
+		<!-- New Pattern Side Panel -->
+		<aside class="noSelect" id="newPatternSidePanel">
+			<section id="newPatternContainer" class="noSelect">
+				<div style="height: 70px; width: 360px; background-color: rgb(255,255,255); -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1); box-shadow: inset 0 0 5px rgba(0,0,0,1); border-radius: 10px; position: fixed; z-index: 1000; top: 0;">
+					<img id="closeNew" class="noSelect sidePanelX" src="s/img/ID-Scribe-X.webp" alt="X" onclick="uiClick()">
+					<input id="patternNameNew" type="text" placeholder="Pattern Name" onchange="setPatternName(this)">
+
+				</div>
+
+				<section id="newPattern" class="noSelect" style="display: block;">
+					<section class="noSelect" style="margin-top: 70px; background-color: hsla(178, 90%, 52%, 0.25); padding-top: 25px;">
+
+						<!-- Style Pick -->
+						<label class="noSelect" style="position:relative;">
+							Style
+						</label>
+						<br>
+						<select id="stSelect" class="noSelect" title="The style of crochet your pattern will be for" onchange="getStyle()">
+							<option class="noSelect" disabled selected>
+							</option>
+							<option class="noSelect">
+								Interlocking
+							</option>
+							<option class="noSelect">
+								Mosaic
+							</option>
+						</select>
+
+						<br>
+
+						<!-- Gauge Pick -->
+						<div>
+							<label>Gauge</label>
+							<br>
+							<select id="gaugeDropDown" class="dropDown" title="This is one of the determining factors for the finished physical piece's size" onchange="style='animation: none;'; unitChangeNew(); detectSizeNew(); detectStitches()">
+								<option selected disabled>
+								</option>
+								<option>
+									4x4 STS in 1 Inch
+								</option>
+								<option>
+									5x5 STS in 1 Inch
+								</option>
+							</select>
+						</div>
+
+						<!-- Size Pick -->
+						<div>
+							<label>Size</label>
+							<br>
+							<select id="sizeDropDown" class="dropDown" title="Use this to automatically input your stitch wide and stitches tall based on standard sizing" onchange="detectStitches(); unitChangeNew()" style="animation: none;">
+								<option selected disabled>
+								</option>
+								<option value="Toddler" onclick="detectStitches(); unitChangeNew()">
+									Toddler
+								</option>
+								<option value="Throw" onclick="detectStitches(); unitChangeNew()">
+									Throw
+								</option>
+								<option value="Twin" onclick="detectStitches(); unitChangeNew()">
+									Twin
+								</option>
+								<option value="Full" onclick="detectStitches(); unitChangeNew()">
+									Full
+								</option>
+								<option value="Queen" onclick="detectStitches(); unitChangeNew()">
+									Queen
+								</option>
+								<option value="King" onclick="detectStitches(); unitChangeNew()">
+									King
+								</option>
+								<option value="Custom" onclick="detectStitches(); unitChangeNew()">
+									Custom
+								</option>
+							</select>
+						</div>
+						<br>
+					</section>
+
+					<!-- Graph Size Input -->
+					<section style="background-color: hsla(291, 90%, 52%, 0.25); padding-top: 20px; padding-bottom: 20px;">
+						<div id="innerInputs" class="input">
+							<label>
+								Stitches Wide
+							</label>
+							<br>
+							<input id="innerWidth" class="sizeInput" type="number" title="These numbers MUST be odd for the graph to work" value="" min="5" max="499" onchange="setWidth(this.value);style ='animation: none;'" onfocusout="getInchesNew(),detectSizeNew()" style="border-radius: 5px;">
+							<br>
+							<label id="innerWidthNum" style="font-size: 15px;">
+								-----
+							</label>
+							<br>
+							<br>
+							<label>
+								Stitches Tall
+							</label>
+							<br>
+							<input id="innerHeight" class="sizeInput" type="number" title="These numbers MUST be odd for the graph to work" value="" min="5" max="499" onchange="setHeight(this.value);style ='animation: none;'" onfocusout="getInchesNew(), detectSizeNew()" style="border-radius: 5px;">
+							<br>
+							<label id="innerHeightNum" style="font-size: 15px;">
+								-----
+							</label>
+						</div>
+					</section>
+
+					<!-- Choosing Graph Template Color Layout -->
+
+					<section style="background-color:hsla(178, 90%, 52%, 0.25); padding-top: 10px; padding-bottom: 10px;">
+
+						<div id="firstColor" style="position: relative; top:10px;">
+							<label>
+								First Color
+							</label>
+							<br>
+							<select id="firstColorDropDown" class="dropDown noSelect pointerCursor" title="This determines and builds the outer two stitches around the whole graph"
+								onchange="style='animation: none;'">
+
+								<option selected disabled>
+								</option>
+								<option>
+									Dark
+								</option>
+								<option>
+									Light
+								</option>
+							</select>
+						</div>
+
+						<div id="interiorColor" class="noSelect" style="position: relative; top: 15px;">
+							<label>
+								Interior Color
+							</label>
+							<br>
+							<select id="interiorColorDropDown" class="dropDown noSelect pointerCursor" title="This changes the inside color of the graph" onchange="style='animation: none;'">
+								<option value="" selected disabled>
+								</option>
+								<option value="Dark">
+									Dark
+								</option>
+								<option value="Light">
+									Light
+								</option>
+							</select>
+						</div>
+						<br>
+					</section>
+
+					<div style="padding-bottom: 50px; position: relative;">
+						<button id="newPattGo" class="noSelect pointerCursor goButton" onclick="graphOk(); zoomGraph(document.getElementById('zoomSlider'));">
+							Go!
+						</button>
+					</div>
+
+				</section>
+			</section>
+		</aside>
+
+		<!----- Graph Change Side Panel ---->
+		<aside id='graphSizeChange'>
+			<img id="closeGraphChange" class="noSelect sidePanelX" src='s/img/ID-Scribe-X.webp' alt="Close Window" onclick="graphSizeOpenClose()">
+			<section id="sizeChangeBlock" class="noSelect" style="position: relative; display: block; top: 25px;">
+				<div class="noSelect" style="position: relative; display: block; top: 10px; float: top;">
+					<img id="upUpArrow" class="graphChangeArrow clickableButton noSelect" src="s/img/IDScribeArrowPlus.webp" alt="Plus" onclick="changeGraphTopUp(); graphChangeInput()" style="transform: rotate(-90deg); position: relative;">
+				</div>
+
+				<div style="position: relative; display: block; float: top;" class="noSelect">
+					<div>
+						<img id="leftUpArrow" class="graphChangeArrow clickableButton noSelect" src="s/img/IDScribeArrowPlus.webp" alt="Plus" onclick="changeGraphLeftUp(); graphChangeInput()" style="transform: rotate(180deg); float: left; top: 90px; position: relative; left: 10px;">
+					</div>
+
+					<section id='sizeChangeBox'>
+						<div style="height: 33%;">
+							<img id="upDownArrow" class="graphChangeArrow clickableButton noSelect" src="s/img/IDScribeArrowMinusUD.webp" alt="Minus" onclick="changeGraphTopDown(); graphChangeInput()" style="transform: rotate(180deg); right: 25px; position: relative; float: top;">
+						</div>
+						<div style="height: 33%;margin-top: 10px;">
+							<img id="leftDownArrow" class="graphChangeArrow  clickableButton noSelect" src="s/img/IDScribeArrowMinusLR.webp" alt="Minus" onclick="changeGraphLeftDown(); graphChangeInput()" style="float: left; position: relative; left: 5px">
+
+							<img id="rightDownArrow" class="graphChangeArrow clickableButton noSelect" src="s/img/IDScribeArrowMinusLR.webp" alt="Minus" onclick="changeGraphRightDown(); graphChangeInput()" style="transform: rotate(180deg); float: right; position: relative; right: 5px">
+						</div>
+
+						<div style="height: 33%;">
+							<img id="downDownArrow" class="graphChangeArrow clickableButton noSelect" src="s/img/IDScribeArrowMinusUD.webp" alt="Minus" onclick="changeGraphBottomDown(); graphChangeInput()" style="float: bottom;">
+						</div>
+					</section>
+					<img id="rightUpArrow" class="graphChangeArrow clickableButton noSelect" src="s/img/IDScribeArrowPlus.webp" alt="Plus" onclick="changeGraphRightUp(); graphChangeInput()" style="float: right; position: relative; bottom: 110px; right: 15px;">
+				</div>
+
+				<div style="position: relative; display: block; top: 25px; float: top; left: 25px;">
+
+					<img id="downUpArrow" class="graphChangeArrow clickableButton noSelect" src="s/img/IDScribeArrowPlus.webp" alt="Plus" onclick="changeGraphBottomUp(); graphChangeInput()" style="transform: rotate(90deg); position: relative;">
+				</div>
+
+			</section>
+
+			<section id="sizeChangeInput" style="position: relative; display: block; top: 60px; float: top; height: 275px;">
+				<section id="sizeChangeInputU" style="position: relative;display: block;float: top;">
+					<label style="font-size:25px; position: relative;right: 5px;">
+						Top
+					</label>
+
+					<br>
+
+					<input id="graphChangeTop" type="number" value="0" oninput="graphChangeInput()" style="width: 100px; height: 25px; font-size: 20px;">
+				</section>
+
+				<section id="sizeChangeInputLR" style="position: relative; display: block; float: top; width: 320px; left: 20px;">
+					<section id="sizeChangeInputL" style="position: relative; display: block; float: left;">
+						<label style="font-size:25px; position: relative;">
+							Left
+						</label>
+
+						<br>
+
+						<input id="graphChangeLeft" type="number" value="0" oninput="graphChangeInput()" style="width: 100px; height: 25px; font-size: 20px;">
+					</section>
+					<section id="sizeChangeInputR" class="noSelect" style="position: relative; display: block; float: right;">
+						<label class="noSelect" style="font-size:25px; position: relative;">
+							Right
+						</label>
+						<br>
+						<input id="graphChangeRight" type="number" value="0" oninput="graphChangeInput()" style="width: 100px; height: 25px; font-size: 20px;">
+					</section>
+				</section>
+
+				<section id="sizeChangeInputD" class="noSelect" style="position: relative; display: block; float: top; top: 35px;">
+					<label class="noSelect" style="font-size:25px;  position: relative; left: 20px; top: 35px;">
+						Bottom
+					</label>
+					<br>
+					<input id="graphChangeBottom" type="number" value="0" oninput="graphChangeInput()" style="width: 100px; height: 25px; font-size: 20px;">
+				</section>
+			</section>
+
+			<div class="noSelect" style="display: block; background-color: lightcyan;  height: 175px; position: relative;">
+				<div class="noSelect" style="background-color:lightpink; height: 20%; float: top;">
+					<label class="noSelect" style="font-size:25px; position: relative;">
+						Original Size
+					</label>
+				</div>
+
+				<div class="noSelect" style="float:left; width: 31%; height: 80%; font-size: 20px; bottom: 0;">
+					<label class="noSelect" style="position:relative; top: 39%; float: right; right: 10px;">
+						Stitches
+					</label>
+					<label class="noSelect" style="position:relative; top: 52%; float: right; right: 10px;">
+						Inches
+					</label>
+				</div>
+
+				<section id="ogGraphSize" class="noSelect" style="position: relative; display: block; float: top; font-size: 20px; right: 15px; top: 15px;">
+					<section id="ogSizeLabels" class="noSelect">
+						<label id="ogWidthLabel" class="noSelect" style="margin-right: 15px;">
+							Width
+						</label>
+						<label class="noSelect" style="margin-left: 20px;">
+							Height
+						</label>
+					</section>
+					<section id="ogSizeContainer">
+
+						<input id="ogStitchesHeight" class="noSelect" type="number" disabled=true>
+
+						<input id="ogStitchesWidth" class="noSelect" type="number" disabled=true>
+						<br>
+						<br>
+						<input id="ogInchesHeight" class="noSelect" type="number" disabled=true>
+
+						<input id="ogInchesWidth" class="noSelect" type="number" disabled=true>
+					</section>
+				</section>
+			</div>
+
+			<br>
+
+			<div class="noSelect" style="display: block; background-color: lightcyan;  height: 175px; position: relative;">
+				<div class="noSelect" style="background-color:lightpink; height: 20%; float: top;">
+					<label class="noSelect" style="font-size:25px; position: relative;">
+						New Size
+					</label>
+				</div>
+
+				<div id="ogStableLabels" class="noSelect">
+					<label id="ogStitchesLabel" class="noSelect">
+						Stitches
+					</label>
+					<label id="ogInchesLabel" class="noSelect">
+						Inches
+					</label>
+				</div>
+
+				<section id="newGraphSize">
+					<section id="newSizeLabels" class="noSelect">
+
+						<label id="newWidthLabel" class="noSelect" style="margin-right: 15px;">
+							Width
+						</label>
+						<label class="noSelect" style="margin-left: 20px;">
+							Height
+						</label>
+					</section>
+					<section id="newSizeContainer">
+						<input id="newStitchesHeight" type="number">
+
+						<input id="newStitchesWidth" type="number">
+
+						<br>
+						<input id="newInchesHeight" type="number">
+
+						<input id="newInchesWidth" type="number">
+
+					</section>
+				</section>
+
+			</div>
+			<section>
+				<button id="resizeButton" class="noSelect" onclick="drawResizedGraph();">
+					Resize It!
+				</button>
+			</section>
+		</aside>
+
+		<!-------- Export Side Panel -------->
+		<aside id="exportMenu" class="noSelect">
+			<div style="height: 70px; width: 360px; background-color: rgb(255,255,255); -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1); box-shadow: inset 0 0 5px rgba(0,0,0,1); border-radius: 10px; position: fixed; z-index: 14; top: 0;">
+			</div>
+			<img id="closeExport" class="noSelect sidePanelX" src="s/img/ID-Scribe-X.webp" alt="X" onclick="exportOpenClose()">
+			<input id="patternNameExport" type="text" placeholder="Pattern Name" onchange="setPatternName(this)" style="margin-top: 5px; height: 35px; width: 250px; padding: 10px; border-radius: 10px; font-size: 20px; position: fixed; top: 0; left: 75px; z-index: 1001;">
+			<label style="width: 100%; height: 40px; position: relative; display: block; background-color: rgb(341, 123, 223); padding-top: 15px;margin-bottom: 15px; font-size: 25px; border: outset grey 1px; margin-top: 69px;">
+				Graph Export
+			</label>
+
+			<label class="exportContainer noSelect" style="margin-left: 24px;">
+				Image
+				<input id="imageGraphExport" name="exportGraphType" type="radio" checked="checked"
+					onclick="drawExportOptions()">
+				<span class="checkmark noSelect">
+				</span>
+			</label>
+			<label class="exportContainer noSelect" style="margin-left: 10px;">
+				PDF/Print
+				<input id="pdfGraphExport" name="exportGraphType" type="radio" onclick="drawExportOptions()">
+				<span class="checkmark noSelect">
+				</span>
+			</label>
+
+
+			<section id=graphExportContainer>
+				<canvas id="exportCanvas" style="max-width: 300px; border: inset grey 2px; margin-bottom: 10px;">
+				</canvas>
+
+				<br>
+
+				<img id="leftArrowGraphPage" class="noSelect arrow" src='s/img/IDScribeLeftArrow.webp' alt="Next Page" onclick="exportPageDown()">
+				<label style="position: relative; bottom: 18px;">
+					<label>
+						Page
+					</label>
+
+					<input id="graphPageInput" type="number" title="Choose which page to preview" value="1" min="1" max="50" onfocusout="drawExportPageView()">
+
+					<label id="exportGraphPage">
+
+					</label>
+				</label>
+				</label>
+
+				<img id="rightArrowGraphPage" class="noSelect arrow" src='s/img/IDScribeRightArrow.webp' alt="Previous Page" onclick="exportPageUp()">
+
+				<br>
+
+				<label style="font-size: 20px;margin-bottom: 10px;">
+					Stitches Per Page
+				</label>
+
+				<br>
+				<img id="leftArrowGraphMaxWide" class="noSelect arrow" src='s/img/IDScribeLeftArrow.webp' alt="Minus 1 Stitch" onclick="exportMaxStitchDown()">
+				<input id="graphSizePageInput" type="number" title="Choose which page to preview" value="20" min="10" max="100" onfocusout="pdfGraphSplit();drawExportPageView()" style="position: relative; bottom: 18px;">
+				<img id="rightArrowGraphMaxHigh" class="noSelect arrow" src='s/img/IDScribeRightArrow.webp' alt="Plus 1 Stitch" onclick="exportMaxStitchUp()">
+
+				<br>
+				<div class="horzDivider">
+				</div>
+				<br>
+				<div id="stitchGridExportOption" style="padding-left: 125px; padding-right: 115px; display: block; height: 115px;">
+
+					<label class="exportContainer noSelect" style="float: right;">
+						Stitched
+						<input id="stitchesExport" type="checkbox" style="float: left;">
+						<span class="checkmark noSelect">
+						</span>
+					</label>
+
+					<br>
+					<label class="exportContainer noSelect" style="float: right;">
+						Grid
+						<input id="gridExport" type="checkbox" style="float: left;">
+						<span class="checkmark noSelect">
+						</span>
+					</label>
+
+					<div id="expBreak">
+						<br>
+						<br>
+					</div>
+					<label id="tickedExportContainer" class="exportContainer noSelect" style="float: right;">
+						Ticked
+						<input id="tickedExport" type="checkbox" style="float: left;">
+						<span class="checkmark noSelect">
+						</span>
+					</label>
+				</div>
+
+				<div class="horzDivider">
+				</div>
+
+				<a id="imageExportButton" >
+					<button id="imageExportButtonButton" onclick="pdfGraphExport()">
+						Download / Print PDF
+					</button>
+				</a>
+			</section>
+
+			<label style="width: 100%; height: 40px; position: relative; display: block; background-color: rgb(341, 123, 223); padding-top: 15px; margin-bottom: 15px; font-size: 22px; border: outset grey 1px;">
+				Key Page Export
+			</label>
+
+			<div style="display: block; margin-bottom:25px; padding-left: 35px;">
+				<label class="exportContainer noSelect" style="width: 130px;">
+					.PDF/Print
+					<input id="pdfExportKey" name="exportFileTypeKey" type="radio" checked="checked">
+					<span class="checkmark noSelect"></span>
+				</label>
+				<label class="exportContainer noSelect" style="margin-left: 10px; width: 70px;">
+					Image
+					<input id="imgExportKey" name="exportFileTypeKey" type="radio">
+					<span class="checkmark noSelect"></span>
+				</label>
+			</div>
+
+			<a id="keyPageExportButton" >
+				<button id="keyPageExportButtonButton" onclick="exportKeyPage()">
+					Download Key Page
+				</button>
+			</a>
+
+			<label style="width: 100%; height: 40px; position: relative; display: block; background-color: rgb(341, 123, 223); padding-top: 15px; margin-bottom: 15px; font-size: 22px; border: outset grey 1px;">
+				Written Instructions Export
+			</label>
+
+			<div style="display: block; margin-bottom: 25px; padding-left: 35px;">
+				<label class="exportContainer noSelect" style="width: 130px;">
+					.PDF/Print
+					<input id="pdfExport" name="exportFileType" type="radio" checked="checked">
+					<span class="checkmark noSelect"></span>
+				</label>
+				<label class="exportContainer noSelect" style="margin-left: 10px; width: 70px;">
+					.TXT
+					<input id="txtExport" name="exportFileType" type="radio">
+					<span class="checkmark noSelect"></span>
+				</label>
+			</div>
+
+			<button id="instructionsExportButton" onclick="exportInstructions()">
+				Download Instructions
+			</button>
+		</aside>
+
+		<!----- Preferences Side Panel ------>
+		<aside id="prefMenu" class="noSelect">
+			<div style="height: 60px; width: 100%; background-color: rgb(255,255,255); -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1); box-shadow: inset 0 0 5px rgba(0,0,0,1); border-radius: 10px;  font-size: 40px; padding-top: 15px; padding-left: 25px;">
+				Preferences
+			</div>
+			<img id="closePref" class="noSelect sidePanelX" src="s/img/ID-Scribe-X.webp" alt="X" onclick="prefOpenClose()">
+
+			<label style="width: 100%; height: 22px; position: relative; display: block; background-color: rgb(341, 123, 223); margin-bottom: 25px; font-size: 20px; border: outset grey 1px; margin-top: 15px;">
+				Measurement Units
+			</label>
+
+			<div style="display: block; margin: auto;margin-bottom: 25px; padding-left: 35px; margin-top:10px">
+				<label class="prefContainer noSelect">
+					Inches
+					<input id="inchPref" name="prefUnits" type="radio" onclick="unitPick(); unitChange();" checked="checked">
+					<span class="checkmark noSelect"></span>
+				</label>
+				<label class="prefContainer noSelect">
+					Centimeters
+					<input id="centimeterPref" name="prefUnits" type="radio" onclick="unitPick(); unitChange()">
+					<span class="checkmark noSelect"></span>
+				</label>
+			</div>
+
+			<!-- <label style="width: 100%; height: 22px; position: relative; display: block; background-color: rgb(341, 123, 223); margin-bottom: 25px; font-size: 20px; border: outset grey 1px;">
+				Shading Style
+			</label>
+			<div style="display: block; margin: auto; margin-bottom:25px; padding-left: 35px; margin-top:10px">
+				<label class="prefContainer noSelect">
+					Selected Color Only
+					<input id="selectedShadePref" name="prefShadingStyle" type="radio" onclick="shadePref()">
+					<span class="checkmark noSelect"></span>
+				</label>
+				<label class="prefContainer noSelect">
+					Both Colors
+					<input id="bothShadePref" name="prefShadingStyle" type="radio" onclick="shadePref()"
+						checked="checked">
+					<span class="checkmark noSelect"></span>
+				</label>
+			</div> -->
+
+			<label style="width: 100%; height: 22px; position: relative; display: block; background-color: rgb(341, 123, 223); margin-bottom: 25px; font-size: 20px; border: outset grey 1px;">
+				Color Changing
+			</label>
+			<div style="display: block; margin: auto; margin-bottom:25px; padding-left: 35px; margin-top:10px">
+				<label class="prefContainer noSelect">
+					Instant
+					<input id="instantColorPref" name="prefColorChanging" type="radio" onclick="colorChangePref()"
+						checked="checked">
+					<span class="checkmark noSelect"></span>
+				</label>
+				<label class="prefContainer noSelect">
+					On Release
+					<input id="releaseColorPref" name="prefColorChanging" type="radio" onclick="colorChangePref()">
+					<span class="checkmark noSelect"></span>
+				</label>
+			</div>
+
+			<label style="width: 100%; height: 22px; position: relative; display: block; background-color: rgb(341, 123, 223); margin-bottom: 25px; font-size: 20px; border: outset grey 1px;">
+				Interlocking to Mosaic
+			</label>
+			<div style="display: block; margin: auto; margin-bottom: 25px; padding-left: 35px; margin-top: 10px">
+				<label class="prefContainer noSelect">
+					Remove "dots"
+					<input id="removeDotsStylePref" name="prefStyleChanging" type="radio" onclick="styleChangePref()"
+						checked="checked">
+					<span class="checkmark noSelect"></span>
+				</label>
+				<label class="prefContainer noSelect">
+					Keep "dots"
+					<input id="keepDotsStylePref" name="prefStyleChanging" type="radio" onclick="styleChangePref()">
+					<span class="checkmark noSelect"></span>
+				</label>
+			</div>
+
+			<label style="width: 100%; height: 22px; position: relative; display: block; background-color: rgb(341, 123, 223); margin-bottom: 25px; font-size: 20px; border: outset grey 1px;">
+				Corner Marks
+			</label>
+			<div style="display: block; margin: auto; margin-bottom: 25px; padding-left: 35px ; margin-top: 10px">
+				<label class="prefContainer noSelect">
+					Yes
+					<input id="yesCornerPref" name="prefCornerMark" type="radio" onclick="cornerMarksPref()" checked="checked">
+					<span class="checkmark noSelect"></span>
+				</label>
+				<label class="prefContainer noSelect">
+					No
+					<input id="noCornerPref" name="prefCornerMark" type="radio" onclick="cornerMarksPref()">
+					<span class="checkmark noSelect"></span>
+				</label>
+			</div>
+		</aside>
+
+		<!-------- Import Side Panel -------->
+		<aside id="importMenu" class="noSelect">
+			<div style="height: 60px; width: 330px; background-color: rgb(255,255,255); -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,1); box-shadow: inset 0 0 5px rgba(0,0,0,1); border-radius: 10px;  font-size: 40px; padding-top: 15px; padding-left: 30px; position: fixed; z-index: 11;">
+				Import Menu
+			</div>
+			<img id="closePref" class="noSelect sidePanelX" src="s/img/ID-Scribe-X.webp" alt="X" onclick="impOpenClose()">
+
+			<!------- Image Import Canvas ------>
+			<div id="impUploadDiv" style="width: 360px; background-color: #99fcfc; height: 390px; position: fixed; z-index: 10; max-height: 585px;">
+				<div id="impUploadCanvas" style="position:fixed; width: 330px; left: 15px; background-color: #fc99fc; border-radius: 15px; ">
+
+
+					<canvas id="importHolder" class="noSelect" style="max-width: 300px; max-height: 450px; border-radius: 5px; border: 1px solid black; margin-bottom: 15px; margin-top: 100px;" onload="loadImage();loadImage()">
+
+					</canvas>
+
+					<label class="uploadImageButton noSelect" for="imageUpload" style="margin-bottom: 25px;">
+						Load Image
+					</label>
+					<input id="imageUpload" class="noSelect" style=" display: none;" type="file"
+						accept="image/png, image/jpg, image/jpeg"
+						oninput="loadImage();loadImage();loadImpLvl1();getPxImp()">
+				</div>
+				<br>
+			</div>
+			<div class="horzDivider" id="impFixedDivider" style="margin-top:390px"></div>
+			<br>
+
+
+			<div id="impLvl1" style="display: none;">
+
+				<label class="uploadImageButton noSelect" for="imageReupload" id="imageReuploadLabel">
+					Loading...
+				</label>
+				<button id="imageReupload" class="noSelect" style=" display: none;"
+					onclick="document.getElementById('imageUpload').click()"></button>
+				<br>
+				<div class="horzDivider" style="margin-top: 25px;">
+					<br>
+					<label style="font-size: 25px;">Style</label>
+					<div style="margin-left: 37px;">
+
+						<label class="prefContainer noSelect">
+							Interlocking
+							<input id="impInterlocking" name="impCroStyle" type="radio"
+								onclick="impStyleSelect();impImageStandin();loadImpLvl2();getPxImp()">
+
+							<span class="checkmark noSelect">
+							</span>
+						</label>
+						<label class="prefContainer noSelect">
+							Mosaic
+							<input id="impMosaic" name="impCroStyle" type="radio"
+								onclick="impStyleSelect();impImageStandin();loadImpLvl2();getPxImp()">
+							<span class="checkmark noSelect">
+							</span>
+						</label>
+					</div>
+					<br>
+					<div class="horzDivider">
+						<br>
+						<label style="font-size: 25px;">Gauge</label>
+						<div style="margin-left: 37px;">
+							<label class="prefContainer noSelect">
+								4x4 STS in 1"
+								<input id="imp4x4" name="importGauge" type="radio"
+									onclick="impGaugeSelect();getPxImp();">
+								<span class="checkmark noSelect">
+								</span>
+							</label>
+							<label class="prefContainer noSelect">
+								5x5 STS in 1"
+								<input id="imp5x5" name="importGauge" type="radio"
+									onclick="impGaugeSelect();getPxImp();">
+								<span class="checkmark noSelect">
+								</span>
+							</label>
+						</div>
+						<br>
+						<div class="horzDivider">
+							<br>
+
+							<div>
+
+								<div style="margin-left: 37px;">
+									<label class="prefContainer noSelect">
+										Keep Image Ratio
+										<input id="impRatio" type="checkbox" onclick="impRatioFunc(this)" checked>
+										<span class="checkmark noSelect">
+										</span>
+									</label>
+								</div>
+
+								<div style="position: relative; left: 20px; display: block; top: 10px;">
+									<label id="impStitch" style="font-size: 20px; position: relative; right: -5px;">
+										Stitches
+									</label>
+									<label id="impInchCm" style="font-size: 20px; position: relative; left: 25px;">
+										Inches
+									</label>
+									<img src="s/img/Change_Icon.png" style="width: 20px; left: 25px; top: 3px; position: relative; background-color: white; border-radius: 5px; border: 1px solid black; padding: 1px;" onclick="unitToggleImp(); unitChange(); getPxImp()">
+									<br>
+								</div>
+
+								<div>
+									<label style="font-size: 19px; top: 7px; position: relative;">
+										Width
+									</label>
+									<input id="impWidth" class="sizeInput2" type="number" title="These numbers MUST be odd for the graph to work, and will be rounded up" value="" min="5" onchange="setWidthImp(this.value);getPxImp()">
+									<input id="impInchWidth" class="sizeInput2" type="number" title="This will be rounded" value="" min="" onchange="setInchWidthImp(this.value);getPxImp();getInchImp();" onfocusout="">
+									<br>
+									<div style="right: 1px;position: relative;">
+										<label style="font-size: 19px; top: 7px; position: relative; display: inline-block; left: 1px;">
+											Height
+										</label>
+										<input id="impHeight" class="sizeInput2" type="number" title="These numbers MUST be odd for the graph to work, and will be rounded up" value="" min="5" onchange="setHeightImp(this.value);getPxImp()">
+										<input id="impInchHeight" class="sizeInput2" type="number" title="This will be rounded" value="" min="" onchange="setInchHeightImp(this.value);getPxImp();getInchImp()" onfocusout="">
+									</div>
+								</div>
+							</div>
+
+							<br>
+
+							<div class="horzDivider" style="margin-top: 10px;"></div>
+
+							<div id="impLvl2" style="display: none;">
+								<br>
+								<label style="font-size: 25px;">
+									First Color
+								</label>
+								<div style="margin-left: 37px;">
+									<label class="prefContainer noSelect">
+										Dark Color
+										<input id="impDarkFirst" name="impFirstColor" type="radio"
+											onclick="setFirstColorImp()" checked="checked">
+										<span class="checkmark noSelect">
+										</span>
+									</label>
+									<label class="prefContainer noSelect">
+										Light Color
+										<input id="impLightFirst" name="impFirstColor" type="radio"
+											onclick="setFirstColorImp()" disabled>
+										<span class="checkmark noSelect">
+										</span>
+									</label>
+								</div>
+
+								<br>
+								<div class="horzDivider">
+									<br>
+
+									<label for="greyRange" style="font-size: 25px;">
+										Contrast
+									</label>
+									<!---- Contrast Slider ---->
+									<input type="range" id="greyRange" min="20" max="150" value="85" style="width: 300px" oninput="impImageStandin()">
+									<div id="greyLevelPercent">100%</div>
+									<div class="horzDivider" style="margin-top: 10px;"></div>
+									<br>
+									<div style="margin-left: 37px;">
+										<label class="prefContainer noSelect">
+											Built In Shading
+											<input id="impShade" type="checkbox" onclick="impShade()">
+											<span class="checkmark noSelect">
+											</span>
+										</label>
+									</div>
+
+									<!---- Import Shading Options ---->
+									<div id="impShadeOptionContainer">
+										<label class="prefContainer noSelect">
+											Horizontal
+											<input id="impHorz" name="impShadeStyle" type="radio" onclick="impShadeSelect()" checked>
+											<span class="checkmark noSelect">
+											</span>
+										</label>
+										<label class="prefContainer noSelect">
+											Vertical
+											<input id="impVert" name="impShadeStyle" type="radio"
+												onclick="impShadeSelect()">
+											<span class="checkmark noSelect">
+											</span>
+										</label>
+									</div>
+
+									<div style="padding-bottom: 50px; position: relative;">
+										<button id="importGo" class="noSelect pointerCursor goButton" onclick="nameElem();setElem();impVariableSet(0);impCanvasToGraph();zoomGraph(document.getElementById('zoomSlider'));impOpenClose()">
+											Go!
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!---- Image Holders ---->
+						<!---- Raw Imported Image Holder ---->
+						<img id="importImageHolder" src="" class="noSelect">
+
+						</img>
+						<!---- Key Page Holders ---->
+						<canvas id="keyPageIntHold" hidden></canvas>
+						<canvas id="keyPageMosHold" hidden></canvas>
+
+						<!------- Stitch Holders ------>
+						<canvas id="stitchHolder" hidden></canvas>
+					</div>
+				</div>
+			</div>
+		</aside>
+	</section>
+
+	<script type="text/javascript" src="s/IDScribe_Backend2_999.js" onload="drawKeyPages()">
+	</script>
+
+
+</body>
+
+</html>
