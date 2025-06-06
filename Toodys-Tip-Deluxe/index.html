@@ -272,9 +272,38 @@
             border-bottom: 2px dotted var(--primary-red); 
         }
         
-        .week-navigation { display:flex;justify-content:center;align-items:center;margin-bottom:20px;margin-top:10px; flex-wrap: wrap; }
-        .week-navigation .button { margin:0 12px;font-size:1.1em;padding:8px 15px;letter-spacing:normal }
-        #currentlyViewedWeekDisplay { font-family:var(--font-display);font-size:1.6em;color:var(--accent-black);min-width:300px;text-align:center;padding:5px;border-bottom:2px solid var(--primary-red); letter-spacing: 0.5px; }
+        /* UPDATED: Weekly navigation styles for robust layout */
+        .week-navigation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            margin-top: 10px;
+        }
+        .week-navigation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+        }
+        .week-navigation .button {
+            margin: 0;
+            font-size: 1.1em;
+            padding: 8px 15px;
+            letter-spacing: normal;
+        }
+        #currentlyViewedWeekDisplay {
+            font-family: var(--font-display);
+            font-size: 1.6em;
+            color: var(--accent-black);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            padding: 5px;
+            border-bottom: 2px solid var(--primary-red);
+            letter-spacing: 0.5px;
+        }
 
         .collapse-bottom-btn {
             display: block;
@@ -313,14 +342,8 @@
             #fullEmployeeRosterContainer .item-list li {
                 flex: 1 1 100%; min-width: unset;
             }
-            /* FIX: Make week navigation stack vertically on mobile */
-            .week-navigation {
-                flex-direction: column;
-                gap: 15px;
-            }
             #currentlyViewedWeekDisplay {
-                min-width: unset; /* Allow it to shrink */
-                width: 100%;
+                min-width: unset;
             }
         }
         @media (max-width: 480px) { 
@@ -496,7 +519,7 @@
 <body>
     <div class="app-container">
         <header>
-            <h1>Toody's TipSplit Deluxe!</h1>
+            <h1>Diner Dash TipSplit Deluxe!</h1>
         </header>
 
         <div class="top-date-controls">
@@ -599,9 +622,11 @@
             </h2>
             <div class="collapsible-content" id="weeklyReportContent" style="display: none;">
                 <div class="week-navigation">
-                    <button id="prevWeekBtn" class="button">&laquo; Prev Week</button>
+                    <div class="week-navigation-buttons">
+                        <button id="prevWeekBtn" class="button">&laquo; Prev Week</button>
+                        <button id="nextWeekBtn" class="button">Next Week &raquo;</button>
+                    </div>
                     <span id="currentlyViewedWeekDisplay">Week: N/A</span>
-                    <button id="nextWeekBtn" class="button">Next Week &raquo;</button>
                 </div>
                 <button id="exportWeeklyCSVBtn" class="button" style="display:none;">Export This Week</button>
                 <div id="reportOutput"></div>
@@ -646,8 +671,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("APP_LOG: DOM Fully Loaded and Parsed");
     // --- Globals & State ---
-    let employeeRoster = JSON.parse(localStorage.getItem('toodysTipSplit_employeeRosterV2')) || [];
-    let dailyShifts = JSON.parse(localStorage.getItem('toodysTipSplit_dailyShiftsV2')) || {};
+    let employeeRoster = JSON.parse(localStorage.getItem('dinerTipSplit_employeeRosterV2')) || [];
+    let dailyShifts = JSON.parse(localStorage.getItem('dinerTipSplit_dailyShiftsV2')) || {};
     const JOB_POSITIONS_AVAILABLE = ["Server", "Busser", "Shake Spinner", "Food Runner", "Host"];
     const BASE_CYCLE_START_DATE = new Date('2025-06-02T00:00:00Z'); 
     let currentReportWeekStartDate = null;
@@ -777,8 +802,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const saveState = () => { 
-        localStorage.setItem('toodysTipSplit_employeeRosterV2',JSON.stringify(employeeRoster)); 
-        localStorage.setItem('toodysTipSplit_dailyShiftsV2',JSON.stringify(dailyShifts)); 
+        localStorage.setItem('dinerTipSplit_employeeRosterV2',JSON.stringify(employeeRoster)); 
+        localStorage.setItem('dinerTipSplit_dailyShiftsV2',JSON.stringify(dailyShifts)); 
         console.log("APP_LOG: State saved."); 
         
         const payoutContent = document.getElementById('payoutContent');
@@ -2013,7 +2038,7 @@ document.addEventListener('DOMContentLoaded', () => {
             a.style.display = 'none';
             a.href = url;
             const today = new Date().toISOString().slice(0, 10);
-            a.download = `toodys-tipsplit-save-${today}.json`;
+            a.download = `diner-tipsplit-save-${today}.json`;
             
             document.body.appendChild(a);
             a.click();
@@ -2046,8 +2071,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loadedState && typeof loadedState.employeeRoster === 'object' && typeof loadedState.dailyShifts === 'object') {
                     if (confirm("Are you sure you want to load this file? This will overwrite all current data.")) {
                         // Directly set the data in localStorage
-                        localStorage.setItem('toodysTipSplit_employeeRosterV2', JSON.stringify(loadedState.employeeRoster));
-                        localStorage.setItem('toodysTipSplit_dailyShiftsV2', JSON.stringify(loadedState.dailyShifts));
+                        localStorage.setItem('dinerTipSplit_employeeRosterV2', JSON.stringify(loadedState.employeeRoster));
+                        localStorage.setItem('dinerTipSplit_dailyShiftsV2', JSON.stringify(loadedState.dailyShifts));
                         
                         alert('Save state loaded successfully! The page will now reload to apply the changes.');
                         location.reload(); // Reload the page to re-initialize the app with the new data
