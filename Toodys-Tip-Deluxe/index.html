@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diner Dash TipSplit Deluxe!</title>
+    <title>Toody's TipSplit Deluxe!</title>
     <!-- SheetJS Library for XLSX Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -272,6 +272,26 @@
             border-bottom: 2px dotted var(--primary-red); 
         }
         
+        .week-navigation { display:flex;justify-content:center;align-items:center;margin-bottom:20px;margin-top:10px; flex-wrap: wrap; }
+        .week-navigation .button { margin:0 12px;font-size:1.1em;padding:8px 15px;letter-spacing:normal }
+        #currentlyViewedWeekDisplay { font-family:var(--font-display);font-size:1.6em;color:var(--accent-black);min-width:300px;text-align:center;padding:5px;border-bottom:2px solid var(--primary-red); letter-spacing: 0.5px; }
+
+        .collapse-bottom-btn {
+            display: block;
+            margin: 20px auto 0;
+            font-size: 0.9em;
+            padding: 8px 15px;
+            letter-spacing: normal;
+            text-transform: none;
+            background-color: #f0f0f0;
+            color: var(--accent-black);
+            border-color: #ccc;
+        }
+
+        .collapse-bottom-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
         @media (max-width: 992px) { 
             #fullEmployeeRosterContainer .item-list li {
                 flex: 1 1 calc(50% - 15px); min-width: 250px;
@@ -292,6 +312,15 @@
             }
             #fullEmployeeRosterContainer .item-list li {
                 flex: 1 1 100%; min-width: unset;
+            }
+            /* FIX: Make week navigation stack vertically on mobile */
+            .week-navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            #currentlyViewedWeekDisplay {
+                min-width: unset; /* Allow it to shrink */
+                width: 100%;
             }
         }
         @media (max-width: 480px) { 
@@ -378,10 +407,6 @@
         #addEmployeeFormWrapper #importSectionWrapper #importStatusMessages ul { margin-top:3px;margin-bottom:0;padding-left:20px; }
         #addEmployeeFormWrapper #importSectionWrapper #importStatusMessages li { padding:2px 0;border:none;background:none;box-shadow:none;margin-bottom:0;color:var(--accent-black); }
 
-        .week-navigation { display:flex;justify-content:center;align-items:center;margin-bottom:20px;margin-top:10px }
-        .week-navigation .button { margin:0 12px;font-size:1.1em;padding:8px 15px;letter-spacing:normal }
-        #currentlyViewedWeekDisplay { font-family:var(--font-display);font-size:1.6em;color:var(--accent-black);min-width:300px;text-align:center;padding:5px;border-bottom:2px solid var(--primary-red); letter-spacing: 0.5px; }
-        
         .day-nav-container { display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:15px;padding-bottom:15px;border-bottom:2px dashed var(--border-color); }
         .day-nav-container .day-nav-btn { font-family:var(--font-body);font-size:0.9em;padding:6px 12px;margin:0;min-width:80px;border-width:2px; }
         .day-nav-container .day-nav-btn.active-day { background-color:var(--accent-black);color:var(--pure-white);border-color:var(--accent-black); }
@@ -471,7 +496,7 @@
 <body>
     <div class="app-container">
         <header>
-            <h1>Diner Dash TipSplit Deluxe!</h1>
+            <h1>Toody's TipSplit Deluxe!</h1>
         </header>
 
         <div class="top-date-controls">
@@ -621,8 +646,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("APP_LOG: DOM Fully Loaded and Parsed");
     // --- Globals & State ---
-    let employeeRoster = JSON.parse(localStorage.getItem('dinerTipSplit_employeeRosterV2')) || [];
-    let dailyShifts = JSON.parse(localStorage.getItem('dinerTipSplit_dailyShiftsV2')) || {};
+    let employeeRoster = JSON.parse(localStorage.getItem('toodysTipSplit_employeeRosterV2')) || [];
+    let dailyShifts = JSON.parse(localStorage.getItem('toodysTipSplit_dailyShiftsV2')) || {};
     const JOB_POSITIONS_AVAILABLE = ["Server", "Busser", "Shake Spinner", "Food Runner", "Host"];
     const BASE_CYCLE_START_DATE = new Date('2025-06-02T00:00:00Z'); 
     let currentReportWeekStartDate = null;
@@ -752,8 +777,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const saveState = () => { 
-        localStorage.setItem('dinerTipSplit_employeeRosterV2',JSON.stringify(employeeRoster)); 
-        localStorage.setItem('dinerTipSplit_dailyShiftsV2',JSON.stringify(dailyShifts)); 
+        localStorage.setItem('toodysTipSplit_employeeRosterV2',JSON.stringify(employeeRoster)); 
+        localStorage.setItem('toodysTipSplit_dailyShiftsV2',JSON.stringify(dailyShifts)); 
         console.log("APP_LOG: State saved."); 
         
         const payoutContent = document.getElementById('payoutContent');
@@ -830,6 +855,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const indicator = header.querySelector('.collapse-indicator'); 
             if (!content) { console.warn(`Collapsible content NOT FOUND for ID: '${contentId}'`); return; } 
             
+            // --- FIX: Add a collapse button at the bottom of the content ---
+            if (!content.querySelector('.collapse-bottom-btn')) {
+                const collapseBtnBottom = document.createElement('button');
+                collapseBtnBottom.className = 'button collapse-bottom-btn';
+                collapseBtnBottom.textContent = 'Collapse Section ↑';
+                collapseBtnBottom.addEventListener('click', () => header.click());
+                content.appendChild(collapseBtnBottom);
+            }
+            // --- End of FIX ---
+
             let startCollapsed = localStorage.getItem(`collapsible_${contentId}_collapsed`) !== 'false'; 
             if (contentId === 'lineupContent') { 
                 startCollapsed = localStorage.getItem(`collapsible_${contentId}_collapsed`) === 'true';
@@ -914,7 +949,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         renderLineupDayNavigation();
         renderScoopDayNavigation();
-        renderEmployeeRoster();       
+        renderEmployeeRoster();        
         applyMasonryLayoutToRoster(); 
 
         const payoutContentEl = document.getElementById('payoutContent');
@@ -1369,7 +1404,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(liToUpdate && btnToUpdate) {
                 updateEmployeeLineupCard(liToUpdate, btnToUpdate, null);
             } else {
-                 renderEmployeeRoster(); 
+                renderEmployeeRoster(); 
             }
         } else {
              renderEmployeeRoster(); 
@@ -1393,7 +1428,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return {
                 ...s, 
                 hoursWorked: exactHours, 
-                shiftWage: wage,        
+                shiftWage: wage,       
                 roundedTimeInForTips: roundToNearest15Minutes(s.timeIn),
                 roundedTimeOutForTips: roundToNearest15Minutes(s.timeOut),
                 ...tipDetails
@@ -1484,28 +1519,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 html += `<div class="data-table-container" style="overflow-x:auto;"><table class="data-results-table"><thead><tr><th>Employee</th><th>Shift Time</th><th>Hrs</th><th>Wage</th><th>Sales</th><th>CC Tips</th><th>Cash Tips</th><th>Tip Out</th><th>Tip In</th><th>Take-Home Tips</th><th>Action</th></tr></thead><tbody>`;
                 groupedByPosition[posKey].sort((a,b) => sortEmployeesByName(a,b,'employeeName')).forEach((pShift, index) => { 
                     html += `<tr>
-                                 <td data-label="Employee">${pShift.employeeName}</td>
-                                 <td data-label="Shift Time">${formatTimeTo12Hour(pShift.timeIn)} - ${formatTimeTo12Hour(pShift.timeOut)}</td>
-                                 <td data-label="Hrs">${pShift.hoursWorked.toFixed(2)}</td>
-                                 <td data-label="Wage">$${pShift.shiftWage.toFixed(2)}</td>
-                                 <td data-label="Sales">${pShift.positionWorked === "Server" ? `$${(pShift.totalSales || 0).toFixed(2)}` : 'N/A'}</td>
-                                 <td data-label="CC Tips">${pShift.positionWorked === "Server" ? `$${(pShift.ccTips || 0).toFixed(2)}` : 'N/A'}</td>
-                                 <td data-label="Cash Tips">${pShift.positionWorked === "Server" ? `$${(pShift.cashTips || 0).toFixed(2)}` : 'N/A'}</td>
-                                 <td data-label="Tip Out">${pShift.positionWorked === "Server" ? `$${(pShift.tipOutGiven || 0).toFixed(2)}` : 'N/A'}</td>
-                                 <td data-label="Tip In">${pShift.positionWorked !== "Server" ? `$${(pShift.tipInReceived || 0).toFixed(2)}` : 'N/A'}</td>
-                                 <td data-label="Take-Home Tips"><strong>$${(pShift.finalTakeHomeTips || 0).toFixed(2)}</strong></td>
-                                 <td data-label="Action">
-                                     <button class="button small-action-btn remove-shift-from-scoop-btn"
-                                             data-shift-id="${pShift.id}"
-                                             data-date="${pShift.date}" 
-                                             data-empid="${pShift.employeeId}"
-                                             data-positioncontext="${pShift.positionWorked}"
-                                             title="Remove this shift permanently"
-                                             style="background-color: #c62828; font-size: 0.8em; padding: 4px 8px; margin-top:0;">
-                                         Del
-                                     </button>
-                                 </td>
-                             </tr>`;
+                                     <td data-label="Employee">${pShift.employeeName}</td>
+                                     <td data-label="Shift Time">${formatTimeTo12Hour(pShift.timeIn)} - ${formatTimeTo12Hour(pShift.timeOut)}</td>
+                                     <td data-label="Hrs">${pShift.hoursWorked.toFixed(2)}</td>
+                                     <td data-label="Wage">$${pShift.shiftWage.toFixed(2)}</td>
+                                     <td data-label="Sales">${pShift.positionWorked === "Server" ? `$${(pShift.totalSales || 0).toFixed(2)}` : 'N/A'}</td>
+                                     <td data-label="CC Tips">${pShift.positionWorked === "Server" ? `$${(pShift.ccTips || 0).toFixed(2)}` : 'N/A'}</td>
+                                     <td data-label="Cash Tips">${pShift.positionWorked === "Server" ? `$${(pShift.cashTips || 0).toFixed(2)}` : 'N/A'}</td>
+                                     <td data-label="Tip Out">${pShift.positionWorked === "Server" ? `$${(pShift.tipOutGiven || 0).toFixed(2)}` : 'N/A'}</td>
+                                     <td data-label="Tip In">${pShift.positionWorked !== "Server" ? `$${(pShift.tipInReceived || 0).toFixed(2)}` : 'N/A'}</td>
+                                     <td data-label="Take-Home Tips"><strong>$${(pShift.finalTakeHomeTips || 0).toFixed(2)}</strong></td>
+                                     <td data-label="Action">
+                                         <button class="button small-action-btn remove-shift-from-scoop-btn"
+                                                 data-shift-id="${pShift.id}"
+                                                 data-date="${pShift.date}" 
+                                                 data-empid="${pShift.employeeId}"
+                                                 data-positioncontext="${pShift.positionWorked}"
+                                                 title="Remove this shift permanently"
+                                                 style="background-color: #c62828; font-size: 0.8em; padding: 4px 8px; margin-top:0;">
+                                             Del
+                                         </button>
+                                     </td>
+                                 </tr>`;
 
                     if (pShift.positionWorked !== "Server" && pShift.detailedTipIns && pShift.detailedTipIns.length > 0) {
                         html += `<tr class="detailed-tip-in-row-daily ${index % 2 === 1 ? 'even-detail' : 'odd-detail'}"><td colspan="11">`; 
@@ -1978,7 +2013,7 @@ document.addEventListener('DOMContentLoaded', () => {
             a.style.display = 'none';
             a.href = url;
             const today = new Date().toISOString().slice(0, 10);
-            a.download = `diner-tipsplit-save-${today}.json`;
+            a.download = `toodys-tipsplit-save-${today}.json`;
             
             document.body.appendChild(a);
             a.click();
@@ -2011,8 +2046,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loadedState && typeof loadedState.employeeRoster === 'object' && typeof loadedState.dailyShifts === 'object') {
                     if (confirm("Are you sure you want to load this file? This will overwrite all current data.")) {
                         // Directly set the data in localStorage
-                        localStorage.setItem('dinerTipSplit_employeeRosterV2', JSON.stringify(loadedState.employeeRoster));
-                        localStorage.setItem('dinerTipSplit_dailyShiftsV2', JSON.stringify(loadedState.dailyShifts));
+                        localStorage.setItem('toodysTipSplit_employeeRosterV2', JSON.stringify(loadedState.employeeRoster));
+                        localStorage.setItem('toodysTipSplit_dailyShiftsV2', JSON.stringify(loadedState.dailyShifts));
                         
                         alert('Save state loaded successfully! The page will now reload to apply the changes.');
                         location.reload(); // Reload the page to re-initialize the app with the new data
