@@ -2034,33 +2034,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         reader.readAsText(file);
     }
-    // --- TUTORIAL FUNCTIONS ---
+    
+    // --- TUTORIAL FUNCTIONS (REVISED) ---
     function startTutorial(tutorialKey) {
         currentTutorialSteps = tutorials[tutorialKey] || [];
         if (currentTutorialSteps.length === 0) {
             console.error("Tutorial not found for key:", tutorialKey);
             return;
         }
-        // Ensure the relevant section is visible
-        const firstStep = currentTutorialSteps[0];
-        const firstElement = document.querySelector(firstStep.element) || document.querySelector(firstStep.fallbackElement);
-        if (firstElement) {
-            const sectionCard = firstElement.closest('.section-card');
-            if (sectionCard) {
-                const collapsibleContent = sectionCard.querySelector('.collapsible-content');
-                if (collapsibleContent && collapsibleContent.style.display === 'none') {
-                    const header = collapsibleContent.previousElementSibling;
-                    if(header && header.classList.contains('collapsible-header')) {
-                       header.click();
-                    }
-                }
-            }
-        }
-
 
         currentTutorialStepIndex = 0;
         tutorialOverlay.style.display = 'block';
-        document.body.style.overflow = 'hidden'; // Prevent scrolling during tutorial
+        document.body.style.overflow = 'hidden';
         showTutorialStep(currentTutorialStepIndex);
     }
 
@@ -2068,7 +2053,27 @@ document.addEventListener('DOMContentLoaded', () => {
         tutorialOverlay.style.display = 'none';
         tutorialHighlightBox.style.display = 'none';
         tutorialTextBox.style.display = 'none';
-        document.body.style.overflow = ''; // Re-enable scrolling
+        document.body.style.overflow = '';
+    }
+    
+    function ensureElementIsVisible(element, callback) {
+        if (!element) {
+            if (callback) callback();
+            return;
+        }
+
+        const section = element.closest('.section-card');
+        if (section) {
+            const content = section.querySelector('.collapsible-content');
+            const header = section.querySelector('.collapsible-header');
+
+            if (content && header && content.style.display === 'none') {
+                header.click();
+                setTimeout(() => { if (callback) callback(); }, 350); // Wait for animation
+                return;
+            }
+        }
+        if (callback) callback();
     }
 
     function showTutorialStep(index) {
@@ -2076,46 +2081,10 @@ document.addEventListener('DOMContentLoaded', () => {
             closeTutorial();
             return;
         }
-        
+
         currentTutorialStepIndex = index;
         const step = currentTutorialSteps[index];
 
-        const showTheStep = (targetEl) => {
-            if (!targetEl || !targetEl.offsetParent) { // Check if element is visible
-                 console.warn("Tutorial element not visible:", step.element);
-                 tutorialHighlightBox.style.display = 'none';
-                 tutorialTextBox.style.top = '50%';
-                 tutorialTextBox.style.left = '50%';
-                 tutorialTextBox.style.transform = 'translate(-50%, -50%)';
-                 tutorialTextBox.style.display = 'block';
-            } else {
-                 const rect = targetEl.getBoundingClientRect();
-                 tutorialHighlightBox.style.top = `${rect.top - 5}px`;
-                 tutorialHighlightBox.style.left = `${rect.left - 5}px`;
-                 tutorialHighlightBox.style.width = `${rect.width + 10}px`;
-                 tutorialHighlightBox.style.height = `${rect.height + 10}px`;
-                 tutorialHighlightBox.style.display = 'block';
-
-                 // Position text box
-                 const textRect = tutorialTextBox.getBoundingClientRect();
-                 let top = rect.bottom + 15;
-                 if (top + textRect.height > window.innerHeight) {
-                     top = rect.top - textRect.height - 15;
-                 }
-                 let left = rect.left + (rect.width / 2) - (textRect.width / 2);
-                 if (left < 10) left = 10;
-                 if (left + textRect.width > window.innerWidth - 10) {
-                     left = window.innerWidth - textRect.width - 10;
-                 }
-
-                 tutorialTextBox.style.top = `${top}px`;
-                 tutorialTextBox.style.left = `${left}px`;
-                 tutorialTextBox.style.transform = 'none';
-                 tutorialTextBox.style.display = 'block';
-            }
-            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        };
-        
         tutorialTitle.textContent = step.title;
         tutorialText.textContent = step.text;
         tutorialStepCounter.textContent = `${index + 1} / ${currentTutorialSteps.length}`;
@@ -2123,20 +2092,61 @@ document.addEventListener('DOMContentLoaded', () => {
         tutorialNextBtn.disabled = index === currentTutorialSteps.length - 1;
         tutorialNextBtn.textContent = index === currentTutorialSteps.length - 1 ? 'Finish' : 'Next »';
 
-        if (step.isDynamic) {
-             const trigger = document.querySelector(step.dynamicTrigger);
-             if(trigger && typeof trigger.click === 'function') {
-                 trigger.click();
-             }
-             // Use a timeout to allow the DOM to update after the click
-             setTimeout(() => {
-                const targetEl = document.querySelector(step.element);
-                showTheStep(targetEl || document.querySelector(step.fallbackElement));
-             }, 300); 
-        } else {
-            const targetEl = document.querySelector(step.element) || document.querySelector(step.fallbackElement);
-            showTheStep(targetEl);
-        }
+        const positionAndShow = (targetEl) => {
+            if (!targetEl || !targetEl.offsetParent) {
+                console.warn("Tutorial element not visible or found:", step.element);
+                tutorialHighlightBox.style.display = 'none';
+                tutorialTextBox.style.top = '50%';
+                tutorialTextBox.style.left = '50%';
+                tutorialTextBox.style.transform = 'translate(-50%, -50%)';
+            } else {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const rect = targetEl.getBoundingClientRect();
+                
+                tutorialHighlightBox.style.display = 'block';
+                tutorialHighlightBox.style.top = `${rect.top - 5}px`;
+                tutorialHighlightBox.style.left = `${rect.left - 5}px`;
+                tutorialHighlightBox.style.width = `${rect.width + 10}px`;
+                tutorialHighlightBox.style.height = `${rect.height + 10}px`;
+
+                tutorialTextBox.style.display = 'block';
+                const textRect = tutorialTextBox.getBoundingClientRect();
+
+                let textTop = rect.bottom + 15;
+                if (textTop + textRect.height > window.innerHeight) {
+                    textTop = rect.top - textRect.height - 15;
+                }
+                
+                let textLeft = rect.left + (rect.width / 2) - (textRect.width / 2);
+                if (textLeft < 10) textLeft = 10;
+                if (textLeft + textRect.width > window.innerWidth - 10) {
+                    textLeft = window.innerWidth - textRect.width - 10;
+                }
+
+                tutorialTextBox.style.top = `${textTop}px`;
+                tutorialTextBox.style.left = `${textLeft}px`;
+                tutorialTextBox.style.transform = 'none';
+            }
+        };
+
+        const findAndShow = () => {
+             const el = document.querySelector(step.element) || document.querySelector(step.fallbackElement);
+             positionAndShow(el);
+        };
+        
+        let initialElement = document.querySelector(step.element) || document.querySelector(step.fallbackElement);
+        
+        ensureElementIsVisible(initialElement, () => {
+            if (step.isDynamic) {
+                const trigger = document.querySelector(step.dynamicTrigger);
+                if (trigger && typeof trigger.click === 'function') {
+                    trigger.click();
+                }
+                setTimeout(findAndShow, 400); // Wait for potential DOM updates
+            } else {
+                findAndShow();
+            }
+        });
     }
 
 
