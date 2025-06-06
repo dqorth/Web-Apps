@@ -272,6 +272,7 @@
             border-bottom: 2px dotted var(--primary-red); 
         }
         
+        /* UPDATED: Weekly navigation styles for robust layout */
         .week-navigation {
             display: flex;
             flex-direction: column;
@@ -631,6 +632,23 @@
                 <div id="reportOutput"></div>
             </div>
         </div>
+
+        <!-- NEW: Settings and Data Management Section -->
+        <div class="section-card" id="dataManagementSection">
+            <h2 class="collapsible-header" role="button" aria-expanded="false" aria-controls="dataManagementContent">
+                Settings &amp; Data Management
+                <button class="button tutorial-btn" data-tutorial-for="data">How-To</button>
+                <span class="collapse-indicator">+</span>
+            </h2>
+            <div class="collapsible-content" id="dataManagementContent" style="display: none;">
+                <p>Here you can download all your data (roster and shifts) to a file for backup, or load a previously saved file to restore your state.</p>
+                <div style="display:flex; flex-wrap:wrap; gap: 15px; margin-top:15px;">
+                    <button id="downloadStateBtn" class="button">Download Save Data</button>
+                    <label for="loadStateFile" class="button" style="background-color: #4CAF50;">Load Save Data</label>
+                    <input type="file" id="loadStateFile" accept=".json" style="display: none;">
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- TUTORIAL OVERLAY HTML -->
@@ -650,12 +668,11 @@
 
 
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
     console.log("APP_LOG: DOM Fully Loaded and Parsed");
-    
-    // --- State Variables ---
-    let employeeRoster = [];
-    let dailyShifts = {};
+    // --- Globals & State ---
+    let employeeRoster = JSON.parse(localStorage.getItem('dinerTipSplit_employeeRosterV2')) || [];
+    let dailyShifts = JSON.parse(localStorage.getItem('dinerTipSplit_dailyShiftsV2')) || {};
     const JOB_POSITIONS_AVAILABLE = ["Server", "Busser", "Shake Spinner", "Food Runner", "Host"];
     const BASE_CYCLE_START_DATE = new Date('2025-06-02T00:00:00Z'); 
     let currentReportWeekStartDate = null;
@@ -694,6 +711,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const exportWeeklyCSVBtn = document.getElementById('exportWeeklyCSVBtn');
     const reportOutputDiv = document.getElementById('reportOutput');
     let currentWeeklyDataForExport = [];
+
+    // Data Management DOM Elements
+    const downloadStateBtn = document.getElementById('downloadStateBtn');
+    const loadStateFileInput = document.getElementById('loadStateFile');
 
     // --- TUTORIAL ELEMENTS & STATE ---
     const tutorialOverlay = document.getElementById('tutorial-overlay');
@@ -744,54 +765,14 @@ document.addEventListener('DOMContentLoaded', async () => {
              { element: '.edit-shift-from-weekly-btn', fallbackElement: '#reportOutput', title: 'Quick Edit', text: "Made a mistake? Click 'Edit' on any shift in this report to instantly jump back to 'The Lineup' section with the correct form open, ready for you to make changes." },
              { element: '#exportWeeklyCSVBtn', title: 'Export to Excel', text: "Click here to download a beautifully formatted Excel file (.xlsx) of this week's report, complete with separate tabs for daily details and weekly totals." }
         ],
+        data: [
+            { element: '#downloadStateBtn', title: 'Backup Your Data', text: "Click this to save ALL your data—roster and every logged shift—to a single JSON file on your computer. It's a great idea to do this regularly as a backup!" },
+            { element: '#loadStateFile', title: 'Restore Your Data', text: "If you need to restore your data from a backup, click here to select the `.json` file you previously saved. This will overwrite ALL current data in the app." }
+        ]
     };
 
-    // --- Core Functions ---
-    async function loadInitialState() {
-        try {
-            const response = await fetch('savestate.json');
-            if (!response.ok) {
-                // If the file doesn't exist (like a 404), start with a fresh state.
-                console.warn('savestate.json not found, starting with a fresh state.');
-                employeeRoster = [];
-                dailyShifts = {};
-                return;
-            }
-            const data = await response.json();
-            // Basic validation to ensure the loaded data has the expected structure.
-            if (data && Array.isArray(data.employeeRoster) && typeof data.dailyShifts === 'object') {
-                employeeRoster = data.employeeRoster;
-                dailyShifts = data.dailyShifts;
-                console.log('APP_LOG: State successfully loaded from savestate.json');
-            } else {
-                // If the JSON is malformed, start fresh.
-                console.error('savestate.json is malformed. Starting with a fresh state.');
-                employeeRoster = [];
-                dailyShifts = {};
-            }
-        } catch (error) {
-            // Handle network errors or JSON parsing errors.
-            console.error('Error loading or parsing savestate.json:', error);
-            employeeRoster = [];
-            dailyShifts = {};
-        }
-    }
-    
-    const saveState = () => { 
-        console.log("APP_LOG: Saving state to localStorage (for session persistence).");
-        localStorage.setItem('dinerTipSplit_employeeRosterV2',JSON.stringify(employeeRoster)); 
-        localStorage.setItem('dinerTipSplit_dailyShiftsV2',JSON.stringify(dailyShifts)); 
-        
-        const payoutContent = document.getElementById('payoutContent');
-        if (payoutContent && payoutContent.style.display !== 'none') {
-            triggerDailyScoopCalculation();
-        }
-        const weeklyReportContent = document.getElementById('weeklyReportContent');
-        if (weeklyReportContent && weeklyReportContent.style.display !== 'none') {
-            triggerWeeklyRewindCalculation();
-        }
-    };
 
+    // --- Utility Functions ---
     function triggerDailyScoopCalculation() {
         if (!activeSelectedDate) { 
             if(payoutResultsDiv) payoutResultsDiv.innerHTML = "<p>Please select a date first.</p>";
@@ -819,6 +800,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         generateWeeklyReportContent();
     }
 
+
+    const saveState = () => { 
+        localStorage.setItem('dinerTipSplit_employeeRosterV2',JSON.stringify(employeeRoster)); 
+        localStorage.setItem('dinerTipSplit_dailyShiftsV2',JSON.stringify(dailyShifts)); 
+        console.log("APP_LOG: State saved."); 
+        
+        const payoutContent = document.getElementById('payoutContent');
+        if (payoutContent && payoutContent.style.display !== 'none') {
+            triggerDailyScoopCalculation();
+        }
+        const weeklyReportContent = document.getElementById('weeklyReportContent');
+        if (weeklyReportContent && weeklyReportContent.style.display !== 'none') {
+            triggerWeeklyRewindCalculation();
+        }
+    };
     const generateId = () => `id_${Date.now()}_${Math.random().toString(36).substring(2,9)}`;
     const formatDate = (dObj) => dObj.toISOString().split('T')[0];
     const formatDisplayDate = (dateStr) => { if(!dateStr)return "N/A"; const dObj=new Date(dateStr+'T00:00:00Z'); return dObj.toLocaleDateString('en-US',{weekday:'short',month:'2-digit',day:'2-digit',year:'numeric',timeZone:'UTC'});};
@@ -884,6 +880,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const indicator = header.querySelector('.collapse-indicator'); 
             if (!content) { console.warn(`Collapsible content NOT FOUND for ID: '${contentId}'`); return; } 
             
+            // --- FIX: Add a collapse button at the bottom of the content ---
             if (!content.querySelector('.collapse-bottom-btn')) {
                 const collapseBtnBottom = document.createElement('button');
                 collapseBtnBottom.className = 'button collapse-bottom-btn';
@@ -891,6 +888,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 collapseBtnBottom.addEventListener('click', () => header.click());
                 content.appendChild(collapseBtnBottom);
             }
+            // --- End of FIX ---
 
             let startCollapsed = localStorage.getItem(`collapsible_${contentId}_collapsed`) !== 'false'; 
             if (contentId === 'lineupContent') { 
@@ -902,6 +900,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             header.setAttribute('aria-expanded', String(!startCollapsed)); 
 
             header.addEventListener('click', (e) => {
+                // Prevent tutorial button from triggering collapse
                 if (e.target.classList.contains('tutorial-btn')) return;
 
                 const isCurrentlyHidden = content.style.display === 'none'; 
@@ -1049,7 +1048,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!container || !dateForNav) { if(container) container.innerHTML=''; return; }
         container.innerHTML = '';
         const navDiv = document.createElement('div');
-        navDiv.className = 'day-nav-container'; 
+        navDiv.className = 'day-nav-container'; // Use a generic class if style is shared
 
         const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
         const dayValues = [1, 2, 3, 4, 5, 6, 0];
@@ -1840,17 +1839,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert("Please ensure a week is selected in the 'Weekly Rewind' section first.");
             return;
         }
-        exportToXLSX();
+        exportToXLSX(); // Call the new XLSX export function
     });
     
     function exportToXLSX() {
         const wb = XLSX.utils.book_new();
         const daysOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        const dayValues = [1, 2, 3, 4, 5, 6, 0]; 
+        const dayValues = [1, 2, 3, 4, 5, 6, 0]; // Corresponding getUTCDay values for Mon-Sun
 
         const headerStyle = {
             font: { color: { rgb: "FFFFFF" }, bold: true },
-            fill: { fgColor: { rgb: "E53935" } }, 
+            fill: { fgColor: { rgb: "E53935" } }, // Red
             alignment: { horizontal: "center", vertical: "center" },
             border: {
                 top: { style: "thin", color: { auto: 1 } }, bottom: { style: "thin", color: { auto: 1 } },
@@ -1863,15 +1862,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 left: { style: "thin", color: { auto: 1 } }, right: { style: "thin", color: { auto: 1 } }
             }
         };
-         const zebraStripeEven = { fill: { fgColor: { rgb: "FFF9C4" } } }; 
-         const zebraStripeOdd = { fill: { fgColor: { rgb: "FFFFFF" } } };
+         const zebraStripeEven = { fill: { fgColor: { rgb: "FFF9C4" } } }; // Light cream for even data rows (after header)
+         const zebraStripeOdd = { fill: { fgColor: { rgb: "FFFFFF" } } };  // White for odd data rows
 
 
+        // 1. Daily Sheets
         for (let i = 0; i < 7; i++) {
             const dayToProcess = new Date(currentReportWeekStartDate);
             dayToProcess.setUTCDate(currentReportWeekStartDate.getUTCDate() + i);
             const dayString = formatDate(dayToProcess);
-            const sheetName = daysOrder[dayValues.indexOf(dayToProcess.getUTCDay())] || `Day ${i+1}`; 
+            const sheetName = daysOrder[dayValues.indexOf(dayToProcess.getUTCDay())] || `Day ${i+1}`; // Fallback sheet name
 
             const shiftsForDay = dailyShifts[dayString] || [];
             let sheetData = [];
@@ -1897,31 +1897,33 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ]);
                 });
             } else {
-                sheetData.push(["No shifts logged for this day."]); 
+                sheetData.push(["No shifts logged for this day."]); // Add a placeholder if no shifts
             }
 
             const ws = XLSX.utils.aoa_to_sheet(sheetData);
             
+            // Apply Styling
             const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let C = range.s.c; C <= range.e.c; ++C) { 
+            for (let C = range.s.c; C <= range.e.c; ++C) { // Header row
                 const cellAddress = XLSX.utils.encode_cell({r: 0, c: C});
-                if(!ws[cellAddress]) ws[cellAddress] = {v: ""}; 
+                if(!ws[cellAddress]) ws[cellAddress] = {v: ""}; // Ensure cell exists
                 ws[cellAddress].s = headerStyle;
             }
-            for (let R = 1; R <= range.e.r; ++R) { 
+            for (let R = 1; R <= range.e.r; ++R) { // Data rows
                 for (let C = range.s.c; C <= range.e.c; ++C) {
                     const cellAddress = XLSX.utils.encode_cell({r: R, c: C});
                     if(!ws[cellAddress]) ws[cellAddress] = {v: ""};
                     ws[cellAddress].s = cellStyle;
-                     if (R % 2 !== 0) { 
+                     if (R % 2 !== 0) { // Odd data rows (1, 3, 5...)
                          ws[cellAddress].s = {...ws[cellAddress].s, ...zebraStripeOdd };
-                    } else { 
+                    } else { // Even data rows (2, 4, 6...)
                          ws[cellAddress].s = {...ws[cellAddress].s, ...zebraStripeEven};
                     }
                 }
             }
 
-            const colWidths = dailyHeaders.map((_, i) => ({wch: 15})); 
+            // Auto-fit columns (basic attempt)
+            const colWidths = dailyHeaders.map((_, i) => ({wch: 15})); // Default width
             sheetData.forEach(row => {
                 row.forEach((cell, j) => {
                     const len = cell ? String(cell).length + 2 : 10;
@@ -1933,10 +1935,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             XLSX.utils.book_append_sheet(wb, ws, sheetName);
         }
 
+        // 2. Week Totals Sheet
         let weeklySummarySheetData = [];
         const weeklyTotalHeaders = ["Employee", "Total Wages", "Tips for Taxes", "Tips on Check", "Total Payout on Check"];
         weeklySummarySheetData.push(weeklyTotalHeaders);
 
+        // Re-calculate or fetch weeklyEmployeeSummaryData (as it's scoped to generateWeeklyReportContent)
         const weeklySummaryDataForExport = {};
         const weekStartForTotals = new Date(currentReportWeekStartDate);
          for (let i = 0; i < 7; i++) {
@@ -1981,13 +1985,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const ws_totals = XLSX.utils.aoa_to_sheet(weeklySummarySheetData);
+        // Apply Styling to Totals sheet
         const range_totals = XLSX.utils.decode_range(ws_totals['!ref']);
-        for (let C = range_totals.s.c; C <= range_totals.e.c; ++C) { 
+        for (let C = range_totals.s.c; C <= range_totals.e.c; ++C) { // Header row
             const cellAddress = XLSX.utils.encode_cell({r: 0, c: C});
             if(!ws_totals[cellAddress]) ws_totals[cellAddress] = {v: ""};
             ws_totals[cellAddress].s = headerStyle;
         }
-        for (let R = 1; R <= range_totals.e.r; ++R) { 
+        for (let R = 1; R <= range_totals.e.r; ++R) { // Data rows
             for (let C = range_totals.s.c; C <= range_totals.e.c; ++C) {
                 const cellAddress = XLSX.utils.encode_cell({r: R, c: C});
                  if(!ws_totals[cellAddress]) ws_totals[cellAddress] = {v: ""};
@@ -1999,7 +2004,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
         }
-        const colWidthsTotals = weeklyTotalHeaders.map((_, i) => ({wch: 20})); 
+        const colWidthsTotals = weeklyTotalHeaders.map((_, i) => ({wch: 20})); // Default width
         weeklySummarySheetData.forEach(row => {
             row.forEach((cell, j) => {
                 const len = cell ? String(cell).length + 2 : 10;
@@ -2011,10 +2016,88 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         XLSX.utils.book_append_sheet(wb, ws_totals, "Week Totals");
 
+        // Trigger download
         const weekStartStrExport = formatDate(currentReportWeekStartDate);
         XLSX.writeFile(wb, `WeeklyReport_${weekStartStrExport}.xlsx`);
     }
+
+    // --- DATA MANAGEMENT FUNCTIONS ---
+    function downloadSaveState() {
+        console.log("APP_LOG: Preparing to download save state.");
+        try {
+            const stateToSave = {
+                employeeRoster: employeeRoster,
+                dailyShifts: dailyShifts
+            };
+
+            const jsonString = JSON.stringify(stateToSave, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            const today = new Date().toISOString().slice(0, 10);
+            a.download = `diner-tipsplit-save-${today}.json`;
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            console.log("APP_LOG: Save state download initiated.");
+
+        } catch (error) {
+            console.error("Error creating save state file:", error);
+            alert("An error occurred while creating the save file. Please check the console for details.");
+        }
+    }
+
+    function loadSaveState(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return; // No file selected
+        }
+        console.log(`APP_LOG: Loading save state from file: ${file.name}`);
+
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            try {
+                const loadedState = JSON.parse(e.target.result);
+
+                // Basic validation to ensure the file is a valid save state
+                if (loadedState && typeof loadedState.employeeRoster === 'object' && typeof loadedState.dailyShifts === 'object') {
+                    if (confirm("Are you sure you want to load this file? This will overwrite all current data.")) {
+                        // Directly set the data in localStorage
+                        localStorage.setItem('dinerTipSplit_employeeRosterV2', JSON.stringify(loadedState.employeeRoster));
+                        localStorage.setItem('dinerTipSplit_dailyShiftsV2', JSON.stringify(loadedState.dailyShifts));
+                        
+                        alert('Save state loaded successfully! The page will now reload to apply the changes.');
+                        location.reload(); // Reload the page to re-initialize the app with the new data
+                    }
+                } else {
+                    alert('Error: The selected file does not appear to be a valid save state for this application.');
+                }
+            } catch (error) {
+                console.error("Error parsing save state file:", error);
+                alert("An error occurred while reading the file. It may be corrupted or not a valid JSON file.");
+            } finally {
+                // Reset the file input so the user can load the same file again if needed
+                event.target.value = '';
+            }
+        };
+        
+        reader.onerror = () => {
+             alert(`An error occurred while reading the file: ${reader.error}`);
+             event.target.value = '';
+        };
+
+        reader.readAsText(file);
+    }
     
+    // --- TUTORIAL FUNCTIONS (REVISED) ---
     function startTutorial(tutorialKey) {
         currentTutorialSteps = tutorials[tutorialKey] || [];
         if (currentTutorialSteps.length === 0) {
@@ -2055,7 +2138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if (content && header && content.style.display === 'none') {
                 header.click();
-                setTimeout(() => { if (callback) callback(); }, 350); 
+                setTimeout(() => { if (callback) callback(); }, 350); // Wait for animation
                 return;
             }
         }
@@ -2065,6 +2148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updateTutorialHighlight(targetEl) {
         if (!targetEl || !targetEl.offsetParent || tutorialOverlay.style.display === 'none') {
             tutorialHighlightBox.style.display = 'none';
+            // Center the text box if the element disappears
             tutorialTextBox.style.display = 'block';
             tutorialTextBox.style.top = '50%';
             tutorialTextBox.style.left = '50%';
@@ -2128,14 +2212,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         const findAndPrepareStep = () => {
             const el = document.querySelector(step.element) || document.querySelector(step.fallbackElement);
-            currentTutorialTargetElement = el;
+            currentTutorialTargetElement = el; // Set the global target for the animation loop
 
             if (!el) {
                 console.warn("Tutorial element could not be found for step:", step);
-                currentTutorialTargetElement = null; 
-                updateTutorialHighlight(null); 
+                currentTutorialTargetElement = null; // Unset so loop doesn't track it
+                updateTutorialHighlight(null); // Position text box in center
             } else {
                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                 // The animation loop will handle positioning
             }
         };
         
@@ -2149,21 +2234,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                          trigger.click();
                      }
                 }
-                setTimeout(findAndPrepareStep, 450); 
+                setTimeout(findAndPrepareStep, 450); // Wait for DOM updates
             } else {
                 findAndPrepareStep();
             }
         });
     }
 
+
     // --- App Initialization ---
-    await loadInitialState(); 
+    console.log("APP_LOG: Starting initializations...");
 
-    console.log("APP_LOG: Starting UI initializations...");
+    // Event listeners for data management
+    downloadStateBtn.addEventListener('click', downloadSaveState);
+    loadStateFileInput.addEventListener('change', loadSaveState);
 
+    // Event Listeners for Tutorial Buttons
     document.querySelectorAll('.tutorial-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.stopPropagation(); 
+            e.stopPropagation(); // Stop the click from bubbling up to the collapsible header
             const tutorialKey = e.target.dataset.tutorialFor;
             startTutorial(tutorialKey);
         });
@@ -2172,7 +2261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     tutorialCloseBtn.addEventListener('click', closeTutorial);
     tutorialNextBtn.addEventListener('click', () => showTutorialStep(currentTutorialStepIndex + 1));
     tutorialPrevBtn.addEventListener('click', () => showTutorialStep(currentTutorialStepIndex - 1));
-    
+    // Close tutorial with Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === "Escape" && tutorialOverlay.style.display === 'block') {
             closeTutorial();
