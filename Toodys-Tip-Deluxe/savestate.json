@@ -1,0 +1,470 @@
+{
+  "employeeRoster": [
+    {
+      "id": "id_1749157335958_gl6b5ff",
+      "name": "ALEXIS",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_1wv0ren",
+      "name": "AMANDA",
+      "positions": [
+        "Food Runner"
+      ],
+      "payRates": {
+        "Food Runner": 16
+      }
+    },
+    {
+      "id": "id_1749157335958_yznxrm1",
+      "name": "ANTHONY",
+      "positions": [
+        "Food Runner"
+      ],
+      "payRates": {
+        "Food Runner": 16
+      }
+    },
+    {
+      "id": "id_1749157335958_a3zbsxf",
+      "name": "DIANA",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_dyp5jft",
+      "name": "DRAZEN",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335959_4g29xao",
+      "name": "ELLA",
+      "positions": [
+        "Host",
+        "Shake Spinner"
+      ],
+      "payRates": {
+        "Host": 15,
+        "Shake Spinner": 15
+      }
+    },
+    {
+      "id": "id_1749157335958_oogudqu",
+      "name": "EMILY",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_xlfcx29",
+      "name": "DAVID H",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_vep2mo8",
+      "name": "JAMES",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_idzya6p",
+      "name": "JOSH",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_cna1177",
+      "name": "JUAN",
+      "positions": [
+        "Food Runner",
+        "Busser",
+        "Host",
+        "Shake Spinner"
+      ],
+      "payRates": {
+        "Food Runner": 16,
+        "Busser": 16,
+        "Host": 15,
+        "Shake Spinner": 15
+      }
+    },
+    {
+      "id": "id_1749157335958_xgc8yx0",
+      "name": "KINZEY",
+      "positions": [
+        "Host",
+        "Shake Spinner",
+        "Food Runner"
+      ],
+      "payRates": {
+        "Host": 15,
+        "Shake Spinner": 15,
+        "Food Runner": 16
+      }
+    },
+    {
+      "id": "id_1749157335958_cc67upc",
+      "name": "MASYUN",
+      "positions": [
+        "Host",
+        "Shake Spinner",
+        "Busser"
+      ],
+      "payRates": {
+        "Host": 15,
+        "Shake Spinner": 15,
+        "Busser": 16
+      }
+    },
+    {
+      "id": "id_1749157335958_frwf2i5",
+      "name": "NICOLE",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_ckgheiq",
+      "name": "RENEE",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_m6gzwgy",
+      "name": "SAVANNAH",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_orf59ov",
+      "name": "SETH",
+      "positions": [
+        "Food Runner",
+        "Busser",
+        "Shake Spinner"
+      ],
+      "payRates": {
+        "Food Runner": 16,
+        "Busser": 16,
+        "Shake Spinner": 15
+      }
+    },
+    {
+      "id": "id_1749157335958_j04wcrc",
+      "name": "SHANTEE",
+      "positions": [
+        "Server"
+      ],
+      "payRates": {
+        "Server": 12.36
+      }
+    },
+    {
+      "id": "id_1749157335958_rk89yrs",
+      "name": "STEPHEN",
+      "positions": [
+        "Food Runner",
+        "Busser",
+        "Shake Spinner"
+      ],
+      "payRates": {
+        "Food Runner": 16,
+        "Busser": 16,
+        "Shake Spinner": 15
+      }
+    }
+  ],
+  "dailyShifts": {
+    "2025-06-02": [
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_gl6b5ff",
+        "employeeName": "ALEXIS",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "14:42",
+        "timeOut": "21:06",
+        "ccTips": 214.74,
+        "cashTips": 15,
+        "totalSales": 1249,
+        "id": "id_1749157429483_m87l9ja"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_xlfcx29",
+        "employeeName": "DAVID H",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "06:00:00",
+        "timeOut": "16:00:00",
+        "ccTips": 37.16,
+        "cashTips": 10,
+        "totalSales": 1303,
+        "id": "id_1749157468752_ca4ynio"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_vep2mo8",
+        "employeeName": "JAMES",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "16:15:00",
+        "timeOut": "21:00:00",
+        "ccTips": 127.9,
+        "cashTips": 14,
+        "totalSales": 918,
+        "id": "id_1749157539456_xiku096"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_idzya6p",
+        "employeeName": "JOSH",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "07:00:00",
+        "timeOut": "14:45:00",
+        "ccTips": 124.47,
+        "cashTips": 36,
+        "totalSales": 1073,
+        "id": "id_1749157604790_7dd733v"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_frwf2i5",
+        "employeeName": "NICOLE",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "08:00:00",
+        "timeOut": "15:30:00",
+        "ccTips": 223.88,
+        "cashTips": 12,
+        "totalSales": 1006,
+        "id": "id_1749157656838_jz7853v"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_m6gzwgy",
+        "employeeName": "SAVANNAH",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "10:07",
+        "timeOut": "21:05",
+        "ccTips": 159.4,
+        "cashTips": 11,
+        "totalSales": 1681,
+        "id": "id_1749157699948_x57n7sa"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_cna1177",
+        "employeeName": "JUAN",
+        "positionWorked": "Busser",
+        "shiftPayRate": 16,
+        "timeIn": "09:00:00",
+        "timeOut": "16:15:00",
+        "id": "id_1749157790236_r42hrj6"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_yznxrm1",
+        "employeeName": "ANTHONY",
+        "positionWorked": "Food Runner",
+        "shiftPayRate": 16,
+        "timeIn": "16:00:00",
+        "timeOut": "21:00:00",
+        "id": "id_1749157815055_1hfqaui"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_orf59ov",
+        "employeeName": "SETH",
+        "positionWorked": "Food Runner",
+        "shiftPayRate": 16,
+        "timeIn": "16:00:00",
+        "timeOut": "20:00:00",
+        "id": "id_1749157829550_vzvd5ll"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335958_1wv0ren",
+        "employeeName": "AMANDA",
+        "positionWorked": "Food Runner",
+        "shiftPayRate": 16,
+        "timeIn": "08:00:00",
+        "timeOut": "16:00:00",
+        "id": "id_1749157846164_nc8d929"
+      },
+      {
+        "date": "2025-06-02",
+        "employeeId": "id_1749157335959_4g29xao",
+        "employeeName": "ELLA",
+        "positionWorked": "Host",
+        "shiftPayRate": 15,
+        "timeIn": "16:00:00",
+        "timeOut": "20:00:00",
+        "id": "id_1749157868035_03vhbh0"
+      }
+    ],
+    "2025-06-03": [
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335958_gl6b5ff",
+        "employeeName": "ALEXIS",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "15:30",
+        "timeOut": "20:00",
+        "ccTips": 248.04,
+        "cashTips": 0,
+        "totalSales": 484,
+        "id": "id_1749175415560_hvykv21"
+      },
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335958_dyp5jft",
+        "employeeName": "DRAZEN",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "07:58",
+        "timeOut": "15:06",
+        "ccTips": 106.14,
+        "cashTips": 4,
+        "totalSales": 697,
+        "id": "id_1749175447277_t6fmv1r"
+      },
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335958_idzya6p",
+        "employeeName": "JOSH",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "07:42",
+        "timeOut": "13:43",
+        "ccTips": 41.9,
+        "cashTips": 5,
+        "totalSales": 528,
+        "id": "id_1749175512696_z97zpsg"
+      },
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335958_frwf2i5",
+        "employeeName": "NICOLE",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "07:59",
+        "timeOut": "13:41",
+        "ccTips": 0,
+        "cashTips": 0,
+        "totalSales": 847,
+        "id": "id_1749175559057_d97j8fq"
+      },
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335958_m6gzwgy",
+        "employeeName": "SAVANNAH",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "13:59",
+        "timeOut": "19:34",
+        "ccTips": 165.77,
+        "cashTips": 0,
+        "totalSales": 555,
+        "id": "id_1749175592864_5haphvz"
+      },
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335958_j04wcrc",
+        "employeeName": "SHANTEE",
+        "positionWorked": "Server",
+        "shiftPayRate": 12.36,
+        "timeIn": "17:05",
+        "timeOut": "21:07",
+        "ccTips": 88.09,
+        "cashTips": 0,
+        "totalSales": 441,
+        "id": "id_1749175620721_6izzrur"
+      },
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335958_orf59ov",
+        "employeeName": "SETH",
+        "positionWorked": "Busser",
+        "shiftPayRate": 16,
+        "timeIn": "15:44",
+        "timeOut": "19:17",
+        "id": "id_1749175652000_o13cnou"
+      },
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335958_1wv0ren",
+        "employeeName": "AMANDA",
+        "positionWorked": "Food Runner",
+        "shiftPayRate": 16,
+        "timeIn": "08:56",
+        "timeOut": "12:24",
+        "id": "id_1749175688749_9ecmj59"
+      },
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335959_4g29xao",
+        "employeeName": "ELLA",
+        "positionWorked": "Host",
+        "shiftPayRate": 15,
+        "timeIn": "16:01",
+        "timeOut": "19:03",
+        "id": "id_1749175714515_hhexckh"
+      },
+      {
+        "date": "2025-06-03",
+        "employeeId": "id_1749157335958_xgc8yx0",
+        "employeeName": "KINZEY",
+        "positionWorked": "Host",
+        "shiftPayRate": 15,
+        "timeIn": "08:00",
+        "timeOut": "15:00",
+        "id": "id_1749175765396_l0o0dj7"
+      }
+    ]
+  }
+}

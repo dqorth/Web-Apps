@@ -633,7 +633,7 @@
             </div>
         </div>
 
-        <!-- NEW: Settings and Data Management Section -->
+        <!-- UPDATED: Settings and Data Management Section -->
         <div class="section-card" id="dataManagementSection">
             <h2 class="collapsible-header" role="button" aria-expanded="false" aria-controls="dataManagementContent">
                 Settings &amp; Data Management
@@ -641,11 +641,9 @@
                 <span class="collapse-indicator">+</span>
             </h2>
             <div class="collapsible-content" id="dataManagementContent" style="display: none;">
-                <p>Here you can download all your data (roster and shifts) to a file for backup, or load a previously saved file to restore your state.</p>
+                <p>All data is loaded automatically on startup. Click the button below to force a save of the current application state (roster and all shifts).</p>
                 <div style="display:flex; flex-wrap:wrap; gap: 15px; margin-top:15px;">
-                    <button id="downloadStateBtn" class="button">Download Save Data</button>
-                    <label for="loadStateFile" class="button" style="background-color: #4CAF50;">Load Save Data</label>
-                    <input type="file" id="loadStateFile" accept=".json" style="display: none;">
+                    <button id="saveDataBtn" class="button">Save All Data</button>
                 </div>
             </div>
         </div>
@@ -713,8 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentWeeklyDataForExport = [];
 
     // Data Management DOM Elements
-    const downloadStateBtn = document.getElementById('downloadStateBtn');
-    const loadStateFileInput = document.getElementById('loadStateFile');
+    const saveDataBtn = document.getElementById('saveDataBtn');
 
     // --- TUTORIAL ELEMENTS & STATE ---
     const tutorialOverlay = document.getElementById('tutorial-overlay');
@@ -766,8 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
              { element: '#exportWeeklyCSVBtn', title: 'Export to Excel', text: "Click here to download a beautifully formatted Excel file (.xlsx) of this week's report, complete with separate tabs for daily details and weekly totals." }
         ],
         data: [
-            { element: '#downloadStateBtn', title: 'Backup Your Data', text: "Click this to save ALL your data—roster and every logged shift—to a single JSON file on your computer. It's a great idea to do this regularly as a backup!" },
-            { element: '#loadStateFile', title: 'Restore Your Data', text: "If you need to restore your data from a backup, click here to select the `.json` file you previously saved. This will overwrite ALL current data in the app." }
+            { element: '#saveDataBtn', title: 'Save Your Data', text: "Click this to save ALL your data—roster and every logged shift. The app loads automatically, but this button ensures your latest changes are stored." }
         ]
     };
 
@@ -800,12 +796,14 @@ document.addEventListener('DOMContentLoaded', () => {
         generateWeeklyReportContent();
     }
 
-
+    // UPDATED `saveState` function. It now also triggers the UI updates.
     const saveState = () => { 
+        console.log("APP_LOG: Saving state to localStorage.");
         localStorage.setItem('dinerTipSplit_employeeRosterV2',JSON.stringify(employeeRoster)); 
         localStorage.setItem('dinerTipSplit_dailyShiftsV2',JSON.stringify(dailyShifts)); 
         console.log("APP_LOG: State saved."); 
         
+        // Trigger UI updates whenever state is saved.
         const payoutContent = document.getElementById('payoutContent');
         if (payoutContent && payoutContent.style.display !== 'none') {
             triggerDailyScoopCalculation();
@@ -815,6 +813,13 @@ document.addEventListener('DOMContentLoaded', () => {
             triggerWeeklyRewindCalculation();
         }
     };
+    
+    // NEW function specifically for the "Save" button, which gives user feedback.
+    function saveStateToFile() {
+        saveState(); // Run the core save logic
+        alert("Application data has been saved!"); // Give user feedback
+    }
+
     const generateId = () => `id_${Date.now()}_${Math.random().toString(36).substring(2,9)}`;
     const formatDate = (dObj) => dObj.toISOString().split('T')[0];
     const formatDisplayDate = (dateStr) => { if(!dateStr)return "N/A"; const dObj=new Date(dateStr+'T00:00:00Z'); return dObj.toLocaleDateString('en-US',{weekday:'short',month:'2-digit',day:'2-digit',year:'numeric',timeZone:'UTC'});};
@@ -880,7 +885,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const indicator = header.querySelector('.collapse-indicator'); 
             if (!content) { console.warn(`Collapsible content NOT FOUND for ID: '${contentId}'`); return; } 
             
-            // --- FIX: Add a collapse button at the bottom of the content ---
             if (!content.querySelector('.collapse-bottom-btn')) {
                 const collapseBtnBottom = document.createElement('button');
                 collapseBtnBottom.className = 'button collapse-bottom-btn';
@@ -888,7 +892,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 collapseBtnBottom.addEventListener('click', () => header.click());
                 content.appendChild(collapseBtnBottom);
             }
-            // --- End of FIX ---
 
             let startCollapsed = localStorage.getItem(`collapsible_${contentId}_collapsed`) !== 'false'; 
             if (contentId === 'lineupContent') { 
@@ -900,7 +903,6 @@ document.addEventListener('DOMContentLoaded', () => {
             header.setAttribute('aria-expanded', String(!startCollapsed)); 
 
             header.addEventListener('click', (e) => {
-                // Prevent tutorial button from triggering collapse
                 if (e.target.classList.contains('tutorial-btn')) return;
 
                 const isCurrentlyHidden = content.style.display === 'none'; 
@@ -2021,81 +2023,7 @@ document.addEventListener('DOMContentLoaded', () => {
         XLSX.writeFile(wb, `WeeklyReport_${weekStartStrExport}.xlsx`);
     }
 
-    // --- DATA MANAGEMENT FUNCTIONS ---
-    function downloadSaveState() {
-        console.log("APP_LOG: Preparing to download save state.");
-        try {
-            const stateToSave = {
-                employeeRoster: employeeRoster,
-                dailyShifts: dailyShifts
-            };
-
-            const jsonString = JSON.stringify(stateToSave, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            const today = new Date().toISOString().slice(0, 10);
-            a.download = `diner-tipsplit-save-${today}.json`;
-            
-            document.body.appendChild(a);
-            a.click();
-            
-            // Clean up
-            URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-            console.log("APP_LOG: Save state download initiated.");
-
-        } catch (error) {
-            console.error("Error creating save state file:", error);
-            alert("An error occurred while creating the save file. Please check the console for details.");
-        }
-    }
-
-    function loadSaveState(event) {
-        const file = event.target.files[0];
-        if (!file) {
-            return; // No file selected
-        }
-        console.log(`APP_LOG: Loading save state from file: ${file.name}`);
-
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            try {
-                const loadedState = JSON.parse(e.target.result);
-
-                // Basic validation to ensure the file is a valid save state
-                if (loadedState && typeof loadedState.employeeRoster === 'object' && typeof loadedState.dailyShifts === 'object') {
-                    if (confirm("Are you sure you want to load this file? This will overwrite all current data.")) {
-                        // Directly set the data in localStorage
-                        localStorage.setItem('dinerTipSplit_employeeRosterV2', JSON.stringify(loadedState.employeeRoster));
-                        localStorage.setItem('dinerTipSplit_dailyShiftsV2', JSON.stringify(loadedState.dailyShifts));
-                        
-                        alert('Save state loaded successfully! The page will now reload to apply the changes.');
-                        location.reload(); // Reload the page to re-initialize the app with the new data
-                    }
-                } else {
-                    alert('Error: The selected file does not appear to be a valid save state for this application.');
-                }
-            } catch (error) {
-                console.error("Error parsing save state file:", error);
-                alert("An error occurred while reading the file. It may be corrupted or not a valid JSON file.");
-            } finally {
-                // Reset the file input so the user can load the same file again if needed
-                event.target.value = '';
-            }
-        };
-        
-        reader.onerror = () => {
-             alert(`An error occurred while reading the file: ${reader.error}`);
-             event.target.value = '';
-        };
-
-        reader.readAsText(file);
-    }
+    // --- DATA MANAGEMENT FUNCTIONS (REMOVED loadSaveState, downloadSaveState) ---
     
     // --- TUTORIAL FUNCTIONS (REVISED) ---
     function startTutorial(tutorialKey) {
@@ -2246,8 +2174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("APP_LOG: Starting initializations...");
 
     // Event listeners for data management
-    downloadStateBtn.addEventListener('click', downloadSaveState);
-    loadStateFileInput.addEventListener('change', loadSaveState);
+    saveDataBtn.addEventListener('click', saveStateToFile);
 
     // Event Listeners for Tutorial Buttons
     document.querySelectorAll('.tutorial-btn').forEach(btn => {
