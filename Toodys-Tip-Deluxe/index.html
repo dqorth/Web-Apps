@@ -272,7 +272,6 @@
             border-bottom: 2px dotted var(--primary-red); 
         }
         
-        /* UPDATED: Weekly navigation styles for robust layout */
         .week-navigation {
             display: flex;
             flex-direction: column;
@@ -632,21 +631,6 @@
                 <div id="reportOutput"></div>
             </div>
         </div>
-
-        <!-- UPDATED: Settings and Data Management Section -->
-        <div class="section-card" id="dataManagementSection">
-            <h2 class="collapsible-header" role="button" aria-expanded="false" aria-controls="dataManagementContent">
-                Settings &amp; Data Management
-                <button class="button tutorial-btn" data-tutorial-for="data">How-To</button>
-                <span class="collapse-indicator">+</span>
-            </h2>
-            <div class="collapsible-content" id="dataManagementContent" style="display: none;">
-                <p>All data is loaded automatically on startup. Click the button below to force a save of the current application state (roster and all shifts).</p>
-                <div style="display:flex; flex-wrap:wrap; gap: 15px; margin-top:15px;">
-                    <button id="saveDataBtn" class="button">Save All Data</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- TUTORIAL OVERLAY HTML -->
@@ -666,11 +650,12 @@
 
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log("APP_LOG: DOM Fully Loaded and Parsed");
-    // --- Globals & State ---
-    let employeeRoster = JSON.parse(localStorage.getItem('dinerTipSplit_employeeRosterV2')) || [];
-    let dailyShifts = JSON.parse(localStorage.getItem('dinerTipSplit_dailyShiftsV2')) || {};
+    
+    // --- State Variables ---
+    let employeeRoster = [];
+    let dailyShifts = {};
     const JOB_POSITIONS_AVAILABLE = ["Server", "Busser", "Shake Spinner", "Food Runner", "Host"];
     const BASE_CYCLE_START_DATE = new Date('2025-06-02T00:00:00Z'); 
     let currentReportWeekStartDate = null;
@@ -709,9 +694,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportWeeklyCSVBtn = document.getElementById('exportWeeklyCSVBtn');
     const reportOutputDiv = document.getElementById('reportOutput');
     let currentWeeklyDataForExport = [];
-
-    // Data Management DOM Elements
-    const saveDataBtn = document.getElementById('saveDataBtn');
 
     // --- TUTORIAL ELEMENTS & STATE ---
     const tutorialOverlay = document.getElementById('tutorial-overlay');
@@ -762,13 +744,54 @@ document.addEventListener('DOMContentLoaded', () => {
              { element: '.edit-shift-from-weekly-btn', fallbackElement: '#reportOutput', title: 'Quick Edit', text: "Made a mistake? Click 'Edit' on any shift in this report to instantly jump back to 'The Lineup' section with the correct form open, ready for you to make changes." },
              { element: '#exportWeeklyCSVBtn', title: 'Export to Excel', text: "Click here to download a beautifully formatted Excel file (.xlsx) of this week's report, complete with separate tabs for daily details and weekly totals." }
         ],
-        data: [
-            { element: '#saveDataBtn', title: 'Save Your Data', text: "Click this to save ALL your data—roster and every logged shift. The app loads automatically, but this button ensures your latest changes are stored." }
-        ]
     };
 
+    // --- Core Functions ---
+    async function loadInitialState() {
+        try {
+            const response = await fetch('savestate.json');
+            if (!response.ok) {
+                // If the file doesn't exist (like a 404), start with a fresh state.
+                console.warn('savestate.json not found, starting with a fresh state.');
+                employeeRoster = [];
+                dailyShifts = {};
+                return;
+            }
+            const data = await response.json();
+            // Basic validation to ensure the loaded data has the expected structure.
+            if (data && Array.isArray(data.employeeRoster) && typeof data.dailyShifts === 'object') {
+                employeeRoster = data.employeeRoster;
+                dailyShifts = data.dailyShifts;
+                console.log('APP_LOG: State successfully loaded from savestate.json');
+            } else {
+                // If the JSON is malformed, start fresh.
+                console.error('savestate.json is malformed. Starting with a fresh state.');
+                employeeRoster = [];
+                dailyShifts = {};
+            }
+        } catch (error) {
+            // Handle network errors or JSON parsing errors.
+            console.error('Error loading or parsing savestate.json:', error);
+            employeeRoster = [];
+            dailyShifts = {};
+        }
+    }
+    
+    const saveState = () => { 
+        console.log("APP_LOG: Saving state to localStorage (for session persistence).");
+        localStorage.setItem('dinerTipSplit_employeeRosterV2',JSON.stringify(employeeRoster)); 
+        localStorage.setItem('dinerTipSplit_dailyShiftsV2',JSON.stringify(dailyShifts)); 
+        
+        const payoutContent = document.getElementById('payoutContent');
+        if (payoutContent && payoutContent.style.display !== 'none') {
+            triggerDailyScoopCalculation();
+        }
+        const weeklyReportContent = document.getElementById('weeklyReportContent');
+        if (weeklyReportContent && weeklyReportContent.style.display !== 'none') {
+            triggerWeeklyRewindCalculation();
+        }
+    };
 
-    // --- Utility Functions ---
     function triggerDailyScoopCalculation() {
         if (!activeSelectedDate) { 
             if(payoutResultsDiv) payoutResultsDiv.innerHTML = "<p>Please select a date first.</p>";
@@ -794,30 +817,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         generateWeeklyReportContent();
-    }
-
-    // UPDATED `saveState` function. It now also triggers the UI updates.
-    const saveState = () => { 
-        console.log("APP_LOG: Saving state to localStorage.");
-        localStorage.setItem('dinerTipSplit_employeeRosterV2',JSON.stringify(employeeRoster)); 
-        localStorage.setItem('dinerTipSplit_dailyShiftsV2',JSON.stringify(dailyShifts)); 
-        console.log("APP_LOG: State saved."); 
-        
-        // Trigger UI updates whenever state is saved.
-        const payoutContent = document.getElementById('payoutContent');
-        if (payoutContent && payoutContent.style.display !== 'none') {
-            triggerDailyScoopCalculation();
-        }
-        const weeklyReportContent = document.getElementById('weeklyReportContent');
-        if (weeklyReportContent && weeklyReportContent.style.display !== 'none') {
-            triggerWeeklyRewindCalculation();
-        }
-    };
-    
-    // NEW function specifically for the "Save" button, which gives user feedback.
-    function saveStateToFile() {
-        saveState(); // Run the core save logic
-        alert("Application data has been saved!"); // Give user feedback
     }
 
     const generateId = () => `id_${Date.now()}_${Math.random().toString(36).substring(2,9)}`;
@@ -1050,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!container || !dateForNav) { if(container) container.innerHTML=''; return; }
         container.innerHTML = '';
         const navDiv = document.createElement('div');
-        navDiv.className = 'day-nav-container'; // Use a generic class if style is shared
+        navDiv.className = 'day-nav-container'; 
 
         const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
         const dayValues = [1, 2, 3, 4, 5, 6, 0];
@@ -1841,17 +1840,17 @@ document.addEventListener('DOMContentLoaded', () => {
             alert("Please ensure a week is selected in the 'Weekly Rewind' section first.");
             return;
         }
-        exportToXLSX(); // Call the new XLSX export function
+        exportToXLSX();
     });
     
     function exportToXLSX() {
         const wb = XLSX.utils.book_new();
         const daysOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-        const dayValues = [1, 2, 3, 4, 5, 6, 0]; // Corresponding getUTCDay values for Mon-Sun
+        const dayValues = [1, 2, 3, 4, 5, 6, 0]; 
 
         const headerStyle = {
             font: { color: { rgb: "FFFFFF" }, bold: true },
-            fill: { fgColor: { rgb: "E53935" } }, // Red
+            fill: { fgColor: { rgb: "E53935" } }, 
             alignment: { horizontal: "center", vertical: "center" },
             border: {
                 top: { style: "thin", color: { auto: 1 } }, bottom: { style: "thin", color: { auto: 1 } },
@@ -1864,16 +1863,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 left: { style: "thin", color: { auto: 1 } }, right: { style: "thin", color: { auto: 1 } }
             }
         };
-         const zebraStripeEven = { fill: { fgColor: { rgb: "FFF9C4" } } }; // Light cream for even data rows (after header)
-         const zebraStripeOdd = { fill: { fgColor: { rgb: "FFFFFF" } } };  // White for odd data rows
+         const zebraStripeEven = { fill: { fgColor: { rgb: "FFF9C4" } } }; 
+         const zebraStripeOdd = { fill: { fgColor: { rgb: "FFFFFF" } } };
 
 
-        // 1. Daily Sheets
         for (let i = 0; i < 7; i++) {
             const dayToProcess = new Date(currentReportWeekStartDate);
             dayToProcess.setUTCDate(currentReportWeekStartDate.getUTCDate() + i);
             const dayString = formatDate(dayToProcess);
-            const sheetName = daysOrder[dayValues.indexOf(dayToProcess.getUTCDay())] || `Day ${i+1}`; // Fallback sheet name
+            const sheetName = daysOrder[dayValues.indexOf(dayToProcess.getUTCDay())] || `Day ${i+1}`; 
 
             const shiftsForDay = dailyShifts[dayString] || [];
             let sheetData = [];
@@ -1899,33 +1897,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     ]);
                 });
             } else {
-                sheetData.push(["No shifts logged for this day."]); // Add a placeholder if no shifts
+                sheetData.push(["No shifts logged for this day."]); 
             }
 
             const ws = XLSX.utils.aoa_to_sheet(sheetData);
             
-            // Apply Styling
             const range = XLSX.utils.decode_range(ws['!ref']);
-            for (let C = range.s.c; C <= range.e.c; ++C) { // Header row
+            for (let C = range.s.c; C <= range.e.c; ++C) { 
                 const cellAddress = XLSX.utils.encode_cell({r: 0, c: C});
-                if(!ws[cellAddress]) ws[cellAddress] = {v: ""}; // Ensure cell exists
+                if(!ws[cellAddress]) ws[cellAddress] = {v: ""}; 
                 ws[cellAddress].s = headerStyle;
             }
-            for (let R = 1; R <= range.e.r; ++R) { // Data rows
+            for (let R = 1; R <= range.e.r; ++R) { 
                 for (let C = range.s.c; C <= range.e.c; ++C) {
                     const cellAddress = XLSX.utils.encode_cell({r: R, c: C});
                     if(!ws[cellAddress]) ws[cellAddress] = {v: ""};
                     ws[cellAddress].s = cellStyle;
-                     if (R % 2 !== 0) { // Odd data rows (1, 3, 5...)
+                     if (R % 2 !== 0) { 
                          ws[cellAddress].s = {...ws[cellAddress].s, ...zebraStripeOdd };
-                    } else { // Even data rows (2, 4, 6...)
+                    } else { 
                          ws[cellAddress].s = {...ws[cellAddress].s, ...zebraStripeEven};
                     }
                 }
             }
 
-            // Auto-fit columns (basic attempt)
-            const colWidths = dailyHeaders.map((_, i) => ({wch: 15})); // Default width
+            const colWidths = dailyHeaders.map((_, i) => ({wch: 15})); 
             sheetData.forEach(row => {
                 row.forEach((cell, j) => {
                     const len = cell ? String(cell).length + 2 : 10;
@@ -1937,12 +1933,10 @@ document.addEventListener('DOMContentLoaded', () => {
             XLSX.utils.book_append_sheet(wb, ws, sheetName);
         }
 
-        // 2. Week Totals Sheet
         let weeklySummarySheetData = [];
         const weeklyTotalHeaders = ["Employee", "Total Wages", "Tips for Taxes", "Tips on Check", "Total Payout on Check"];
         weeklySummarySheetData.push(weeklyTotalHeaders);
 
-        // Re-calculate or fetch weeklyEmployeeSummaryData (as it's scoped to generateWeeklyReportContent)
         const weeklySummaryDataForExport = {};
         const weekStartForTotals = new Date(currentReportWeekStartDate);
          for (let i = 0; i < 7; i++) {
@@ -1987,14 +1981,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const ws_totals = XLSX.utils.aoa_to_sheet(weeklySummarySheetData);
-        // Apply Styling to Totals sheet
         const range_totals = XLSX.utils.decode_range(ws_totals['!ref']);
-        for (let C = range_totals.s.c; C <= range_totals.e.c; ++C) { // Header row
+        for (let C = range_totals.s.c; C <= range_totals.e.c; ++C) { 
             const cellAddress = XLSX.utils.encode_cell({r: 0, c: C});
             if(!ws_totals[cellAddress]) ws_totals[cellAddress] = {v: ""};
             ws_totals[cellAddress].s = headerStyle;
         }
-        for (let R = 1; R <= range_totals.e.r; ++R) { // Data rows
+        for (let R = 1; R <= range_totals.e.r; ++R) { 
             for (let C = range_totals.s.c; C <= range_totals.e.c; ++C) {
                 const cellAddress = XLSX.utils.encode_cell({r: R, c: C});
                  if(!ws_totals[cellAddress]) ws_totals[cellAddress] = {v: ""};
@@ -2006,7 +1999,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        const colWidthsTotals = weeklyTotalHeaders.map((_, i) => ({wch: 20})); // Default width
+        const colWidthsTotals = weeklyTotalHeaders.map((_, i) => ({wch: 20})); 
         weeklySummarySheetData.forEach(row => {
             row.forEach((cell, j) => {
                 const len = cell ? String(cell).length + 2 : 10;
@@ -2018,14 +2011,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         XLSX.utils.book_append_sheet(wb, ws_totals, "Week Totals");
 
-        // Trigger download
         const weekStartStrExport = formatDate(currentReportWeekStartDate);
         XLSX.writeFile(wb, `WeeklyReport_${weekStartStrExport}.xlsx`);
     }
-
-    // --- DATA MANAGEMENT FUNCTIONS (REMOVED loadSaveState, downloadSaveState) ---
     
-    // --- TUTORIAL FUNCTIONS (REVISED) ---
     function startTutorial(tutorialKey) {
         currentTutorialSteps = tutorials[tutorialKey] || [];
         if (currentTutorialSteps.length === 0) {
@@ -2066,7 +2055,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (content && header && content.style.display === 'none') {
                 header.click();
-                setTimeout(() => { if (callback) callback(); }, 350); // Wait for animation
+                setTimeout(() => { if (callback) callback(); }, 350); 
                 return;
             }
         }
@@ -2076,7 +2065,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateTutorialHighlight(targetEl) {
         if (!targetEl || !targetEl.offsetParent || tutorialOverlay.style.display === 'none') {
             tutorialHighlightBox.style.display = 'none';
-            // Center the text box if the element disappears
             tutorialTextBox.style.display = 'block';
             tutorialTextBox.style.top = '50%';
             tutorialTextBox.style.left = '50%';
@@ -2140,15 +2128,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const findAndPrepareStep = () => {
             const el = document.querySelector(step.element) || document.querySelector(step.fallbackElement);
-            currentTutorialTargetElement = el; // Set the global target for the animation loop
+            currentTutorialTargetElement = el;
 
             if (!el) {
                 console.warn("Tutorial element could not be found for step:", step);
-                currentTutorialTargetElement = null; // Unset so loop doesn't track it
-                updateTutorialHighlight(null); // Position text box in center
+                currentTutorialTargetElement = null; 
+                updateTutorialHighlight(null); 
             } else {
                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                 // The animation loop will handle positioning
             }
         };
         
@@ -2162,24 +2149,21 @@ document.addEventListener('DOMContentLoaded', () => {
                          trigger.click();
                      }
                 }
-                setTimeout(findAndPrepareStep, 450); // Wait for DOM updates
+                setTimeout(findAndPrepareStep, 450); 
             } else {
                 findAndPrepareStep();
             }
         });
     }
 
-
     // --- App Initialization ---
-    console.log("APP_LOG: Starting initializations...");
+    await loadInitialState(); 
 
-    // Event listeners for data management
-    saveDataBtn.addEventListener('click', saveStateToFile);
+    console.log("APP_LOG: Starting UI initializations...");
 
-    // Event Listeners for Tutorial Buttons
     document.querySelectorAll('.tutorial-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Stop the click from bubbling up to the collapsible header
+            e.stopPropagation(); 
             const tutorialKey = e.target.dataset.tutorialFor;
             startTutorial(tutorialKey);
         });
@@ -2188,7 +2172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tutorialCloseBtn.addEventListener('click', closeTutorial);
     tutorialNextBtn.addEventListener('click', () => showTutorialStep(currentTutorialStepIndex + 1));
     tutorialPrevBtn.addEventListener('click', () => showTutorialStep(currentTutorialStepIndex - 1));
-    // Close tutorial with Escape key
+    
     document.addEventListener('keydown', (e) => {
         if (e.key === "Escape" && tutorialOverlay.style.display === 'block') {
             closeTutorial();
