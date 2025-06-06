@@ -442,7 +442,7 @@
             max-width: 350px;
             font-size: 1em;
             line-height: 1.5;
-            transition: all 0.3s ease-in-out;
+            transition: top 0.3s ease-in-out, left 0.3s ease-in-out;
         }
         #tutorial-text-box h4 {
             font-family: var(--font-display);
@@ -679,6 +679,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentTutorialSteps = [];
     let currentTutorialStepIndex = 0;
+    let tutorialAnimationId = null;
+    let currentTutorialTargetElement = null;
 
     const tutorials = {
         roster: [
@@ -2047,6 +2049,9 @@ document.addEventListener('DOMContentLoaded', () => {
         tutorialOverlay.style.display = 'block';
         document.body.style.overflow = 'hidden';
         showTutorialStep(currentTutorialStepIndex);
+        
+        if (tutorialAnimationId) cancelAnimationFrame(tutorialAnimationId);
+        tutorialAnimationLoop();
     }
 
     function closeTutorial() {
@@ -2054,6 +2059,10 @@ document.addEventListener('DOMContentLoaded', () => {
         tutorialHighlightBox.style.display = 'none';
         tutorialTextBox.style.display = 'none';
         document.body.style.overflow = '';
+
+        if (tutorialAnimationId) cancelAnimationFrame(tutorialAnimationId);
+        tutorialAnimationId = null;
+        currentTutorialTargetElement = null;
     }
     
     function ensureElementIsVisible(element, callback) {
@@ -2076,6 +2085,55 @@ document.addEventListener('DOMContentLoaded', () => {
         if (callback) callback();
     }
 
+    function updateTutorialHighlight(targetEl) {
+        if (!targetEl || !targetEl.offsetParent || tutorialOverlay.style.display === 'none') {
+            tutorialHighlightBox.style.display = 'none';
+            // Center the text box if the element disappears
+            tutorialTextBox.style.display = 'block';
+            tutorialTextBox.style.top = '50%';
+            tutorialTextBox.style.left = '50%';
+            tutorialTextBox.style.transform = 'translate(-50%, -50%)';
+            return;
+        }
+
+        const rect = targetEl.getBoundingClientRect();
+        
+        tutorialHighlightBox.style.display = 'block';
+        tutorialHighlightBox.style.top = `${rect.top - 5}px`;
+        tutorialHighlightBox.style.left = `${rect.left - 5}px`;
+        tutorialHighlightBox.style.width = `${rect.width + 10}px`;
+        tutorialHighlightBox.style.height = `${rect.height + 10}px`;
+
+        tutorialTextBox.style.display = 'block';
+        const textRect = tutorialTextBox.getBoundingClientRect();
+
+        let textTop = rect.bottom + 15;
+        if (textTop + textRect.height > window.innerHeight - 10) {
+            textTop = rect.top - textRect.height - 15;
+        }
+        if (textTop < 10) {
+            textTop = 10;
+        }
+        
+        let textLeft = rect.left + (rect.width / 2) - (textRect.width / 2);
+        if (textLeft < 10) textLeft = 10;
+        if (textLeft + textRect.width > window.innerWidth - 10) {
+            textLeft = window.innerWidth - textRect.width - 10;
+        }
+
+        tutorialTextBox.style.top = `${textTop}px`;
+        tutorialTextBox.style.left = `${textLeft}px`;
+        tutorialTextBox.style.transform = 'none';
+    }
+
+    function tutorialAnimationLoop() {
+        if (tutorialOverlay.style.display === 'block' && currentTutorialTargetElement) {
+            updateTutorialHighlight(currentTutorialTargetElement);
+        }
+        tutorialAnimationId = requestAnimationFrame(tutorialAnimationLoop);
+    }
+
+
     function showTutorialStep(index) {
         if (index < 0 || index >= currentTutorialSteps.length) {
             closeTutorial();
@@ -2091,60 +2149,34 @@ document.addEventListener('DOMContentLoaded', () => {
         tutorialPrevBtn.disabled = index === 0;
         tutorialNextBtn.disabled = index === currentTutorialSteps.length - 1;
         tutorialNextBtn.textContent = index === currentTutorialSteps.length - 1 ? 'Finish' : 'Next »';
+        
+        const findAndPrepareStep = () => {
+            const el = document.querySelector(step.element) || document.querySelector(step.fallbackElement);
+            currentTutorialTargetElement = el; // Set the global target for the animation loop
 
-        const positionAndShow = (targetEl) => {
-            if (!targetEl || !targetEl.offsetParent) {
-                console.warn("Tutorial element not visible or found:", step.element);
-                tutorialHighlightBox.style.display = 'none';
-                tutorialTextBox.style.top = '50%';
-                tutorialTextBox.style.left = '50%';
-                tutorialTextBox.style.transform = 'translate(-50%, -50%)';
+            if (!el) {
+                console.warn("Tutorial element could not be found for step:", step);
+                currentTutorialTargetElement = null; // Unset so loop doesn't track it
+                updateTutorialHighlight(null); // Position text box in center
             } else {
-                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                const rect = targetEl.getBoundingClientRect();
-                
-                tutorialHighlightBox.style.display = 'block';
-                tutorialHighlightBox.style.top = `${rect.top - 5}px`;
-                tutorialHighlightBox.style.left = `${rect.left - 5}px`;
-                tutorialHighlightBox.style.width = `${rect.width + 10}px`;
-                tutorialHighlightBox.style.height = `${rect.height + 10}px`;
-
-                tutorialTextBox.style.display = 'block';
-                const textRect = tutorialTextBox.getBoundingClientRect();
-
-                let textTop = rect.bottom + 15;
-                if (textTop + textRect.height > window.innerHeight) {
-                    textTop = rect.top - textRect.height - 15;
-                }
-                
-                let textLeft = rect.left + (rect.width / 2) - (textRect.width / 2);
-                if (textLeft < 10) textLeft = 10;
-                if (textLeft + textRect.width > window.innerWidth - 10) {
-                    textLeft = window.innerWidth - textRect.width - 10;
-                }
-
-                tutorialTextBox.style.top = `${textTop}px`;
-                tutorialTextBox.style.left = `${textLeft}px`;
-                tutorialTextBox.style.transform = 'none';
+                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                 // The animation loop will handle positioning
             }
-        };
-
-        const findAndShow = () => {
-             const el = document.querySelector(step.element) || document.querySelector(step.fallbackElement);
-             positionAndShow(el);
         };
         
         let initialElement = document.querySelector(step.element) || document.querySelector(step.fallbackElement);
-        
         ensureElementIsVisible(initialElement, () => {
             if (step.isDynamic) {
                 const trigger = document.querySelector(step.dynamicTrigger);
                 if (trigger && typeof trigger.click === 'function') {
-                    trigger.click();
+                     const form = trigger.closest('li')?.querySelector('.inline-shift-form-container');
+                     if(!form || form.style.display === 'none') {
+                         trigger.click();
+                     }
                 }
-                setTimeout(findAndShow, 400); // Wait for potential DOM updates
+                setTimeout(findAndPrepareStep, 450); // Wait for DOM updates
             } else {
-                findAndShow();
+                findAndPrepareStep();
             }
         });
     }
