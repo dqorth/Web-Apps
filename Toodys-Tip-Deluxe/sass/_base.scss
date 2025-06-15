@@ -1,67 +1,250 @@
-@import url('https://fonts.googleapis.com/css2?family=Lobster&family=Open+Sans:wght@400;700&display=swap');
+@import 'variables';
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;600;700&display=swap');
 
+// Base styles
 body {
-  font-family: $font-body;
-  background-color: $light-cream;
-  color: $accent-black;
-  margin: 0;
-  padding: 20px;
-  line-height: 1.6;
+    font-family: $font-body; 
+    background-color: $light-cream;
+    background-image: radial-gradient($pure-white 1px, transparent 1px),
+                      radial-gradient($pure-white 1px, $light-cream 1px);
+    background-size: 20px 20px; 
+    background-position: 0 0, 10px 10px;
+    color: $accent-black; 
+    margin: 0; 
+    padding: 20px; 
+    line-height: 1.7;
 }
 
-h1, h2, h3 {
-  font-family: $font-display;
-  color: $primary-red;
-  margin-bottom: 0.5em;
+h1, h2, h3, h4, h5 { 
+    font-family: $font-display; 
+    color: $primary-red; 
+    letter-spacing: normal; 
+    margin-bottom: 0.6em; 
 }
 
-h1 {
-  text-align: center;
-  font-size: 3em;
-  letter-spacing: 1px;
-  text-shadow: 2px 2px $accent-black;
-  color: $pure-white; // White text on potential red header background
+h1 { 
+    text-align: center; 
+    font-size: 3.5em; 
+    text-shadow: 3px 3px $accent-black; 
+    color: $pure-white; 
+    margin-bottom: 0.3em; 
+    letter-spacing: 1.5px;
 }
 
-a {
-  color: $primary-red;
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-// Basic form styling
-input[type="text"],
-input[type="number"],
-input[type="time"],
-input[type="date"],
+// Basic input and label styling (can be expanded in _components.scss)
+input[type="text"], 
+input[type="number"], 
+input[type="time"], 
 select {
-  padding: $input-padding;
-  margin-bottom: 10px;
-  border: 2px solid $border-color;
-  border-radius: $border-radius;
-  background-color: $pure-white;
-  color: $accent-black;
-  font-family: $font-body;
-  width: calc(100% - 24px); // Account for padding and border
-  box-sizing: border-box;
-
-  &:focus {
-    outline: none;
-    border-color: $primary-red;
-    box-shadow: 0 0 5px rgba($primary-red, 0.5);
-  }
+    padding: $input-padding; 
+    margin-bottom: 10px; 
+    border: 2px solid $border-color; 
+    border-radius: $border-radius; 
+    background-color: $pure-white; 
+    color: $accent-black;
+    font-family: $font-body; 
+    font-size: 0.95em; 
+    width: calc(100% - 24px); // Consider using box-sizing: border-box globally
+    box-sizing: border-box; 
 }
 
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: $accent-black;
+input[type="text"]:focus, 
+input[type="number"]:focus, 
+input[type="time"]:focus, 
+select:focus {
+    outline: none; 
+    border-color: $primary-red; 
+    box-shadow: 0 0 8px rgba($primary-red, 0.6);
+}
+
+label { 
+    display: block; 
+    margin-bottom: 4px; 
+    font-weight: bold; 
+    color: $accent-black; 
+    font-size: 1em;
+}
+
+// General list styling
+.item-list { 
+    list-style: none; 
+    padding: 0; 
+}
+
+.item-list li { 
+    background-color: $light-cream;
+    margin-bottom: 10px;
+    border: 1px solid #E0E0E0; // Consider a variable for this light gray
+    border-left: 6px solid $primary-red;
+    border-radius: $border-radius;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    flex-wrap: wrap; 
+    box-shadow: 2px 2px 4px rgba(0,0,0,.1); // Consider a variable for this shadow
+    position: relative; 
+    padding: 10px 15px; 
+}
+
+// Data tables basic styling
+.data-results-table { 
+    border-collapse: collapse; 
+    width: 100%; 
+    margin-top: 10px; 
+    font-size: 0.9em; 
+}
+
+.data-results-table th, 
+.data-results-table td { 
+    border: 1px solid $border-color; 
+    padding: 8px; 
+    text-align: left; 
+}
+
+.data-results-table th { 
+    background-color: $primary-red; 
+    color: $pure-white; 
+    font-family: $font-display; 
+    letter-spacing: 0.5px; 
+}
+
+.data-results-table tbody tr:nth-child(even) { 
+    background-color: #f8f8f8; // Consider a variable
+}
+
+/* General Styles from reference <style> tag */
+.container { /* Corresponds to .app-container in new HTML */
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: $background-card;
+    border-radius: $border-radius-main;
+    box-shadow: $box-shadow-main;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Styles for specific elements that were in the reference <style> tag */
+#toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: $accent-black; // Using accent-black as a common notification color
+    color: $pure-white;
+    padding: 10px 20px;
+    border-radius: $border-radius-main;
+    box-shadow: $box-shadow-light; // Using light shadow
+    z-index: 1000;
+    font-family: $font-main; // Corrected from $font-body
+}
+
+.modal-overlay { // This is the new ID for modal in index.html
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 1000; 
+    padding: 20px; 
+    box-sizing: border-box;
+}
+
+.modal-content { // This is the new class for modal content
+    background-color: $pure-white;
+    padding: 25px;
+    border-radius: $border-radius-main;
+    border: 3px solid $accent-black;
+    box-shadow: $box-shadow-strong;
+    min-width: 300px; 
+    max-width: 90%; 
+    width: auto; 
+    text-align: center;
+    z-index: 1001; 
+}
+
+.modal-content h3 {
+    font-family: $font-headings; // Corrected from $font-display
+    color: $primary-red;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.6em;
+}
+
+.modal-content p {
+    font-family: $font-main; // Ensure body font for modal text - Corrected from $font-body
+    font-size: 1em;
+    line-height: 1.5;
+    color: $accent-black; // Changed from $text-dark to $accent-black
+    margin-bottom: 20px;
+}
+
+.modal-actions { // New class for modal actions container
+    display: flex;
+    justify-content: center; 
+    gap: 15px; 
+    margin-top: 20px;
+}
+
+// Removed .modal-content .close-button as it's not in the new HTML structure for modal
+
+#tutorial-overlay { // ID from new HTML
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9998;
+    // display: none; /* JS will handle display */
+}
+#tutorial-highlight-box { // ID from new HTML
+    position: fixed;
+    z-index: 9999;
+    border: 3px dashed $primary-red;
+    background-color: rgba($primary-red, 0.1);
+    border-radius: $border-radius-main;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    transition: all 0.3s ease-in-out;
+    pointer-events: none; 
+}
+#tutorial-text-box { // ID from new HTML
+    position: fixed;
+    z-index: 10000;
+    background-color: $pure-white;
+    color: $accent-black;
+    padding: 20px;
+    border-radius: $border-radius-main;
+    border: 3px solid $accent-black;
+    box-shadow: $box-shadow-strong;
+    max-width: 350px;
+    font-size: 1em;
+    line-height: 1.5;
+    transition: top 0.3s ease-in-out, left 0.3s ease-in-out;
+}
+#tutorial-text-box h4 { // In new HTML it's h2 inside tutorial-text-box, but targeting h4 if it exists
+    font-family: $font-headings; // Corrected from $font-display
+    color: $primary-red;
+    margin-top: 0;
+    font-size: 1.5em;
+}
+
+// Renamed #tutorialNav to #tutorial-navigation to match new HTML
+#tutorial-navigation { // ID from new HTML
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#tutorial-step-counter { // ID from new HTML
+    font-size: 0.9em;
+    font-weight: bold;
+    font-family: $font-main; // Corrected from $font-body
 }

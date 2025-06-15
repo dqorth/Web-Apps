@@ -1,0 +1,101 @@
+**This is a file written by you, Gemini, for our plan to refactor Toodie's TipSplit Deluxe. Use this to stay on track**
+
+Phase 1: Preparation
+
+Backup Your Project: Before we begin, please ensure you have a complete backup of your current project directory. This is crucial in case we need to revert any changes. [COMPLETED - User to verify, assumed]
+SASS Compilation: Ensure your SASS compilation process is active (e.g., using a command like sass --watch sass/main.scss:css/main.css in your terminal, or through a VS Code extension). This will allow us to see style changes as we make them. [COMPLETED - User confirmed Live Sass Compiler is working]
+
+Phase 2: HTML and CSS Alignment (Core Structure & Styling)
+    [X] Step 1: Align HTML Structure (index.html)
+        - Goal: Replace the content of index.html with the structure from pre-refactored_html.html.
+        - Key Changes:
+            - Complete replacement of <body> content in index.html to match pre_refactored_html.html.
+            - Updated <head> in index.html:
+                - Standardized favicon links.
+                - Updated Google Fonts link.
+                - Ensured all scripts (SheetJS CDN, local JS modules) use `defer`.
+                - Specified `type="module"` for all local JavaScript files.
+            - New HTML structure includes:
+                - `.app-container` as the main wrapper.
+                - `<header>` for the application title.
+                - `.top-date-controls` for cycle and week selection.
+                - Various `.section-card` elements for different app functionalities (Employee Management, Lineup, Daily Scoop, Weekly Rewind, Data Management) with their respective IDs.
+                - Tutorial overlay structure (`#tutorial-overlay`, `#tutorial-highlight-box`, `#tutorial-text-box`).
+        - Notes: Inline <style> and <script> blocks from pre-refactored_html.html were NOT directly copied. Styles will be handled via SASS/CSS, and JS logic via the linked modules.
+    [X] Step 2: Migrate and Align CSS Styles
+        - Goal: Transfer styles from pre-refactored_html.html\'s inline <style> tag to SASS partials.
+        - Key Changes:
+            - Extracted CSS variables from `:root` in `pre-refactored_html.html` and converted them to SASS variables in `sass/_variables.scss`.
+            - Migrated base HTML element styles (body, headings), input/label defaults, and basic list/table styles to `sass/_base.scss`. Added Google Font import from `pre-refactored_html.html` to `_base.scss`.
+            - Moved layout-specific styles (header, .app-container, .section-card, .top-date-controls) to `sass/_layout.scss`.
+            - Transferred all other component-specific styles (buttons, forms, specific list item structures, cards, tables, navigation elements, tutorial UI) to `sass/_components.scss`. This includes various states (e.g., button hover/disabled, toggle button states) and responsive media queries.
+            - Ensured `sass/main.scss` correctly imports all partials in the correct order: `_variables.scss`, `_base.scss`, `_layout.scss`, `_components.scss`.
+            - Verified that `index.html` correctly links to `css/main.css` (which will be compiled from `sass/main.scss`).
+        - Notes: The SASS files now contain the styles previously inline in `pre-refactored_html.html`. Some minor SASS-specific improvements like using `darken()` for hover states were made. Some comments were added to SASS files to suggest creating more variables for colors that were hardcoded in the original CSS. The font import in `_base.scss` uses the fonts specified in the `pre-refactored_html.html` (`Bangers` and `Open Sans`) rather than the `Roboto` font from the updated `index.html`'s `<head>` to maintain visual consistency with the reference during this CSS migration phase. This can be reconciled later.
+    [] Step 3: Refactor JavaScript Logic (Modularization & Alignment)
+        - Goal: Prepare the JavaScript environment and ensure initial state management aligns with pre-refactored_html.html.
+        - Tasks:
+            - [X] Identified global variables, constants (MILLISECONDS_PER_DAY, DAYS_OF_WEEK, MONTH_NAMES), and initial state setup from pre_refactored_html.html.
+            - [X] Ensured these are correctly defined and initialized: 
+                - Constants moved to `js/utils.js` and exposed.
+                - State properties (`positions`, `payRates`, `baseCycleStartDateString`, `currentReportWeekStartDate`, `activeSelectedDate`, `currentSelectedDayOfWeek`) updated in `js/state.js`.
+                - `loadState()` in `js/state.js` updated for legacy data migration and new state structure.
+                - `clearAllData()` in `js/state.js` updated for new state structure.
+            - [In Progress] Review `js/main.js` to ensure it correctly handles application initialization (e.g., on `DOMContentLoaded`) as per the reference.
+                - Refactored `DOMContentLoaded` in `js/main.js` for better structure, consistent use of `window.state`, and added `beforeunload` listener for unsaved changes.
+                - Ensured `main.initializeApplicationAfterStateLoad` is called to handle post-load checks like tutorial auto-start.
+                - Verified initialization order of modules.
+                - Confirmed `activeSelectedDate` is initialized if not present in loaded state.
+                - Day rollover logic and default view setup are included.
+        - Testing (You and I):
+            - You: Open `index.html` in the browser and use the developer console.
+            - You: Check if application data is loaded correctly (e.g., from localStorage by inspecting it in the Application tab of dev tools, especially after migrating from legacy keys).
+            - You: Look for any console errors related to initialization.
+            - You: Verify `beforeunload` prompt appears if changes are made and not saved.
+            - You: Confirm tutorial auto-start logic (if `showTutorialOnLoad` is true in state) works as expected.
+            - I: I will guide the necessary modifications to `js/state.js` and `js/main.js`.
+    [] Step 4: JavaScript Logic - Feature-by-Feature Refactoring
+
+Goal: Replicate the exact functionality of each application feature. This will be an iterative process, tackling one major feature area at a time. The primary features are:
+Employee Management
+Lineup / Shifts
+Daily Scoop (Reports)
+Weekly Rewind (Reports)
+Settings & Data Management
+Tutorial / Help
+For each feature, we will:
+Analyze Reference JS: I will examine the JavaScript code in pre-refactored_html.html related to the specific feature, noting its functions, event handlers, DOM manipulations, and data interactions.
+Analyze Current JS Modules: We will look at your corresponding JS modules (employees.js, shifts.js, reports.js, ui.js, state.js, etc.) to see how the feature is currently implemented or if it's missing.
+Refactor/Implement: I will provide the necessary code changes for your JS modules to:
+Match the logic and behavior of the reference script.
+Use the correct DOM element IDs and classes (from Step 1) for selections and manipulations (potentially updating ui.js or calls to it).
+Ensure event listeners are attached to the correct elements and trigger the identical functionality.
+Manage application state through state.js in a way that mirrors the data handling in pre_refactored_html.html (especially concerning localStorage).
+Testing (You and I for each feature):
+You: Thoroughly test the specific feature in the browser.
+You: Compare its behavior step-by-step against the same feature in pre_refactored_html.html. It must work exactly the same.
+You: Check for any JavaScript console errors.
+You: If the feature involves data persistence, verify localStorage contents.
+You: Test edge cases and different user inputs for that feature.
+I: I will provide the code modifications and help diagnose issues.
+Step 5: Align Utility Functions (utils.js)
+
+Goal: Ensure any helper/utility functions are consistent with those in pre-refactored_html.html.
+Tasks:
+I will compare any utility functions found in pre-refactored_html.html's script with your current utils.js.
+We will update utils.js to include any missing utilities or modify existing ones to behave identically.
+Ensure all calls to utility functions throughout your other JS modules are correct.
+Testing (You and I):
+You: These functions are often tested indirectly through the features that use them. However, if there are complex utilities, we might discuss specific tests.
+I: I will identify necessary utility functions and their correct implementation.
+Step 6: Final Integration Testing and Refinements
+
+Goal: Ensure the entire application is a perfect match and address any remaining issues.
+Tasks:
+Perform comprehensive end-to-end testing of the entire application.
+Meticulously compare every feature, interaction, and visual detail with pre-refactored_html.html.
+Address any final discrepancies in functionality or appearance.
+Double-check for any console errors or warnings.
+Testing (You and I):
+You: This is the ultimate test. Use the application as a normal user would, trying all possible scenarios. Compare it rigorously against pre_refactored_html.html.
+I: I can help by suggesting comprehensive test scenarios and reviewing the final state.

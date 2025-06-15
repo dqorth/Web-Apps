@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toody's TipSplit Deluxe!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Diner Dash TipSplit Deluxe!</h1>
+        </header>
+
+        <div class="top-date-controls">
+            <div class="date-control-group">
+                <label for="cycleStartDateSelect">Cycle Start:</label>
+                <select id="cycleStartDateSelect"></select>
+            </div>
+            <div class="date-control-group">
+                <label for="weekInCycleSelect">Week in Cycle:</label>
+                <select id="weekInCycleSelect">
+                    <option value="1">Week 1</option>
+                    <option value="2">Week 2</option>
+                    <option value="3">Week 3</option>
+                    <option value="4">Week 4</option>
+                </select>
+            </div>
+        </div>
+        <input type="date" id="currentDateHidden" style="display:none;">
+
+
+        <div class="section-card" id="employeeFormSection" style="display: none;"> 
+            <h2>
+                Manage Jukebox Hero
+                <button class="button tutorial-btn" data-tutorial-for="roster">How-To</button>
+            </h2> 
+            <div id="actualFormContainer"> 
+                <button id="goBackToLineupBtn" class="button small-action-btn" style="margin-bottom: 15px;">&laquo; Back to The Lineup</button>
+                <button id="toggleAddNewEmployeeFormBtn" class="button" style="margin-bottom: 15px;">Add New Jukebox Hero</button>
+                
+                <div id="addEmployeeFormWrapper" style="display: none;">
+                    <div>
+                        <label for="empName">Name:</label>
+                        <input type="text" id="empName" placeholder="e.g., Fonzie">
+                        <label>Rockin' Roles (Select all applicable):</label>
+                        <div id="empPositionsContainer"></div>
+                        <input type="hidden" id="editingEmployeeId">
+                        <button id="addEmployeeBtn" class="button">Add to Crew</button>
+                        <button id="updateEmployeeBtn" class="button" style="display:none;">Update Hero</button>
+                        <button id="cancelEditBtn" class="button" style="background-color: #757575;">Nevermind</button>
+                    </div>
+                    <div id="importSectionWrapper" style="border-top: 2px dashed var(--border-color);">
+                        <h4>Import Roster from .txt File</h4>
+                        <label for="employeeImportFile" class="button" style="display: inline-block; margin-bottom: 10px; font-size: 1em; padding: 8px 12px;">Choose File...</label>
+                        <input type="file" id="employeeImportFile" accept=".txt" style="display: none;"> 
+                        <span id="importFileName" style="margin-left: 10px; font-style: italic; color: var(--accent-black);">No file chosen</span>
+                        <div id="importStatusMessages" style="font-size: 0.9em; margin-top: 5px;"></div>
+                    </div>
+                </div>
+
+                <div id="employeeListManagement">
+                    <h3>All Jukebox Heroes:</h3>
+                    <p style="font-size: 0.9em; margin-bottom: 15px;">Click 'Edit' to change their name or roles, or 'X' to remove them from the roster.</p>
+                    <div id="fullEmployeeRosterContainer">
+                        <p>Loading employee roster...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card" id="employeeLineupSection">
+             <h2 class="collapsible-header" role="button" aria-expanded="true" aria-controls="lineupContent">
+                The Lineup
+                <button class="button tutorial-btn" data-tutorial-for="lineup">How-To</button>
+                <span class="collapse-indicator">-</span>
+             </h2>
+            <div class="collapsible-content" id="lineupContent" style="display:block;">
+                <div id="lineupDayNavContainer"></div> 
+                <div class="date-display-wrapper">
+                    <label style="display: inline-block; margin-right: 8px; font-size: 1.2em;">Selected Date:</label>
+                    <span id="lineupDateDisplay" class="date-display">N/A</span>
+                </div>
+                <div id="rosterListContainer">
+                    <p>Loading roster...</p>
+                </div>
+                <button id="showAddEmployeeFormBtn" class="button" style="margin-top: 15px;">Manage Roster / Add New Hero</button>
+            </div>
+        </div>
+        
+        <div class="section-card" id="payoutSection">
+             <h2 class="collapsible-header" role="button" aria-expanded="false" aria-controls="payoutContent">
+                The Daily Scoop 
+                <button class="button tutorial-btn" data-tutorial-for="scoop">How-To</button>
+                <span class="collapse-indicator">+</span>
+             </h2>
+            <div class="collapsible-content" id="payoutContent" style="display: none;">
+                <div id="scoopDayNavContainer"></div>
+                 <div class="date-display-wrapper">
+                    <label style="display: inline-block; margin-right: 8px; font-size: 1.2em;">Selected Date:</label>
+                    <span id="scoopDateDisplay" class="date-display">N/A</span>
+                </div>
+                <div id="payoutResults"></div>
+            </div>
+        </div>
+
+        <div class="section-card" id="weeklyReportSection">
+            <h2 class="collapsible-header" role="button" aria-expanded="false" aria-controls="weeklyReportContent">
+                The Weekly Rewind
+                <button class="button tutorial-btn" data-tutorial-for="weekly">How-To</button>
+                <span class="collapse-indicator">+</span>
+            </h2>
+            <div class="collapsible-content" id="weeklyReportContent" style="display: none;">
+                <div class="week-navigation">
+                    <div class="week-navigation-buttons">
+                        <button id="prevWeekBtn" class="button">&laquo; Prev Week</button>
+                        <button id="nextWeekBtn" class="button">Next Week &raquo;</button>
+                    </div>
+                    <span id="currentlyViewedWeekDisplay">Week: N/A</span>
+                </div>
+                <button id="exportWeeklyCSVBtn" class="button" style="display:none;">Export This Week</button>
+                <div id="reportOutput"></div>
+            </div>
+        </div>
+
+        <!-- NEW: Settings and Data Management Section -->
+        <div class="section-card" id="dataManagementSection">
+            <h2 class="collapsible-header" role="button" aria-expanded="false" aria-controls="dataManagementContent">
+                Settings &amp; Data Management
+                <button class="button tutorial-btn" data-tutorial-for="data">How-To</button>
+                <span class="collapse-indicator">+</span>
+            </h2>
+            <div class="collapsible-content" id="dataManagementContent" style="display: none;">
+                <p>Here you can download all your data (roster and shifts) to a file for backup, or load a previously saved file to restore your state.</p>
+                <div style="display:flex; flex-wrap:wrap; gap: 15px; margin-top:15px;">
+                    <button id="downloadStateBtn" class="button">Download Save Data</button>
+                    <label for="loadStateFile" class="button" style="background-color: #4CAF50;">Load Save Data</label>
+                    <input type="file" id="loadStateFile" accept=".json" style="display: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TUTORIAL OVERLAY HTML -->
+    <div id="tutorial-overlay">
+        <div id="tutorial-highlight-box"></div>
+        <div id="tutorial-text-box">
+            <h4 id="tutorial-title">Tutorial</h4>
+            <p id="tutorial-text">Welcome to the tutorial!</p>
+            <div class="tutorial-nav">
+                <button id="tutorial-prev-btn" class="button small-action-btn">&laquo; Prev</button>
+                <span id="tutorial-step-counter">1 / 5</span>
+                <button id="tutorial-next-btn" class="button small-action-btn">Next &raquo;</button>
+                <button id="tutorial-close-btn" class="button" style="background-color: #757575;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+
+<div id="confirmRemoveModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <p id="confirmRemoveMessage"></p>
+        <div class="modal-actions">
+            <button id="confirmRemoveBtn" class="button">Confirm</button>
+            <button id="cancelRemoveBtn" class="button secondary-btn">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="infoModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <p id="infoMessage"></p>
+        <div class="modal-actions">
+            <button id="infoOkBtn" class="button">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function initializeCollapsibleSections() {
+        console.log("APP_LOG: Initializing collapsible sections...");
+        document.querySelectorAll('.collapsible-header').forEach(header => {
+            const contentId = header.getAttribute('aria-controls');
+            const content = document.getElementById(contentId);
+            const indicator = header.querySelector('.collapse-indicator');
+
+            // Restore previous state from localStorage
+            const isCollapsed = localStorage.getItem(`collapsible_${contentId}_collapsed`) === 'true';
+            content.style.display = isCollapsed ? 'none' : 'block';
+            if (indicator) indicator.textContent = isCollapsed ? '+' : '-';
+            header.setAttribute('aria-expanded', String(!isCollapsed));
+
+            header.addEventListener('click', (e) => {
+                // Prevent tutorial button from triggering collapse
+                // If the click is on a tutorial button, log and prevent collapse, but allow event to propagate
+                if (e.target.closest('.tutorial-btn')) { 
+                    console.log("APP_LOG: Clicked tutorial button, allowing event to propagate for tutorial handler.");
+                    // return; // Allow event to propagate
+                } else {
+                    // Toggle the display of the next sibling element (the content)
+                    const isCurrentlyHidden = content.style.display === 'none';
+                    console.log(`APP_LOG: Header clicked for ${contentId}. Was hidden: ${isCurrentlyHidden}`);
+                    content.style.display = isCurrentlyHidden ? 'block' : 'none';
+                    if(indicator) indicator.textContent = isCurrentlyHidden ? '-' : '+';
+                    header.setAttribute('aria-expanded', String(isCurrentlyHidden));
+                    localStorage.setItem(`collapsible_${contentId}_collapsed`, String(!isCurrentlyHidden));
+
+                    if (isCurrentlyHidden) { // Content is NOW SHOWN
+                        console.log(`APP_LOG: Content ${contentId} expanded, triggering updates.`);
+                        if (contentId === 'payoutContent') {
+                            // ADDED: Check if function exists
+                            if (typeof triggerDailyScoopCalculation === 'function') {
+                                triggerDailyScoopCalculation();
+                            } else {
+                                console.error('Error: triggerDailyScoopCalculation function is not defined.');
+                            }
+                        } else if (contentId === 'weeklyReportContent') {
+                            // ADDED: Check if function exists
+                            if (typeof triggerWeeklyRewindCalculation === 'function') {
+                                triggerWeeklyRewindCalculation();
+                            } else {
+                                console.error('Error: triggerWeeklyRewindCalculation function is not defined.');
+                            }
+                        } else if (contentId === 'lineupContent'){
+                            // ADDED: Check if function exists
+                            if (typeof applyMasonryLayoutToRoster === 'function') {
+                                applyMasonryLayoutToRoster();
+                            } else {
+                                console.error('Error: applyMasonryLayoutToRoster function is not defined.');
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeCollapsibleSections();
+    });
+</script>
+
+</html>

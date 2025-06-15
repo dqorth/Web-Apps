@@ -1,108 +1,786 @@
+@import 'variables';
+
+// Button base styles
 .button {
-  background-color: $primary-red;
-  color: $pure-white;
-  border: 2px solid $accent-black;
-  padding: $button-padding;
-  border-radius: $border-radius;
-  font-family: $font-body;
-  font-weight: bold;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 2px 2px 0px $accent-black;
-  margin-top: 10px;
-  margin-right: 5px;
-
-  &:hover {
-    background-color: darken($primary-red, 10%);
-    box-shadow: 1px 1px 0px $accent-black;
-    transform: translate(1px, 1px);
-  }
-
-  &:disabled {
-    background-color: $disabled-gray;
-    color: #777;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-  }
-}
-
-.checkbox-group {
-  label {
-    font-weight: normal;
-    margin-right: 15px;
-    input[type="checkbox"] {
-      margin-right: 5px;
-      accent-color: $primary-red;
-    }
-  }
-}
-
-// Style for lists (e.g., employee roster, shift list)
-.item-list {
-  li {
-    background-color: $light-cream;
-    padding: 10px;
-    margin-bottom: 8px;
-    border: 1px solid darken($light-cream, 10%);
-    border-left: 5px solid $primary-red;
+    background-color: $primary-red;
+    color: $pure-white;
+    border: 2px solid $accent-black;
+    padding: $button-padding;
     border-radius: $border-radius;
+    font-family: $font-display;
+    font-size: 1.3em;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .15s ease-in-out;
+    box-shadow: $box-shadow-light;
+    margin-top: 10px;
+    margin-right: 8px; 
+
+    &:hover {
+        background-color: darken($primary-red, 10%); // Example: darken #C62828
+        box-shadow: 1px 1px 0px $accent-black;
+        transform: translate(1px, 1px);
+    }
+
+    &:disabled {
+        background-color: $disabled-gray;
+        color: #757575; // Consider a variable
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+
+    &.small-action-btn {
+        font-size: 0.9em;
+        padding: 6px 10px;
+        margin-top: 5px;
+    }
+}
+
+// Remove X button (often used on list items)
+.remove-x-btn {
+    position: absolute; 
+    top: 5px; 
+    right: 5px; 
+    width: 28px; 
+    height: 28px;
+    font-family: $font-body; 
+    font-size: 1.1em; 
+    font-weight: bold;
+    line-height: 1; 
+    text-align: center; 
+    background-color: $primary-red;
+    color: $pure-white; 
+    border: 2px solid $accent-black;
+    border-radius: 50%; 
+    cursor: pointer; 
+    transition: all 0.15s ease-in-out;
+    z-index: 10; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    box-shadow: $box-shadow-light;
+    padding: 0;
+
+    &:hover {
+        background-color: darken($primary-red, 10%);
+        box-shadow: 1px 1px 0px $accent-black;
+        transform: translate(1px, 1px);
+    }
+}
+
+// Collapsible section headers and content
+.section-card > h2:not(.collapsible-header) { 
+    border-bottom: 4px dotted $primary-red; 
+    padding-bottom: 12px; 
+    margin-top: 0;
+    font-size: 2em; 
+    letter-spacing: normal;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.section-card h2.collapsible-header {
+    border-bottom: 4px dotted $primary-red; 
+    padding-bottom: 12px; 
+    margin-top: 0;
+    font-size: 2em; 
+    cursor: pointer; 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    user-select: none; 
+    letter-spacing: normal;
+
+    em { 
+        font-size:0.7em; 
+        font-weight:normal; 
+        margin-left:10px;
+        font-family: $font-body; 
+        color: $accent-black; 
+        font-style: normal; 
+    }
+
+    &:hover { 
+        opacity: 0.85; 
+    }
+}
+
+.collapse-indicator { 
+    font-size: 1.2em; 
+    font-weight: bold; 
+    margin-left: 15px; 
+    min-width: 20px; 
+    text-align: center; 
+    font-family: $font-body; 
+}
+
+.collapsible-content { 
+    padding-top: 15px; 
+} 
+
+.collapse-bottom-btn {
+    display: block;
+    margin: 20px auto 0;
+    font-size: 0.9em;
+    padding: 8px 15px;
+    letter-spacing: normal;
+    text-transform: none;
+    background-color: #f0f0f0; // Consider variable
+    color: $accent-black;
+    border-color: #ccc; // Consider variable
+
+    &:hover {
+        background-color: #e0e0e0; // Consider variable
+    }
+}
+
+
+// Roster List specific styles (Employee Lineup & Management)
+#rosterListContainer {
+    display: grid; 
+    grid-gap: 20px; 
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    align-items: start; 
+}
+
+.roster-position-group {
+    background-color: $pure-white; 
+    padding: 15px;
+    border-radius: $border-radius; 
+    border: 2px solid $accent-black;
+    box-shadow: $box-shadow-light; 
+    box-sizing: border-box;
+    width: 100%; 
+    margin-bottom: 0; 
+
+    .position-group-header-roster {
+        font-family: $font-display;
+        font-size: 1.3em; 
+        margin-top:0; 
+        margin-left:0px; 
+        color: $accent-black; 
+        padding-bottom: 8px; 
+        border-bottom: 2px dotted $primary-red; 
+    }
+}
+
+#rosterListContainer .item-list li .roster-item-main-info {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    flex-grow: 1; 
+    width: 100%; 
+    flex-wrap: wrap; 
+}
+
+#rosterListContainer .employee-info { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start; 
+    margin-right: 10px; 
+    flex-grow: 1; 
+    min-width: 0; 
+    margin-bottom: 5px; 
+
+    strong { 
+        font-size: 1.05em; 
+        font-weight: bold;
+    }
+}
+
+.roster-lineup-selectable li .employee-info strong {
+    cursor: pointer; 
+    text-decoration: underline; 
+    color: $primary-red; 
+
+    &:hover { 
+        color: $accent-black; 
+    }
+}
+
+.shift-summary-display {
+    font-size: 0.8em; 
+    color: #333; // Consider variable
+    margin-top: 5px; 
+    padding: 4px 6px;
+    background-color: rgba(0,0,0,0.05); 
+    border-radius: 4px; // Consider variable
+    border-left: 3px solid $accent-black;
+    display: block; 
+    width: 100%;    
+    word-break: break-word; 
+    box-sizing: border-box;
+}
+
+#rosterListContainer .employee-actions {
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    flex-shrink: 0; 
+    margin-left: 10px; 
+
+    .worked-today-toggle-btn {
+        font-size: 0.8em; 
+        padding: 5px 8px; 
+        margin-top: 0; 
+        margin-left: 0; 
+        min-width: 100px; 
+        text-align: center; 
+        border-width: 2px; 
+        border-style: solid; 
+        line-height: 1.3; 
+    }
+}
+
+.worked-today-toggle-btn {
+    &.is-not-working { 
+        background-color: #f0f0f0; // Consider variable
+        color: $accent-black; 
+        border-color: #ccc; // Consider variable
+        box-shadow: $box-shadow-light; 
+        &:hover { background-color: #e0e0e0; } // Consider variable
+    }
+    &.is-working { 
+        background-color: #d1c4e9; // Consider variable (purpleish)
+        color: $accent-black; 
+        border-color: #9575cd; // Consider variable
+        box-shadow: $box-shadow-light;
+        &:hover { background-color: #b39ddb; } // Consider variable
+    }
+    &.is-editing-shift { 
+        background-color: $primary-red; 
+        color: $pure-white; 
+        border-color: $accent-black; 
+        box-shadow: $box-shadow-light;
+        &:hover { background-color: darken($primary-red, 10%); }
+    }
+}
+
+.inline-shift-form-container {
+    width: 100%; 
+    background-color: #f9f9f9; // Consider variable
+    border: 1px dashed #ccc; // Consider variable
+    padding: 15px; 
+    margin-top: 10px; 
+    border-radius: $border-radius;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); 
+    box-sizing: border-box;
+
+    .inline-form-actions {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap; 
+        justify-content: flex-start;
+    }
+    .time-inputs-group,
+    .tip-inputs-group {
+        display: flex; 
+        gap: 10px; 
+        margin-bottom: 10px; 
+        flex-wrap: wrap;
+        > div {
+            flex: 1 1 calc(50% - 10px); 
+            box-sizing: border-box; 
+            min-width: 120px;
+        }
+    }
+    label { 
+        font-size: 0.9em; 
+        margin-bottom: 2px; 
+        display: block; 
+    }
+    input[type="time"],
+    input[type="number"] {
+        width: 100%; 
+        padding: 8px; 
+        font-size: 0.9em; 
+        margin-bottom: 0; 
+    }
+}
+
+// Employee Management List (#fullEmployeeRosterContainer)
+#employeeListManagement {
+    margin-top: 25px; 
+    border-top: 2px dashed $border-color; 
+    padding-top: 20px; 
+
+    h3 {
+        font-family: $font-display; 
+        color: $accent-black; 
+        font-size: 1.8em; 
+        margin-bottom: 10px; 
+        letter-spacing: 0.5px;
+    }
+}
+
+#fullEmployeeRosterContainer .item-list {
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 15px; 
+    justify-content: flex-start;
+
+    li {
+        border-left: 4px solid $primary-red; 
+        padding: 12px 40px 12px 15px;
+        justify-content: flex-start; 
+        flex-wrap: nowrap; 
+        flex: 1 1 calc(33.333% - 15px); 
+        min-width: 300px; 
+        box-sizing: border-box; 
+        background-color: $pure-white;
+    }
+
+    .employee-info {
+        flex-grow: 1; 
+        min-width: 100px; 
+        margin-right: 10px;
+        strong { font-size: 1.1em; }
+        .roster-positions {
+            font-size: 0.8em; 
+            color: #666; // Consider variable
+            margin-top: 3px; 
+            display: block;
+        }
+    }
+    .employee-actions {
+        display: flex; 
+        align-items: center; 
+        gap: 8px; 
+        flex-shrink: 0; 
+        flex-wrap: nowrap; 
+    }
+    .button.edit-btn {
+        font-size: 0.9em; 
+        padding: 5px 8px; 
+        margin-top: 0; 
+        margin-left: 0;
+    }
+}
+
+// Add Employee Form specific styles
+#addEmployeeFormWrapper {
+    border: 2px dashed $primary-red; 
+    padding: 20px; 
+    margin-top: 20px;
+    margin-bottom: 20px; 
+    border-radius: $border-radius; 
+    background-color: #fffaf0; // Consider variable (light yellow/cream)
+
+    #empName { 
+        margin-bottom: 6px; 
+        padding: 10px; // Overrides base input padding
+    }
+    label[for="empName"] { 
+        font-size: 1em; 
+    } 
+    
+    #empPositionsContainer {
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-top:5px;
+        padding:5px;
+        border:1px solid $light-cream; // Using variable, might need adjustment
+        border-radius:$border-radius;
+
+        .position-entry-group { 
+            border: none; 
+            background-color: transparent; 
+            padding: 0; 
+            margin-bottom: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: stretch; 
+        }
+        .role-toggle-btn {
+            display:inline-block;
+            padding:6px 10px;
+            font-size:0.9em;
+            margin-bottom:4px;
+            min-width:100px;
+            text-transform:none;
+            letter-spacing:normal;
+            font-family:$font-body;
+            width:auto;
+            flex-grow:0;
+            box-shadow:$box-shadow-light !important; // Important might be needed due to specificity
+
+            &:not(.selected-role){
+                background-color:#f0f0f0; // Consider variable
+                color:$accent-black;
+                border:2px solid #ccc; // Consider variable
+                &:hover{background-color:#e0e0e0;} // Consider variable
+            }
+            &.selected-role{
+                background-color:$primary-red;
+                color:$pure-white;
+                border:2px solid $accent-black;
+                &:hover{background-color:darken($primary-red, 10%);}
+            }
+        }
+        .pay-rate-input-wrapper { 
+            margin-top:0px;
+            padding-left:0;
+            width:100%;
+            label { 
+                font-size:0.8em;
+                margin-bottom:2px;
+                padding-left:2px;
+            }
+            input[type="number"] { 
+                padding:6px;
+                font-size:0.9em;
+                margin-bottom:3px;
+                width:calc(100% - 16px);
+            }
+        }
+    }
+
+    .button { // Specific to buttons inside addEmployeeFormWrapper
+        margin-top:15px;
+        padding:10px 15px;
+        font-size:1.2em; 
+    }
+
+    #importSectionWrapper {
+        margin-top:15px;
+        padding-top:10px;
+        border-top:2px dashed $border-color;
+        h4 { 
+            margin-bottom:8px;
+            font-size:1.15em; 
+        }
+        .button { // Further specificity for import buttons
+            font-size:0.9em !important; 
+            padding:6px 10px !important;
+            margin-bottom:5px !important;
+            margin-top:5px !important; 
+        }
+        #importFileName { 
+            font-size:0.85em; 
+        }
+        #importStatusMessages {
+            font-size:0.8em;
+            margin-top:3px;
+            ul { 
+                margin-top:3px;
+                margin-bottom:0;
+                padding-left:20px; 
+            }
+            li { 
+                padding:2px 0;
+                border:none;
+                background:none;
+                box-shadow:none;
+                margin-bottom:0;
+                color:$accent-black; 
+            }
+        }
+    }
+}
+
+// Date control group (used in top-date-controls)
+.date-control-group { 
+    display: flex; 
+    flex-direction: column; 
+    label { 
+        font-size: 0.9em; 
+        margin-bottom: 3px; 
+    }
+    select { 
+        width: auto; 
+        min-width: 150px; 
+        padding: 8px; 
+        font-size: 0.95em; 
+        margin-bottom: 0;
+    } 
+} 
+
+// Date display (used in Lineup and Scoop sections)
+.date-display-wrapper { 
+    text-align: center; 
+    margin-bottom: 15px; 
+}
+.date-display { 
+    font-size: 1.2em; 
+    font-weight: bold; 
+    padding: 8px; 
+    background-color: #eee; // Consider variable
+    border-radius: $border-radius; 
+    border: 2px inset $border-color; 
+    min-width:200px; 
+    text-align:center; 
+    display:inline-block; 
+}
+
+// Day navigation buttons (Lineup and Scoop sections)
+.day-nav-container {
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:15px;
+    padding-bottom:15px;
+    border-bottom:2px dashed $border-color;
+    .day-nav-btn {
+        font-family:$font-body;
+        font-size:0.9em;
+        padding:6px 12px;
+        margin:0;
+        min-width:80px;
+        border-width:2px;
+        &.active-day {
+            background-color:$accent-black;
+            color:$pure-white;
+            border-color:$accent-black;
+        }
+    }
+}
+
+// Detailed tip-in rows for daily scoop table
+.data-results-table {
+    .detailed-tip-in-row-daily td {
+        padding: 5px 10px !important; 
+        font-size: 0.9em; 
+    }
+    .detailed-tip-in-row-daily.even-detail td { 
+        background-color: #f0f0f0 !important; // Consider variable
+    }
+    .detailed-tip-in-row-daily.odd-detail td { 
+        background-color: #fdfdfd !important; // Consider variable
+    }
+}
+
+// Report day header (Weekly Rewind)
+.report-day-header {
+    font-family:$font-display; 
+    font-size: 1.5em; 
+    margin-top:20px; 
+    padding-bottom:5px; 
+    border-bottom:2px solid $accent-black; 
+}
+
+// Weekly navigation (Weekly Rewind)
+.week-navigation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    .week-navigation-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        width: 100%;
+    }
+    .button {
+        margin: 0;
+        font-size: 1.1em;
+        padding: 8px 15px;
+        letter-spacing: normal;
+    }
+}
+#currentlyViewedWeekDisplay {
+    font-family: $font-display;
+    font-size: 1.6em;
+    color: $accent-black;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+    border-bottom: 2px solid $primary-red;
+    letter-spacing: 0.5px;
+}
+
+// Support tip detail list (Daily Scoop)
+.support-tip-detail {
+    list-style-type:none;
+    padding-left:20px;
+    margin-top:5px;
+    font-size:.9em;
+    li {
+        padding:4px 0;
+        border-bottom:1px dotted #e0e0e0; // Consider variable
+        color:#555; // Consider variable
+        &:last-child { 
+            border-bottom:none 
+        }
+        strong { 
+            color:$accent-black 
+        }
+    }
+}
+
+// Tutorial specific styles
+.tutorial-btn {
+    font-family: $font-body;
+    font-size: 0.6em; 
+    padding: 4px 8px; 
+    margin-left: auto; 
+    margin-top: 0;
+    margin-right: 0;
+    background-color: #42A5F5; // Consider variable (friendly blue)
+    color: $pure-white;
+    text-transform: none; 
+    letter-spacing: normal;
+    box-shadow: $box-shadow-light;
+    border: 2px solid $accent-black;
+    &:hover {
+         background-color: darken(#42A5F5, 10%); // Example: #1E88E5
+    }
+}
+
+#tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 9998;
+    display: none; 
+}
+#tutorial-highlight-box {
+    position: fixed;
+    z-index: 9999;
+    border: 3px dashed $primary-red;
+    background-color: rgba($primary-red, 0.1);
+    border-radius: $border-radius;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    transition: all 0.3s ease-in-out;
+    pointer-events: none; 
+}
+#tutorial-text-box {
+    position: fixed;
+    z-index: 10000;
+    background-color: $pure-white;
+    color: $accent-black;
+    padding: 20px;
+    border-radius: $border-radius;
+    border: 3px solid $accent-black;
+    box-shadow: $box-shadow-strong;
+    max-width: 350px;
+    font-size: 1em;
+    line-height: 1.5;
+    transition: top 0.3s ease-in-out, left 0.3s ease-in-out;
+    h4 {
+        font-family: $font-display;
+        color: $primary-red;
+        margin-top: 0;
+        font-size: 1.5em;
+    }
+}
+.tutorial-nav {
+    margin-top: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-}
-
-.position-entry-group {
-  border: 2px dashed var(--border-color);
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: var(--border-radius);
-  background-color: lighten(var(--light-cream), 5%);
-
-  .position-checkbox-label-group {
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-  }
-  
-  .pay-rate-input-wrapper { // Container for label and input for pay rate
-    margin-top: 8px;
-    padding-left: 25px; // Indent under its checkbox
-  }
-}
-
-.week-navigation {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 15px;
-
-  .button {
-    margin: 0 10px;
-    font-size: 1.1em; // Slightly smaller for nav buttons
-    padding: 8px 15px;
-  }
-  #currentlyViewedWeekDisplay { // New element for displaying the week being reported
-    font-family: var(--font-display);
-    font-size: 1.5em;
-    color: var(--accent-black);
-    min-width: 250px; // Give it some space
-    text-align: center;
-  }
-}
-
-.support-tip-detail {
-  list-style-type: none;
-  padding-left: 20px;
-  margin-top: 5px;
-  font-size: 0.9em;
-  li {
-    padding: 3px 0;
-    border-bottom: 1px dotted #eee;
-    &:last-child {
-      border-bottom: none;
+    .button {
+        font-size: 1em;
+        padding: 8px 15px;
+        margin: 0;
     }
-  }
+}
+#tutorial-step-counter {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+// Responsive adjustments from pre-refactored CSS
+@media (max-width: 992px) { 
+    #fullEmployeeRosterContainer .item-list li {
+        flex: 1 1 calc(50% - 15px); 
+        min-width: 250px;
+    }
+    #rosterListContainer {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    #rosterListContainer {
+        display: block; 
+    }
+    .roster-position-group {
+        width: 100%; 
+        margin-bottom: 20px; 
+    }
+    #fullEmployeeRosterContainer .item-list li {
+        flex: 1 1 100%; 
+        min-width: unset;
+    }
+    #currentlyViewedWeekDisplay {
+        min-width: unset;
+    }
+}
+
+@media (max-width: 480px) { 
+    #rosterListContainer .item-list li .roster-item-main-info {
+        flex-direction: column; 
+        align-items: stretch; 
+    }
+    #rosterListContainer .employee-info {
+        width: 100%; 
+        margin-right: 0;
+        margin-bottom: 8px; 
+    }
+    #rosterListContainer .employee-actions {
+        width: 100%; 
+        justify-content: flex-start; 
+        margin-left: 0;
+    }
+    // Responsive table styles for small screens
+    .data-table-container table, 
+    .data-table-container thead, 
+    .data-table-container tbody, 
+    .data-table-container th, 
+    .data-table-container td, 
+    .data-table-container tr { // This might need a more specific selector if .data-table-container is not always present
+        display: block;
+    }
+    .data-table-container thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    .data-table-container tr { 
+        border: 1px solid #ccc; // Consider variable
+        margin-bottom: .625em;
+    }
+    .data-table-container td {
+        border: none;
+        border-bottom: 1px solid #eee; // Consider variable
+        position: relative;
+        padding-left: 50% !important; 
+        text-align: right;
+        white-space: normal;
+        &::before {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            width: 45%;
+            padding-right: 10px;
+            white-space: nowrap;
+            text-align: left;
+            font-weight: bold;
+            content: attr(data-label);
+        }
+    }
+    .data-results-table .detailed-tip-in-row-daily td,
+    .data-results-table .detailed-tip-in-row-daily td::before { 
+        display: block;
+        padding-left: 10px !important; 
+        text-align: left;
+        width:auto;
+        position:relative;
+    }
+    .data-results-table .detailed-tip-in-row-daily td::before{
+        content: ""; 
+        display:none;
+    }
 }

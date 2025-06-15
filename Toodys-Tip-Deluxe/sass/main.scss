@@ -3,5 +3,20 @@
 @import 'layout';
 @import 'components';
 
-// Specific section styles can go here or in their own partials
-// e.g., _roster.scss, _shifts.scss, _results.scss
+// This is the main SASS file.
+// It should primarily consist of imports of partials.
+// Any global styles that don't fit into the partials can go here,
+// but it's generally better to keep this file clean and organized with imports.
+
+// Example of a global override or utility class if needed:
+// .sr-only {
+//   position: absolute;
+//   width: 1px;
+//   height: 1px;
+//   padding: 0;
+//   margin: -1px;
+//   overflow: hidden;
+//   clip: rect(0, 0, 0, 0);
+//   white-space: nowrap;
+//   border-width: 0;
+// }

@@ -1,16 +1,64 @@
-// Colors - 50s Palette
-$primary-red: #D92B2B; // Strong retro red
-$accent-black: #1A1A1A; // Deep black for text and accents
-$light-cream: #F5EFEA; // Softer background than pure white, vintage feel
-$pure-white: #FFFFFF;   // For highlights, card backgrounds
-$disabled-gray: #B0B0B0;
-$border-color: #4D4D4D;
+// Colors - Core definitions from pre-refactored_html.html
+$primary-red: #E53935; // Updated from #D92B2B
+$accent-black: #212121; // Updated from #1A1A1A
+$light-cream: #FFF9C4; // Updated from #F5EFEA
+$pure-white: #FFFFFF;   // No change
+$disabled-gray: #BDBDBD; // Updated from #B0B0B0
+$border-color: #424242;  // Updated from #4D4D4D
+$background-card: $pure-white; // Retained, as cards in original used pure white
 
-// Fonts - 50s Style
-$font-display: 'Lobster', cursive; // Example: Google Font for headings
-$font-body: 'Open Sans', sans-serif;  // Clean, readable body font
+// Fonts - Aligned with pre-refactored_html.html
+$font-headings: 'Bangers', cursive; // Updated from 'Georgia', serif; Original was --font-display
+$font-main: 'Open Sans', sans-serif;  // Updated from 'Arial', sans-serif; Original was --font-body
 
-// Sizes
-$border-radius: 5px;
-$input-padding: 10px;
-$button-padding: 10px 15px;
+// Sizes & Styles - Aligned with pre-refactored_html.html
+$border-radius-main: 8px; // Updated from 4px; Original was --border-radius
+$box-shadow-app-container: 0 8px 20px rgba($accent-black, 0.3); // Updated shadow values
+$box-shadow-header: 0 4px 8px rgba($accent-black, 0.2); // Updated shadow values
+$box-shadow-light: 2px 2px 0px $accent-black; // New definition from --box-shadow-light
+$box-shadow-strong: 4px 4px 0px $accent-black; // New definition from --box-shadow-strong
+$box-shadow-main: 0 2px 4px rgba(0,0,0,0.1); // Uncommented, as it's used in _base.scss
+
+// Input/Button specific sizes from pre-refactored_html.html
+$input-padding: 12px; // Updated from 10px
+$button-padding: 12px 20px; // Updated from 10px 15px
+
+// Additional specific values from pre-refactored_html.html
+$light-border-color: #E0E0E0; // For elements like item-list borders
+$soft-shadow: 2px 2px 4px rgba(0,0,0,0.1); // For item-list shadow
+$table-row-even-bg: #f8f8f8; // For even table rows in .data-results-table
+
+// Commented out old/replaced variables (for reference or cleanup)
+// $font-display: 'Lobster', cursive; // Replaced by $font-headings
+// $font-body: 'Open Sans', sans-serif;  // Already $font-main
+// $border-radius: 5px; // Replaced by $border-radius-main
+
+// SASS Variables
+
+// Colors
+$primary-red: #E53935;
+$accent-black: #212121;
+$light-cream: #FFF9C4;
+$pure-white: #FFFFFF;
+$disabled-gray: #BDBDBD;
+$border-color: #424242;
+
+// Fonts
+$font-display: 'Bangers', cursive;
+$font-body: 'Open Sans', sans-serif;
+
+// UI Metrics
+$border-radius: 8px;
+$input-padding: 12px;
+$button-padding: 12px 20px;
+
+// Shadows
+$box-shadow-strong: 4px 4px 0px $accent-black;
+$box-shadow-light: 2px 2px 0px $accent-black;
+
+// Font import - moved to main.scss or a _base.scss for better organization
+// @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Open+Sans:wght@400;700&family=Bangers&display=swap');
+// The new font link from index.html is:
+// <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+// We will use the new one, specifically 'Open Sans' and 'Bangers' if still needed, or adjust to Roboto.
+// For now, keeping Open Sans and Bangers as defined in pre-refactored.
