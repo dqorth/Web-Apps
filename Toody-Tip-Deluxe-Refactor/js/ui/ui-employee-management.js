@@ -51,7 +51,7 @@ export function renderEmpPositionsWithPayRates(positionsContainer, jobPositionsL
     }
 
     jobPositionsList.forEach(pos => {
-        const posIdentifier = pos.replace(/\\s+/g, '');
+        const posIdentifier = pos.replace(/\s+/g, '');
         const groupDiv = document.createElement('div');
         groupDiv.className = 'position-entry-group';
 
@@ -69,7 +69,7 @@ export function renderEmpPositionsWithPayRates(positionsContainer, jobPositionsL
 
         const payRateWrapperDiv = document.createElement('div');
         payRateWrapperDiv.className = 'pay-rate-input-wrapper';
-        payRateWrapperDiv.id = `payRateWrapper_${posIdentifier}`;
+        payRateWrapperDiv.id = `payRateWrapper-${posIdentifier}`; // Changed underscore to hyphen
         payRateWrapperDiv.style.display = isSelected ? 'block' : 'none';
 
         const payRateLabel = document.createElement('label');
@@ -122,7 +122,8 @@ export function populateEmployeeFormForEdit(formWrapper, nameInput, positionsCon
 }
 
 export function togglePayRateInputVisibility(positionIdentifier, isVisible) {
-    const payRateWrapper = document.getElementById(`payRateWrapper_${positionIdentifier}`);
+    // positionIdentifier should be like "ShakeSpinner" (no spaces)
+    const payRateWrapper = document.getElementById(`payRateWrapper-${positionIdentifier}`); // Changed underscore to hyphen
     if (payRateWrapper) {
         payRateWrapper.style.display = isVisible ? 'block' : 'none';
         if (isVisible) {

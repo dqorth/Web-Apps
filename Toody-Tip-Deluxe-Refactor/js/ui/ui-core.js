@@ -2,7 +2,7 @@
 
 import { domElements } from '../domElements.js';
 import { formatDate, formatDisplayDate, getMondayOfWeek, getWeekInfoForDate, sortEmployeesByName } from '../utils.js'; // Added sortEmployeesByName
-import { BASE_CYCLE_START_DATE } from '../state.js'; // Only import BASE_CYCLE_START_DATE if needed
+import * as state from '../state.js'; // Added import for state
 // Import functions from other UI modules if needed, e.g.:
 import { renderEmployeeRoster, applyMasonryLayoutToRoster } from './ui-roster.js';
 
@@ -241,12 +241,18 @@ export function updateDateDisplays(lineupDateElem, scoopDateElem, activeSelected
     if (scoopDateElem) scoopDateElem.textContent = formatDisplayDate(activeSelectedDate);
 }
 
-export function switchViewToLineup(lineupSection, formSection, lineupContentId, rosterContainer, employeeRosterData, activeDate, dailyShiftsData, jobPositions) {
+export function switchViewToLineup(lineupSection, formSection, rosterContainer, activeDate) {
     if (formSection) formSection.style.display = 'none';
     if (lineupSection) lineupSection.style.display = 'block';
 
-    const lineupContent = document.getElementById(lineupContentId);
-    if (lineupContent && lineupContent.style.display === 'none') {
+    // Ensure the roster is rendered/updated when switching back
+    // The rosterContainer is domElements.employeeRosterContainer
+    // activeDate is state.state.activeSelectedDate
+    const lineupContent = lineupSection.querySelector('.collapsible-content'); // Assuming this structure
+
+    if (lineupContent && lineupContent.style.display !== 'block') {
+        // If the content area is hidden (e.g., due to being collapsed), expand it.
+        // This might involve clicking its header if it's a collapsible section.
         const lineupHeader = lineupContent.previousElementSibling;
         if (lineupHeader && lineupHeader.classList.contains('collapsible-header')) {
             lineupHeader.click(); // This will also trigger applyMasonry via the collapsible logic if it's set up
@@ -254,7 +260,7 @@ export function switchViewToLineup(lineupSection, formSection, lineupContentId, 
             lineupContent.style.display = 'block';
             // Ensure roster functions are available if called directly
             if (typeof renderEmployeeRoster === 'function' && typeof applyMasonryLayoutToRoster === 'function') {
-                 renderEmployeeRoster(rosterContainer, state.state, activeDate);
+                 renderEmployeeRoster(rosterContainer, state.state, activeDate); // Use imported state
                  applyMasonryLayoutToRoster(rosterContainer);
             } else {
                 console.warn("UI-CORE: renderEmployeeRoster or applyMasonryLayoutToRoster not available for switchViewToLineup when forcing display.")
@@ -263,7 +269,7 @@ export function switchViewToLineup(lineupSection, formSection, lineupContentId, 
     } else if (lineupContent && lineupContent.style.display === 'block') {
         // If already visible, still might need to re-render roster if data changed
         if (typeof renderEmployeeRoster === 'function' && typeof applyMasonryLayoutToRoster === 'function') {
-            renderEmployeeRoster(rosterContainer, state.state, activeDate);
+            renderEmployeeRoster(rosterContainer, state.state, activeDate); // Use imported state
             applyMasonryLayoutToRoster(rosterContainer);
         } else {
             console.warn("UI-CORE: renderEmployeeRoster or applyMasonryLayoutToRoster not available for switchViewToLineup when re-rendering.")

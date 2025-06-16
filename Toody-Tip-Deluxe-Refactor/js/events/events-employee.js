@@ -31,16 +31,56 @@ export function handleEditEmployeeSetupFromMgmtList(employeeToEdit) {
         domElements.updateEmployeeBtn,
         domElements.cancelEditBtn,
         domElements.editingEmployeeIdInput,
-        state.JOB_POSITIONS_AVAILABLE,
+        state.state.jobPositions, // Corrected
         domElements.fullEmployeeRosterContainer,  
-        state.employeeRoster,                     
+        state.state.employeeRoster,                     
         handleEditEmployeeSetupFromMgmtList,      
         handleRemoveEmployeeFromMgmtList,         
         domElements.toggleAddNewEmployeeFormBtn   
     );
 }
 
+export function initializeEmployeeEventListeners() {
+    if (domElements.toggleAddNewEmployeeFormBtn) {
+        domElements.toggleAddNewEmployeeFormBtn.addEventListener('click', () => {
+            const isFormVisible = domElements.addEmployeeFormWrapper.style.display === 'block';
+            domElements.addEmployeeFormWrapper.style.display = isFormVisible ? 'none' : 'block';
+            // Pass state.state.jobPositions here
+            switchViewToEmployeeForm(
+                domElements.employeeLineupSection,
+                domElements.employeeFormSection,
+                false, // Not editing a specific employee when toggling the add form
+                null,  // No specific employee to edit
+                domElements.addEmployeeFormWrapper,
+                domElements.empNameInput,
+                domElements.empPositionsContainer,
+                domElements.addEmployeeBtn,
+                domElements.updateEmployeeBtn,
+                domElements.cancelEditBtn,
+                domElements.editingEmployeeIdInput,
+                state.state.jobPositions, // Corrected: Pass the jobPositions from the state object
+                domElements.fullEmployeeRosterContainer,  
+                state.state.employeeRoster,                     
+                handleEditEmployeeSetupFromMgmtList,      
+                handleRemoveEmployeeFromMgmtList,         
+                domElements.toggleAddNewEmployeeFormBtn   
+            );
+            if (domElements.addEmployeeFormWrapper.style.display === 'block') {
+                domElements.empNameInput.focus();
+            }
+        });
+    }
+}
+
 export function handleShowAddEmployeeForm() {
+    // This function is called by the 'Manage Roster / Add New Hero' button, which is now handled by toggleAddNewEmployeeFormBtn's listener.
+    // However, if it were to be called directly, it should also use state.state.jobPositions.
+    // For safety, let's ensure it's consistent, though the primary path is the toggle button.
+    const isFormVisible = domElements.addEmployeeFormWrapper.style.display === 'block';
+    // If the button's purpose is just to ensure the form section is visible and correctly populated for adding (not toggling visibility)
+    // then we might not toggle display here, but ensure it's 'block'.
+    // domElements.addEmployeeFormWrapper.style.display = 'block'; // Or manage via toggle button state
+
     switchViewToEmployeeForm(
         domElements.employeeLineupSection,
         domElements.employeeFormSection,
@@ -53,25 +93,32 @@ export function handleShowAddEmployeeForm() {
         domElements.updateEmployeeBtn,
         domElements.cancelEditBtn,
         domElements.editingEmployeeIdInput,
-        state.JOB_POSITIONS_AVAILABLE,
+        state.state.jobPositions, // Corrected: Pass the jobPositions from the state object
         domElements.fullEmployeeRosterContainer,
-        state.employeeRoster,
-        handleEditEmployeeSetupFromMgmtList, 
+        state.state.employeeRoster,
+        handleEditEmployeeSetupFromMgmtList,
         handleRemoveEmployeeFromMgmtList,
-        domElements.toggleAddNewEmployeeFormBtn
+        domElements.toggleAddNewEmployeeFormBtn // Pass the toggle button itself
     );
+    // Ensure form is visible if this function's intent is to show it
+    if (domElements.addEmployeeFormWrapper.style.display !== 'block') {
+        domElements.addEmployeeFormWrapper.style.display = 'block';
+    }
+    if (domElements.addEmployeeFormWrapper.style.display === 'block') {
+        domElements.empNameInput.focus();
+        // Update button text if needed, consistent with switchViewToEmployeeForm logic
+        if (domElements.toggleAddNewEmployeeFormBtn) {
+            domElements.toggleAddNewEmployeeFormBtn.textContent = 'Hide Add Employee Form';
+        }
+    }
 }
 
 export function handleGoBackToLineup() {
     switchViewToLineup(
         domElements.employeeLineupSection, 
         domElements.employeeFormSection, 
-        'lineupContent', 
-        domElements.rosterListContainer, 
-        state.employeeRoster, 
-        state.activeSelectedDate, 
-        state.dailyShifts, 
-        state.JOB_POSITIONS_AVAILABLE 
+        domElements.rosterListContainer, // Corrected: Pass the actual DOM element
+        state.state.activeSelectedDate
     );
 }
 
