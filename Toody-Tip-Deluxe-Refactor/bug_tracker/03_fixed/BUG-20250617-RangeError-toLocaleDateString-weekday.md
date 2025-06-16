@@ -26,7 +26,6 @@ related_issues:
 ---
 
 ## Attempt Log
-*This section is the living history of the bug, which you will maintain.*
 
 ### 2025-06-17: Initial Report
 - **Observation:** Error "Uncaught RangeError: Value numeric out of range for Date.prototype.toLocaleDateString options property weekday" occurs at `state.js:20` upon application startup.

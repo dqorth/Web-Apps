@@ -3,19 +3,17 @@ import * as state from '../state.js';
 import * as utils from '../utils.js';
 import { renderDayNavigation, updateDateDisplays, updateCurrentlyViewedWeekDisplay } from '../ui/ui-core.js';
 import { renderEmployeeRoster, applyMasonryLayoutToRoster } from '../ui/ui-roster.js';
-// Import other trigger functions if they are called directly from this module after refactor
-// For now, assuming they are called from elsewhere or will be handled by initializeEventListeners
-// import { triggerDailyScoopCalculation, triggerWeeklyRewindCalculation } from './events-app-logic.js'; // Example
+import { triggerDailyScoopCalculation, triggerWeeklyRewindCalculation } from './events-app-logic.js'; // Added triggerWeeklyRewindCalculation
 
 // --- App Logic/Helper functions that involve state and UI updates ---
 
 // calculateAndUpdateCurrentDate is also called by main.js, so it's exported.
 // It's also called by handlePrevWeek/handleNextWeek within this module.
 export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
-    console.log('[calculateAndUpdateCurrentDate] START', {
+    /* console.log('[calculateAndUpdateCurrentDate] START', {
         stateActiveSelectedDate: state.state.activeSelectedDate,
         stateCurrentSelectedDayOfWeek: state.state.currentSelectedDayOfWeek
-    });
+    }); */
     const cycleStartStr = domElements.cycleStartDateSelect.value;
     const weekNum = parseInt(domElements.weekInCycleSelect.value);
 
@@ -26,9 +24,9 @@ export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
         renderDayNavigation(domElements.lineupDayNavContainer, null, calculateAndUpdateCurrentDate);
         renderEmployeeRoster(domElements.rosterListContainer, state.state, state.state.activeSelectedDate);
         applyMasonryLayoutToRoster(domElements.rosterListContainer);
-        console.log('[calculateAndUpdateCurrentDate] END (no cycle start)', {
+        /* console.log('[calculateAndUpdateCurrentDate] END (no cycle start)', {
             stateActiveSelectedDate: state.state.activeSelectedDate
-        });
+        }); */
         return;
     }
     // const cycleStartDateObj = new Date(cycleStartStr + 'T00:00:00Z'); // Old UTC way
@@ -44,7 +42,7 @@ export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
         if (newDayOfWeekNum === 0) targetDayOffset = 6; // Sunday
         else targetDayOffset = newDayOfWeekNum - 1; // Monday is 0 offset from Monday
     } else {
-        let dayToUse = state.currentSelectedDayOfWeek === undefined ? 1 : state.currentSelectedDayOfWeek; // Default to Monday if undefined
+        let dayToUse = state.state.currentSelectedDayOfWeek === undefined ? 1 : state.state.currentSelectedDayOfWeek; // Default to Monday if undefined
         if (dayToUse === 0) targetDayOffset = 6;
         else targetDayOffset = dayToUse - 1;
     }
@@ -59,7 +57,7 @@ export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
     updateDateDisplays(domElements.lineupDateDisplay, domElements.scoopDateDisplay, state.state.activeSelectedDate);
 
     // getWeekInfoForDate is MDT aware, activeSelectedDate is 'YYYY-MM-DD' MDT
-    const currentWeekDateInfo = utils.getWeekInfoForDate(state.activeSelectedDate, state.BASE_CYCLE_START_DATE);
+    const currentWeekDateInfo = utils.getWeekInfoForDate(state.state.activeSelectedDate, state.BASE_CYCLE_START_DATE);
     if (currentWeekDateInfo && currentWeekDateInfo.weekStartDate && typeof currentWeekDateInfo.weekStartDate === 'string') {
         // currentWeekDateInfo.weekStartDate is 'YYYY-MM-DD' MDT string
         // const dateStrToUse = currentWeekDateInfo.weekStartDate + 'T00:00:00Z'; // Old UTC way
@@ -72,7 +70,7 @@ export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
         } else {
             state.setCurrentReportWeekStartDate(newDateObj); // Store as MDT Date object
         }
-        updateCurrentlyViewedWeekDisplay(domElements.currentlyViewedWeekDisplay, state.currentReportWeekStartDate);
+        updateCurrentlyViewedWeekDisplay(domElements.currentlyViewedWeekDisplay, state.state.currentReportWeekStartDate); // Corrected
     } else {
         state.setCurrentReportWeekStartDate(null);
         updateCurrentlyViewedWeekDisplay(domElements.currentlyViewedWeekDisplay, null);
@@ -82,15 +80,17 @@ export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
     renderDayNavigation(domElements.scoopDayNavContainer, state.state.activeSelectedDate, calculateAndUpdateCurrentDate);
     renderEmployeeRoster(domElements.rosterListContainer, state.state, state.state.activeSelectedDate);
     applyMasonryLayoutToRoster(domElements.rosterListContainer);
-    console.log('[calculateAndUpdateCurrentDate] END', {
+    /* console.log('[calculateAndUpdateCurrentDate] END', {
         stateActiveSelectedDate: state.state.activeSelectedDate
-    });
+    }); */
 
     // Conditional calculation triggers will be handled by the view switching logic in events-initialization.js
     // or directly if those views are already active.
     // For now, removing direct calls to triggerDailyScoopCalculation and triggerWeeklyRewindCalculation
     // as they might not be defined yet or could cause circular dependencies if imported directly.
     // This will be re-evaluated when integrating with events-initialization.js
+    triggerDailyScoopCalculation();
+    triggerWeeklyRewindCalculation(); // Add this line
 }
 
 // --- Event Handlers ---
@@ -100,10 +100,10 @@ export function handleCycleOrWeekChange() {
 }
 
 export function handlePrevWeek() {
-    if (state.currentReportWeekStartDate) {
+    if (state.state.currentReportWeekStartDate) { // Corrected
         // const newStartDate = new Date(state.currentReportWeekStartDate); // Old way
         // newStartDate.setUTCDate(newStartDate.getUTCDate() - 7); // Old UTC way
-        const newStartDate = utils.addDaysToDate(state.currentReportWeekStartDate, -7); // MDT aware
+        const newStartDate = utils.addDaysToDate(state.state.currentReportWeekStartDate, -7); // Corrected // MDT aware
 
         // findCycleAndWeekForDatePrecise is MDT aware
         const { cycleStart, weekNum } = utils.findCycleAndWeekForDatePrecise(newStartDate, state.BASE_CYCLE_START_DATE);
@@ -122,10 +122,10 @@ export function handlePrevWeek() {
 }
 
 export function handleNextWeek() {
-    if (state.currentReportWeekStartDate) {
+    if (state.state.currentReportWeekStartDate) { // Corrected
         // const newStartDate = new Date(state.currentReportWeekStartDate); // Old way
         // newStartDate.setUTCDate(newStartDate.getUTCDate() + 7); // Old UTC way
-        const newStartDate = utils.addDaysToDate(state.currentReportWeekStartDate, 7); // MDT aware
+        const newStartDate = utils.addDaysToDate(state.state.currentReportWeekStartDate, 7); // Corrected // MDT aware
 
         // findCycleAndWeekForDatePrecise is MDT aware
         const { cycleStart, weekNum } = utils.findCycleAndWeekForDatePrecise(newStartDate, state.BASE_CYCLE_START_DATE);

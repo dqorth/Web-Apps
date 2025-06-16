@@ -1,9 +1,11 @@
-import { domElements } from '../domElements.js';
 import * as state from '../state.js';
+import { domElements } from '../domElements.js';
 import * as utils from '../utils.js';
-import { renderInlineShiftForm, updateEmployeeLineupCard, applyMasonryLayoutToRoster, renderEmployeeRoster } from '../ui/ui-roster.js';
-import { switchViewToLineup } from '../ui/ui-core.js'; // Added for handleEditShiftFromWeeklyReport
-import { triggerDailyScoopCalculation, triggerWeeklyRewindCalculation } from './events-app-logic.js'; // Added triggerWeeklyRewindCalculation
+import { renderInlineShiftForm, updateEmployeeLineupCard, applyMasonryLayoutToRoster } from '../ui/ui-roster.js';
+import { triggerDailyScoopCalculation } from './events-app-logic.js';
+import { calculateAndUpdateCurrentDate } from './events-date-time.js'; // Added for updating date context
+import { switchView } from '../ui/ui-core.js'; // Corrected: Import switchView directly
+
 // Note: Calls to ui.showInfoModal and ui.showConfirmationModal are present in the functions below.
 // These are unresolved dependencies from the original events.js and will need to be addressed
 // once a modals UI module is available and integrated. A placeholder ui object is added for now.
@@ -27,7 +29,7 @@ function handleRosterEmployeeClick(event) {
     const empId = buttonElement.dataset.empid || (buttonElement.closest('[data-empid]')?.dataset.empid);
     const positionContext = buttonElement.dataset.positioncontext || (buttonElement.closest('[data-positioncontext]')?.dataset.positioncontext);
     
-    const employeeData = state.employeeRoster.find(eRemp => eRemp.id === empId);
+    const employeeData = state.state.employeeRoster.find(eRemp => eRemp.id === empId); // Corrected: Access employeeRoster from state.state
     const formContainer = liElement.querySelector('.inline-shift-form-container');
 
     if (!employeeData || !formContainer || !liElement || !empId || !positionContext) { // Added checks for empId and positionContext
@@ -43,7 +45,7 @@ function handleRosterEmployeeClick(event) {
     } else { // If button says "Log Shift" or "Close Shift Form"
         const isOpeningForm = formContainer.style.display === 'none';
         if (isOpeningForm) {
-            renderInlineShiftForm(formContainer, employeeData, positionContext, state.activeSelectedDate, null, handleLogOrUpdateInlineShift, handleDeleteInlineShift, handleCancelInlineShift);
+            renderInlineShiftForm(formContainer, employeeData, positionContext, state.state.activeSelectedDate, null, handleLogOrUpdateInlineShift, handleDeleteInlineShift, handleCancelInlineShift); // No originView for direct lineup interaction
             formContainer.style.display = 'block';
             actualButton.textContent = 'Close Shift Form';
             actualButton.classList.remove('is-not-working', 'is-editing-shift');
@@ -54,7 +56,7 @@ function handleRosterEmployeeClick(event) {
         } else { // Closing the form
             formContainer.innerHTML = '';
             formContainer.style.display = 'none';
-            const existingShiftForCancel = state.dailyShifts[state.activeSelectedDate]?.find(s => s.employeeId === empId && s.positionWorked === positionContext);
+            const existingShiftForCancel = state.state.dailyShifts[state.state.activeSelectedDate]?.find(s => s.employeeId === empId && s.positionWorked === positionContext);
             updateEmployeeLineupCard(liElement, actualButton, existingShiftForCancel, employeeData, positionContext);
         }
     }
@@ -62,7 +64,7 @@ function handleRosterEmployeeClick(event) {
 }
 
 
-async function handleLogOrUpdateInlineShift(event) {
+async function handleLogOrUpdateInlineShift(event, originView = null) {
     event.preventDefault();
     const saveButton = event.target; // The button that was clicked
     const form = saveButton.closest('.inline-shift-form-container').querySelector('div[data-shift-form-for]'); // Find the main form div
@@ -71,8 +73,6 @@ async function handleLogOrUpdateInlineShift(event) {
         console.error('[events-shift.js] handleLogOrUpdateInlineShift - Could not find form element.');
         return;
     }
-
-    console.log('[events-shift.js] handleLogOrUpdateInlineShift - Event triggered, Save button:', saveButton, 'Form container:', form.parentElement); //诊断日志
 
     const employeeId = saveButton.dataset.employeeId; // Assuming employeeId is on the save button
     const positionContext = saveButton.dataset.positionContext; // Assuming positionContext is on the save button
@@ -93,7 +93,7 @@ async function handleLogOrUpdateInlineShift(event) {
         return;
     }
 
-    const selectedDate = state.activeSelectedDate; // Use direct property access
+    const selectedDate = state.state.activeSelectedDate; // Use direct property access
     const shiftDataToSave = {
         id: editingShiftId || null, // Use editingShiftId if present
         employeeId,
@@ -108,19 +108,15 @@ async function handleLogOrUpdateInlineShift(event) {
         // shiftPayRate will be retrieved/calculated by state.logOrUpdateShift or calculations
     };
 
-    console.log('[events-shift.js] handleLogOrUpdateInlineShift - Shift data to save:', JSON.parse(JSON.stringify(shiftDataToSave))); //诊断日志
-
     try {
         const savedShift = state.addOrUpdateShift(shiftDataToSave); 
-        console.log('[events-shift.js] handleLogOrUpdateInlineShift - Shift saved/updated in state:', JSON.parse(JSON.stringify(savedShift))); //诊断日志
 
-        const liId = `roster-emp-${employeeId}-${positionContext.replace(/\\s+/g, '')}`;
+        const liId = `roster-emp-${employeeId}-${positionContext.replace(/\s+/g, '')}`;
         const liElement = document.getElementById(liId);
         const buttonElement = liElement ? liElement.querySelector('.worked-today-toggle-btn') : null;
-        const employee = state.getEmployeeById(employeeId);
+        const employee = state.getEmployeeById(employeeId); // Ensure this is not state.state.getEmployeeById
 
         if (liElement && buttonElement && employee) {
-            console.log('[events-shift.js] handleLogOrUpdateInlineShift - Calling updateEmployeeLineupCard with:', {liId, shiftId: savedShift.id, empName: employee.name, pos: positionContext});
             updateEmployeeLineupCard(liElement, buttonElement, savedShift, employee, positionContext);
         } else {
             console.error('[events-shift.js] handleLogOrUpdateInlineShift - Could not find elements to update UI for employee:', employeeId, 'position:', positionContext, {liElement, buttonElement, employee});
@@ -133,18 +129,23 @@ async function handleLogOrUpdateInlineShift(event) {
         }
         
         triggerDailyScoopCalculation(); // Replaced renderDailyPayouts(selectedDate)
+        triggerWeeklyRewindCalculation(); // Added to update weekly rewind
+
+        if (originView) {
+            switchView(originView);
+        }
 
     } catch (error) {
-        console.error('Error saving shift:', error);
-        alert(`Error saving shift: ${error.message}`);
+        console.error("Error saving shift:", error);
+        // Optionally, display a user-friendly error message
     }
 }
 
-function handleDeleteInlineShift(employeeId, positionContext, shiftId) {
+function handleDeleteInlineShift(shiftId, shiftDate, employeeId, positionContext, rosterLiElement, originView = null) { // Added rosterLiElement and originView
     ui.showConfirmationModal("Really delete this shift? This cannot be undone.", () => {
-        state.removeShift(state.activeSelectedDate, shiftId);
+        state.removeShift(shiftDate, shiftId); // Corrected: use shiftDate from params
         
-        const rosterLiElement = document.getElementById(`roster-emp-${employeeId}-${positionContext.replace(/\\s+/g, '')}`);
+        // const rosterLiElement = document.getElementById(`roster-emp-${employeeId}-${positionContext.replace(/\s+/g, '')}`); // Already passed
         if (rosterLiElement) {
             const formContainer = rosterLiElement.querySelector('.inline-shift-form-container');
             if (formContainer) {
@@ -153,21 +154,26 @@ function handleDeleteInlineShift(employeeId, positionContext, shiftId) {
             }
             const buttonElement = rosterLiElement.querySelector('.worked-today-toggle-btn');
             if (buttonElement) {
-                 const employeeData = state.employeeRoster.find(e => e.id === employeeId);
+                 const employeeData = state.state.employeeRoster.find(e => e.id === employeeId);
                  updateEmployeeLineupCard(rosterLiElement, buttonElement, null, employeeData, positionContext); 
             }
         } else {
             // Fallback: Re-render the entire roster if the specific element isn\'t found.
             // This might happen if the element ID construction logic has an issue or the element was unexpectedly removed.
             // Ensure all arguments are passed correctly, especially jobPositions
-            renderEmployeeRoster(domElements.rosterListContainer, state, state.activeSelectedDate);
+            renderEmployeeRoster(domElements.rosterListContainer, state.state, state.state.activeSelectedDate);
         }
         applyMasonryLayoutToRoster(domElements.rosterListContainer);
         triggerDailyScoopCalculation(); // Ensure daily scoop is updated after deleting a shift
+        triggerWeeklyRewindCalculation(); // Added to update weekly rewind
+
+        if (originView) {
+            switchView(originView);
+        }
     });
 }
 
-function handleCancelInlineShift(employeeId, positionContext, existingShiftData) {
+function handleCancelInlineShift(employeeId, positionContext, existingShiftData, originView = null) {
     const posKeyForId = positionContext.replace(/\\s+/g, ''); 
     const rosterLiElement = document.getElementById(`roster-emp-${employeeId}-${posKeyForId}`);
     
@@ -179,81 +185,179 @@ function handleCancelInlineShift(employeeId, positionContext, existingShiftData)
         }
         const buttonElement = rosterLiElement.querySelector('.worked-today-toggle-btn');
         if (buttonElement) {
-            const employeeData = state.employeeRoster.find(e => e.id === employeeId);
+            const employeeData = state.state.employeeRoster.find(e => e.id === employeeId);
             updateEmployeeLineupCard(rosterLiElement, buttonElement, existingShiftData, employeeData, positionContext);
         }
     } else {
         console.warn(`Could not find roster LI for empId: ${employeeId}, posKey: ${posKeyForId} during cancel.`);
-        renderEmployeeRoster(domElements.rosterListContainer, state, state.activeSelectedDate);
+        renderEmployeeRoster(domElements.rosterListContainer, state.state, state.state.activeSelectedDate);
     }
     applyMasonryLayoutToRoster(domElements.rosterListContainer);
+    if (originView) {
+        switchView(originView);
+    }
 }
 
 
-function handleEditLoggedShiftSetup(event) {
-    const buttonClicked = event.target.closest('.worked-today-toggle-btn');
-    if (!buttonClicked) return;
+function handleEditLoggedShiftSetup(eventOrShiftId, shiftDateParam, employeeIdParam, positionContextParam) {
+    let shiftId, shiftDate, employeeId, positionContext;
+    let actingButtonElement;
+    let targetRosterLi;
+    let originView = null; // Variable to store the origin view
 
-    const shiftId = buttonClicked.dataset.shiftId;
-    const shiftDate = state.activeSelectedDate;
+    if (typeof eventOrShiftId === 'string') {
+        // Called with direct parameters (e.g., from Weekly Rewind)
+        shiftId = eventOrShiftId;
+        shiftDate = shiftDateParam;
+        employeeId = employeeIdParam;
+        positionContext = positionContextParam;
+        originView = 'weeklyReportSection'; // Set origin for weekly rewind edits
 
+        // 1. Parse shiftDate and determine its cycle and week
+        const dateObjForCalc = utils.parseDateToMDT(shiftDate);
+        if (!dateObjForCalc || isNaN(dateObjForCalc.getTime())) {
+            console.error("[events-shift.js] handleEditLoggedShiftSetup: Invalid shiftDate provided from Weekly Rewind:", shiftDate);
+            ui.showInfoModal("Error: Invalid date provided for editing shift.");
+            return;
+        }
+
+        const { cycleStart: correctCycleStart, weekNum: correctWeekNumStr } = utils.findCycleAndWeekForDatePrecise(dateObjForCalc, state.BASE_CYCLE_START_DATE);
+        const correctWeekNum = parseInt(correctWeekNumStr); // Ensure weekNum is a number for comparison/setting
+
+        // 2. Update UI selectors for cycle and week to match shiftDate's context
+        if (correctCycleStart && domElements.cycleStartDateSelect.querySelector(`option[value="${correctCycleStart}"]`)) {
+            domElements.cycleStartDateSelect.value = correctCycleStart;
+        } else {
+            console.warn(`[events-shift.js] handleEditLoggedShiftSetup: Could not set cycleStartDateSelect to ${correctCycleStart} for shiftDate ${shiftDate}. Option might be missing.`);
+        }
+        
+        if (correctWeekNum && domElements.weekInCycleSelect.querySelector(`option[value="${correctWeekNum}"]`)) {
+            domElements.weekInCycleSelect.value = String(correctWeekNum);
+        } else {
+            console.warn(`[events-shift.js] handleEditLoggedShiftSetup: Could not set weekInCycleSelect to week ${correctWeekNum} for shiftDate ${shiftDate}. Option might be missing.`);
+        }
+        
+        // 3. Set activeSelectedDate in state
+        state.setActiveSelectedDate(shiftDate);
+        
+        // 4. Get day of week for shiftDate (0 for Sunday, 1 for Monday, 2 for Tuesday, etc., UTC-based)
+        const dayOfWeekNum = dateObjForCalc.getUTCDay(); 
+        
+        // 5. Call calculateAndUpdateCurrentDate. This will use the updated UI selectors and dayOfWeekNum
+        // to ensure its internal calculations align with shiftDate, set state.state.activeSelectedDate correctly,
+        // and then render the roster for shiftDate.
+        calculateAndUpdateCurrentDate(dayOfWeekNum);
+
+        // --- Use the imported switchView function ---
+        switchView('employeeLineupSection'); // Corrected: Pass the ID 'employeeLineupSection'
+        // --- End View Switching ---
+
+        // Ensure the lineup section's collapsible content is open and masonry applied
+        // This needs to happen *after* the section is made visible and its content potentially expanded by switchView.
+        // The switchView function itself now handles expanding lineupContent and applying masonry.
+        // So, no explicit call to applyMasonryLayoutToRoster or header.click() is needed here for that purpose.
+
+        // Now, attempt to find the target roster list item.
+        const rosterLiElementId = `roster-emp-${employeeId}-${positionContext.replace(/\s+/g, '')}`;
+        targetRosterLi = document.getElementById(rosterLiElementId);
+        
+        if (!targetRosterLi) {
+            console.error(`[events-shift.js] handleEditLoggedShiftSetup: Could not find roster LI element with ID: ${rosterLiElementId} on lineup view for date ${shiftDate}. Employee: ${employeeId}, Position: ${positionContext}.`);
+            ui.showInfoModal("Error: Could not find the specific shift card on The Lineup.");
+            return;
+        }
+        actingButtonElement = targetRosterLi.querySelector('.worked-today-toggle-btn'); 
+        if (!actingButtonElement) {
+            console.error(`[events-shift.js] handleEditLoggedShiftSetup: Could not find toggle button in roster LI: ${rosterLiElementId}`);
+            return;
+        }
+
+    } else {
+        // Called as an event handler (e.g., from Lineup or Daily Scoop's own edit button if it has one)
+        const event = eventOrShiftId;
+        actingButtonElement = event.target.closest('.worked-today-toggle-btn, .edit-shift-from-daily-btn'); 
+        if (!actingButtonElement) {
+            console.warn("handleEditLoggedShiftSetup called from event, but no valid button found.", event.target);
+            return;
+        }
+
+        shiftId = actingButtonElement.dataset.shiftId;
+        // Use dataset.date if available (e.g., from Daily Scoop edit), otherwise use global activeSelectedDate
+        shiftDate = actingButtonElement.dataset.date || state.state.activeSelectedDate; 
+        employeeId = actingButtonElement.dataset.empid;
+        positionContext = actingButtonElement.dataset.positioncontext;
+        targetRosterLi = actingButtonElement.closest('li');
+
+        // If shiftDate was from dataset.date and differs from state.state.activeSelectedDate,
+        // we might need to ensure context is correct. For now, assume if it's from Daily Scoop,
+        // activeSelectedDate is already correct or the shiftDate from dataset is the source of truth.
+        // This path is typically for edits from The Lineup itself or Daily Scoop for the *current* active day.
+        // If editing from Daily Scoop for a *different* day than activeSelectedDate, similar logic to above might be needed,
+        // but that's not the current bug being addressed.
+    }
+
+    // Validations (common to both paths)
     if (!shiftId || typeof shiftId !== 'string' || shiftId.trim() === '') {
-        console.warn("Edit shift called without valid shiftId on button:", buttonClicked);
-        const problemLi = buttonClicked.closest('li');
-        if (problemLi) {
-            const empId = buttonClicked.dataset.empid;
-            const posCtx = buttonClicked.dataset.positioncontext;
-            const empData = state.employeeRoster.find(e => e.id === empId);
-            updateEmployeeLineupCard(problemLi, buttonClicked, null, empData, posCtx);
-        }
-        return;
-    }
-    if (!state.dailyShifts[shiftDate]) {
-        console.warn("No shifts for date", shiftDate, "when trying to edit shiftId", shiftId);
-        const problemLi = buttonClicked.closest('li');
-        if (problemLi) {
-            const empId = buttonClicked.dataset.empid;
-            const posCtx = buttonClicked.dataset.positioncontext;
-            const empData = state.employeeRoster.find(e => e.id === empId);
-            updateEmployeeLineupCard(problemLi, buttonClicked, null, empData, posCtx);
+        console.warn("Edit shift called without valid shiftId. shiftId:", shiftId, "Button used (if any):", actingButtonElement);
+        if (actingButtonElement && targetRosterLi) { 
+            const empData = state.state.employeeRoster.find(e => e.id === employeeId);
+            updateEmployeeLineupCard(targetRosterLi, actingButtonElement, null, empData, positionContext);
         }
         return;
     }
 
-    const shiftToEdit = state.dailyShifts[shiftDate].find(s => s.id === shiftId);
+    if (!state.state.dailyShifts[shiftDate]) {
+        console.warn("No shifts for date", shiftDate, "when trying to edit shiftId", shiftId);
+        if (actingButtonElement && targetRosterLi) { 
+            const empData = state.state.employeeRoster.find(e => e.id === employeeId);
+            updateEmployeeLineupCard(targetRosterLi, actingButtonElement, null, empData, positionContext);
+        }
+        return;
+    }
+
+    const shiftToEdit = state.state.dailyShifts[shiftDate].find(s => s.id === shiftId);
     if (!shiftToEdit) {
         console.warn("Shift with ID", shiftId, "not found for date", shiftDate);
-        const problemLi = buttonClicked.closest('li');
-        if (problemLi) {
-            const empId = buttonClicked.dataset.empid;
-            const posCtx = buttonClicked.dataset.positioncontext;
-            const empData = state.employeeRoster.find(e => e.id === empId);
-            updateEmployeeLineupCard(problemLi, buttonClicked, null, empData, posCtx);
+        if (actingButtonElement && targetRosterLi) { 
+            const empData = state.state.employeeRoster.find(e => e.id === employeeId);
+            updateEmployeeLineupCard(targetRosterLi, actingButtonElement, null, empData, positionContext);
         }
         return;
     }
 
-    const employee = state.employeeRoster.find(e => e.id === shiftToEdit.employeeId);
-    if (!employee) { ui.showInfoModal("Error: Employee data not found for this shift."); return; } // ui.showInfoModal will error
+    const employee = state.state.employeeRoster.find(e => e.id === shiftToEdit.employeeId);
+    if (!employee) { 
+        console.error("Error: Employee data not found for this shift."); 
+        return; 
+    }
 
-    const rosterLi = buttonClicked.closest('li');
-    if (!rosterLi) { ui.showInfoModal("Error displaying edit form (parent LI not found)."); return; } // ui.showInfoModal will error
+    if (!targetRosterLi) { 
+        console.error("Error displaying edit form (targetRosterLi not found). This should not happen if logic above is correct."); 
+        return; 
+    }
 
-    let inlineFormContainer = rosterLi.querySelector('.inline-shift-form-container');
-    if (!inlineFormContainer) { console.error("Inline form container not found in LI for edit."); return; }
+    let inlineFormContainer = targetRosterLi.querySelector('.inline-shift-form-container');
+    if (!inlineFormContainer) { 
+        console.error("Inline form container not found in targetRosterLi for edit.", targetRosterLi); 
+        return; 
+    }
 
-    renderInlineShiftForm(inlineFormContainer, employee, shiftToEdit.positionWorked, state.activeSelectedDate, shiftToEdit, handleLogOrUpdateInlineShift, handleDeleteInlineShift, handleCancelInlineShift);
+    renderInlineShiftForm(inlineFormContainer, employee, shiftToEdit.positionWorked, shiftDate, shiftToEdit, handleLogOrUpdateInlineShift, handleDeleteInlineShift, handleCancelInlineShift, originView); // Pass originView
     inlineFormContainer.style.display = 'block';
     
-    buttonClicked.textContent = 'Close Shift Form'; 
-    buttonClicked.classList.remove('is-not-working', 'is-editing-shift');
-    buttonClicked.classList.add('is-working'); 
-    buttonClicked.setAttribute('aria-pressed', 'true');
+    if (actingButtonElement) {
+        actingButtonElement.textContent = 'Close Shift Form'; 
+        actingButtonElement.classList.remove('is-not-working', 'is-editing-shift');
+        actingButtonElement.classList.add('is-working'); 
+        actingButtonElement.setAttribute('aria-pressed', 'true');
+    } else {
+        console.warn("actingButtonElement was not defined when trying to update button text/state for edit form.");
+    }
 
     setTimeout(() => {
         const firstInput = inlineFormContainer.querySelector('input[type="time"], select');
         if (firstInput) firstInput.focus();
-        rosterLi.scrollIntoView({ behavior: "smooth", block: "center" });
+        targetRosterLi.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 50);
     applyMasonryLayoutToRoster(domElements.rosterListContainer);
 }
@@ -265,85 +369,33 @@ function handleRemoveShiftFromDailyScoop(shiftId, shiftDate, empId, posCtx) {
         return; 
     }
 
-    const employee = state.employeeRoster.find(e => e.id === empId);
+    const employee = state.state.employeeRoster.find(e => e.id === empId);
     const empNameDisplay = employee ? employee.name : `Employee ID ${empId}`;
 
     const message = `Are you sure you want to remove the shift for ${empNameDisplay} (${posCtx}) on ${utils.formatDisplayDate(shiftDate)}?\nThis action cannot be undone.`;
     ui.showConfirmationModal(message, () => { // ui.showConfirmationModal will error
         state.removeShift(shiftDate, shiftId);
         triggerDailyScoopCalculation();
-        if (shiftDate === state.activeSelectedDate) {
+        if (shiftDate === state.state.activeSelectedDate) {
             // Pass all required arguments to renderEmployeeRoster, including callbacks
-            renderEmployeeRoster(domElements.rosterListContainer, state, state.activeSelectedDate);
+            renderEmployeeRoster(domElements.rosterListContainer, state.state, state.state.activeSelectedDate); // Corrected to state.state.activeSelectedDate
             applyMasonryLayoutToRoster(domElements.rosterListContainer);
         }
     });
 }
 
-// function handleEditShiftFromWeeklyReport(shiftId, date, employeeId, positionContext) { // Added employeeId and positionContext
-//     if (!shiftId || !date || !employeeId || !positionContext) { // Added checks for new params
-//         ui.showInfoModal("Error: Could not get all necessary details to edit the shift."); return;
-//     }
-
-//     const targetDateObj = new Date(date + 'T00:00:00Z');
-//     const { cycleStart, weekNum } = utils.findCycleAndWeekForDatePrecise(targetDateObj, state.BASE_CYCLE_START_DATE);
-
-//     if (!cycleStart || !weekNum || !domElements.cycleStartDateSelect.querySelector(`option[value="${cycleStart}"]`)) {
-//         ui.showInfoModal("Error: Could not automatically set date controls. Please navigate manually."); return;
-//     }
-
-//     domElements.cycleStartDateSelect.value = cycleStart;
-//     domElements.weekInCycleSelect.value = String(weekNum);
-//     let dayOfWeekNum = targetDateObj.getUTCDay();
-//     // state.setCurrentSelectedDayOfWeek(dayOfWeekNum); // This is handled by calculateAndUpdateCurrentDate
-//     calculateAndUpdateCurrentDate(dayOfWeekNum); // This function needs to be imported or passed
-
-//     // Ensure lineup section is visible and scroll to it
-//     // Assuming ui.switchView is available and correctly imported/defined
-//     // For now, directly manipulating style as ui.switchView might not be in this module\'s scope yet
-//     if (domElements.employeeFormSection) domElements.employeeFormSection.style.display = 'none';
-//     if (domElements.payoutSection) domElements.payoutSection.style.display = 'none';
-//     if (domElements.weeklyReportSection) domElements.weeklyReportSection.style.display = 'none';
-//     if (domElements.dataManagementSection) domElements.dataManagementSection.style.display = 'none';
-//     if (domElements.employeeLineupSection) {
-//         domElements.employeeLineupSection.style.display = 'block';
-//         domElements.employeeLineupSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-//     }
+function handleEditShiftFromWeeklyReport(shiftId, shiftDate, employeeId, positionContext) {
+    // This function appears to be a duplicate or older version of the logic now integrated into handleEditLoggedShiftSetup
+    // For now, let's ensure it also sets originView if it were to be used.
+    // However, primary focus is on handleEditLoggedShiftSetup.
+    // switchView(domElements.lineupView); // Pass the correct DOM element for lineupView
+    // ...
+    // renderInlineShiftForm(formContainer, employeeData, positionContext, shiftDate, shiftToEdit, handleLogOrUpdateInlineShift, handleDeleteInlineShift, handleCancelInlineShift, 'weeklyReportSection');
 
 
-//     setTimeout(() => {
-//         const rosterLiId = `roster-emp-${employeeId}-${positionContext.replace(/\\s+/g, '')}`;
-//         const targetLi = document.getElementById(rosterLiId);
-//         if (targetLi) {
-//             const toggleButton = targetLi.querySelector('.worked-today-toggle-btn');
-//             if (toggleButton) {
-//                 // Ensure the button\'s state reflects the shift to be edited
-//                 const currentShiftInLineup = state.dailyShifts[state.activeSelectedDate]?.find(s => s.id === shiftId);
-//                 const employeeData = state.employeeRoster.find(e => e.id === employeeId);
-//                 updateEmployeeLineupCard(targetLi, toggleButton, currentShiftInLineup, employeeData, positionContext);
-                
-//                 // Now, simulate the click to open the form or directly call edit setup
-//                 // Check if the button is already set to "Edit Shift" for the correct shift
-//                 if (toggleButton.dataset.action === "edit" && toggleButton.dataset.shiftId === shiftId) {
-//                     handleEditLoggedShiftSetup({target: toggleButton}); // Already in correct state, just open/focus
-//                 } else {
-//                     // If not, it might be "Log Shift" or "Close Shift Form".
-//                     // A click should ideally cycle it to the "Edit Shift" state or open the form.
-//                     // For simplicity and directness, we can try to force the edit state if possible,
-//                     // or just call handleEditLoggedShiftSetup directly if the button is correctly configured.
-//                     // This part is tricky without knowing the exact state transitions of updateEmployeeLineupCard.
-//                     // Let's assume updateEmployeeLineupCard sets it up correctly, then we call handleEditLoggedShiftSetup.
-//                     handleEditLoggedShiftSetup({target: toggleButton});
-//                 }
-//                 setTimeout(() => targetLi.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-//             } else {
-//                 ui.showInfoModal("Error: Could not find the toggle button in The Lineup.");
-//             }
-//         } else {
-//             ui.showInfoModal("Error: Could not find the employee\'s entry in The Lineup to edit the shift.");
-//         }
-//     }, 350); // Increased timeout to allow for UI updates from calculateAndUpdateCurrentDate
-// }
+    // DEPRECATED in favor of the direct parameter handling in handleEditLoggedShiftSetup
+    console.warn("handleEditShiftFromWeeklyReport is likely deprecated and should be removed or refactored.");
+}
 
 
 export {
@@ -353,5 +405,5 @@ export {
     handleCancelInlineShift,
     handleEditLoggedShiftSetup,
     handleRemoveShiftFromDailyScoop,
-    // handleEditShiftFromWeeklyReport // Keep commented out as it is in original events.js
+    handleEditShiftFromWeeklyReport
 };

@@ -100,7 +100,7 @@ function initializeEventListeners() {
     document.querySelectorAll('.view-toggle-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const targetViewId = event.currentTarget.dataset.viewTarget;
-            uiCore.switchView(targetViewId, domElements.employeeFormSection, domElements.employeeLineupSection, domElements.payoutSection, domElements.weeklyReportSection, domElements.dataManagementSection);
+            uiCore.switchView(targetViewId); // Corrected: switchView now only takes targetSectionId
             if (targetViewId === 'employeeLineupSection' && domElements.employeeLineupSection.style.display !== 'none') {
                 uiRoster.applyMasonryLayoutToRoster(domElements.rosterListContainer);
             }

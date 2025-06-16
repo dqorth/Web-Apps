@@ -43,11 +43,11 @@ export async function showTutorialStep(stepIndex, tutorialData, domElementsInsta
     console.log(`APP_LOG: showTutorialStep called for stepIndex: ${stepIndex}`);
     if (!tutorialData || stepIndex < 0 || stepIndex >= tutorialData.length) {
         console.error("APP_LOG: Invalid tutorial data or step index.", tutorialData, stepIndex);
-        closeTutorial(domElements); // Assumes domElements is available via import
+        closeTutorial(domElements); // Assuming domElements is accessible or passed correctly
         return;
     }
 
-    const step = tutorialData[stepIndex];
+    const step = tutorialData[stepIndex]; 
     console.log("APP_LOG: Current tutorial step data:", step);
 
     if (!domElements || !domElements.tutorialOverlay || !domElements.tutorialHighlightBox || !domElements.tutorialTextBox) {
@@ -55,227 +55,297 @@ export async function showTutorialStep(stepIndex, tutorialData, domElementsInsta
         return;
     }
 
-    domElements.tutorialOverlay.style.display = 'block';
-    domElements.tutorialTextBox.style.display = 'block';
+    // Initial setup of overlay and textbox display state will be managed per case (target vs no target)
+    // domElements.tutorialOverlay.style.display = 'block'; // Deferred
+    // domElements.tutorialTextBox.style.display = 'block'; // Deferred
 
     let actualTargetElement = null;
-    const primarySelector = step.target;
-    const fallbackSelector = step.fallbackTarget;
+    const primarySelector = step.element;
+    const fallbackSelector = step.fallbackElement;
 
-    if (step.targetSection && domElements.navTabs && domElements.mainSections) {
-        const navTabId = step.targetSection.navTabId;
-        const sectionId = step.targetSection.sectionId;
-        const targetNavTab = domElements.navTabs[navTabId];
-        const targetMainSection = domElements.mainSections[sectionId];
-
-        if (targetNavTab && targetMainSection) {
-            const isSectionVisible = window.getComputedStyle(targetMainSection).display !== 'none';
-            const isTabActive = targetNavTab.classList.contains('active-nav-btn') || (targetNavTab.parentElement && targetNavTab.parentElement.classList.contains('active'));
-
-            if (!isSectionVisible || !isTabActive) {
-                console.log(`APP_LOG: Switching to section: ${sectionId} by clicking tab: ${navTabId}`);
-                targetNavTab.click();
-                await ensureElementIsReady(`#${sectionId}`, 1000);
-                await new Promise(resolve => setTimeout(resolve, 150));
-            } else {
-                console.log(`APP_LOG: Target section ${sectionId} is already visible and tab ${navTabId} is active.`);
-            }
-        } else {
-            console.warn(`APP_LOG: Nav tab (${navTabId}) or main section (${sectionId}) not found in domElements for section switching.`);
-        }
-    }
+    // --- SECTION SWITCHING AND EXPANSION LOGIC (Still Disabled) ---
 
     if (primarySelector) {
-        actualTargetElement = await ensureElementIsReady(primarySelector, 500);
+        console.log("APP_LOG: Attempting to find primary target with selector:", primarySelector);
+        actualTargetElement = await ensureElementIsReady(primarySelector, 750); // Increased timeout slightly
     }
     if (!actualTargetElement && fallbackSelector) {
-        console.log("APP_LOG: Primary target not found, trying fallback:", fallbackSelector);
-        actualTargetElement = await ensureElementIsReady(fallbackSelector, 500);
+        console.log("APP_LOG: Primary target not found or undefined, trying fallback with selector:", fallbackSelector);
+        actualTargetElement = await ensureElementIsReady(fallbackSelector, 750); // Increased timeout slightly
     }
 
-    if (actualTargetElement) {
-        console.log("APP_LOG: Found target element (before expansion checks):", actualTargetElement, "Selector:", primarySelector || fallbackSelector);
-        actualTargetElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-        await new Promise(resolve => setTimeout(resolve, 300));
-
-        let parent = actualTargetElement.parentElement;
-        const elementsToExpand = [];
-        while (parent) {
-            if (parent.tagName === 'DETAILS' && !parent.open) {
-                elementsToExpand.unshift(parent);
-            }
-            if (parent.classList.contains('collapsible-trigger') && parent.getAttribute('aria-expanded') === 'false') {
-                 elementsToExpand.unshift(parent);
-            } else if (parent.classList.contains('collapsible-section') && !parent.classList.contains('expanded')) {
-                const trigger = document.querySelector(`[aria-controls="${parent.id}"], [data-bs-target="#${parent.id}"]`);
-                if (trigger && trigger.getAttribute('aria-expanded') === 'false') {
-                    elementsToExpand.unshift(trigger);
-                }
-            }
-            parent = parent.parentElement;
-        }
-
-        if (elementsToExpand.length > 0) {
-            console.log("APP_LOG: Need to expand parent elements:", elementsToExpand);
-            for (const elToExpand of elementsToExpand) {
-                if (elToExpand.tagName === 'DETAILS') {
-                    elToExpand.open = true;
-                    console.log("APP_LOG: Opened <details> element:", elToExpand);
-                } else if (elToExpand.classList.contains('collapsible-trigger')) {
-                    elToExpand.click();
-                    console.log("APP_LOG: Clicked collapsible trigger:", elToExpand);
-                }
-                await new Promise(resolve => setTimeout(resolve, 250));
-            }
-            actualTargetElement = await ensureElementIsReady(primarySelector || fallbackSelector, 500);
-            if (actualTargetElement) {
-                 actualTargetElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-                 await new Promise(resolve => setTimeout(resolve, 300));
-            }
-        }
-        
-        if (actualTargetElement && (actualTargetElement.offsetWidth > 0 || actualTargetElement.offsetHeight > 0 || actualTargetElement.getClientRects().length > 0)) {
-            console.log("APP_LOG: Target element confirmed visible after expansions/scroll:", actualTargetElement);
-        } else {
-            console.warn("APP_LOG: Target element NOT visible or found after expansions/scroll. Selector:", primarySelector || fallbackSelector);
-            if (domElements.tutorialHighlightBox) domElements.tutorialHighlightBox.style.display = 'none';
-            actualTargetElement = null;
-        }
+    if (actualTargetElement && (actualTargetElement.offsetWidth > 0 || actualTargetElement.offsetHeight > 0 || actualTargetElement.getClientRects().length > 0)) {
+        console.log("APP_LOG: Target element confirmed visible after ensureElementIsReady:", actualTargetElement);
     } else {
-        console.warn(`APP_LOG: Target element (or fallback) not found for step:`, step, `Selector: '${primarySelector || fallbackSelector || 'N/A'}'`);
-        if (domElements.tutorialHighlightBox) domElements.tutorialHighlightBox.style.display = 'none';
+        console.warn("APP_LOG: Target element NOT visible or found after ensureElementIsReady. Selector:", primarySelector || fallbackSelector);
+        actualTargetElement = null; 
     }
 
     const stepTitle = step.title || "Tutorial Tip";
     const stepText = step.text || "No text for this step.";
 
-    if (domElements.tutorialTitle) {
-        domElements.tutorialTitle.textContent = stepTitle;
-    } else {
-        console.warn('APP_LOG: domElements.tutorialTitle not found.');
-    }
-
-    if (domElements.tutorialText) {
-        domElements.tutorialText.textContent = stepText;
-    } else {
-        console.warn('APP_LOG: domElements.tutorialText not found.');
-    }
+    if (domElements.tutorialTitle) domElements.tutorialTitle.textContent = stepTitle;
+    if (domElements.tutorialText) domElements.tutorialText.textContent = stepText;
 
     if (actualTargetElement) {
-        positionHighlightBox(actualTargetElement, domElements);
-        const rect = actualTargetElement.getBoundingClientRect();
-        const highlightRect = {
-            top: rect.top + window.scrollY,
-            left: rect.left + window.scrollX,
-            width: rect.width,
-            height: rect.height
-        };
-        positionTextBox(highlightRect, domElements);
+        domElements.tutorialOverlay.style.display = 'block';
+        domElements.tutorialOverlay.style.backgroundColor = 'transparent'; // Overlay is clear, highlightbox shadow provides dimming
+        domElements.tutorialTextBox.style.display = 'block'; // Show textbox, positioning will follow
+
+        requestAnimationFrame(() => { 
+            console.log("APP_LOG: showTutorialStep (rAF) - Positioning highlight box for:", actualTargetElement);
+            positionHighlightBox(domElements.tutorialHighlightBox, actualTargetElement);
+
+            const highlightBoxElement = domElements.tutorialHighlightBox;
+            let highlightBoxRectForPositioning = null;
+
+            if (highlightBoxElement && typeof highlightBoxElement.getBoundingClientRect === 'function' && window.getComputedStyle(highlightBoxElement).display !== 'none') {
+                highlightBoxRectForPositioning = highlightBoxElement.getBoundingClientRect();
+                console.log("APP_LOG: showTutorialStep (rAF) - Got highlightBoxRectForPositioning:", highlightBoxRectForPositioning);
+            } else {
+                console.warn("APP_WARN: showTutorialStep (rAF) - highlightBoxElement not valid for BoundingClientRect when preparing for positionTextBox.");
+            }
+            
+            const stepDataForPositioning = step;
+            const textBoxElementForPositioning = domElements.tutorialTextBox;
+
+            if (!textBoxElementForPositioning || !stepDataForPositioning || !highlightBoxRectForPositioning) {
+                console.error("APP_ERROR: showTutorialStep (rAF) - Critical args for positionTextBox invalid. Positioning textbox generically.", {
+                    textBoxElementForPositioning: !!textBoxElementForPositioning,
+                    stepDataForPositioning: !!stepDataForPositioning,
+                    highlightBoxRectForPositioning: !!highlightBoxRectForPositioning
+                });
+                // Generic positioning for the text box if highlight failed or rect not available
+                const textBox = domElements.tutorialTextBox;
+                textBox.style.position = 'fixed'; 
+                textBox.style.top = '20%';
+                textBox.style.left = '50%';
+                textBox.style.transform = 'translateX(-50%)';
+                textBox.style.zIndex = '10001';
+                textBox.style.opacity = '1';
+                textBox.style.backgroundColor = 'white'; 
+                textBox.style.color = 'black'; 
+                textBox.style.padding = '1em';
+                textBox.style.border = '2px solid black';
+                textBox.style.right = 'auto';
+                textBox.style.bottom = 'auto';
+            } else {
+                positionTextBox(textBoxElementForPositioning, stepDataForPositioning, highlightBoxRectForPositioning);
+            }
+        });
     } else {
-        console.warn(`APP_LOG: No valid target element to highlight for step: '${step.title}'. Positioning text box generically.`);
+        console.warn(`APP_LOG: No valid target element for step: \'${step.title}\'. Positioning text box generically.`);
+        
+        domElements.tutorialOverlay.style.display = 'block';
+        domElements.tutorialOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Standard dim for generic message
+        
         if (domElements.tutorialHighlightBox) {
-            domElements.tutorialHighlightBox.style.display = 'none';
+            domElements.tutorialHighlightBox.style.display = 'none'; 
+            domElements.tutorialHighlightBox.style.boxShadow = 'none'; // Clear any previous shadow
         }
-        const genericRect = {
-            top: window.innerHeight * 0.15, left: window.innerWidth * 0.5,
-            width: window.innerWidth * 0.6, height: 'auto'
-         };
-        positionTextBox(genericRect, domElements);
+
+        const textBox = domElements.tutorialTextBox;
+        textBox.style.display = 'block'; 
+        textBox.style.position = 'fixed'; 
+        textBox.style.top = '20%';
+        textBox.style.left = '50%';
+        textBox.style.transform = 'translateX(-50%)';
+        textBox.style.zIndex = '10001'; 
+        textBox.style.opacity = '1';
+        textBox.style.backgroundColor = 'white'; 
+        textBox.style.color = 'black'; 
+        textBox.style.padding = '1em';
+        textBox.style.border = '2px solid black';
+        textBox.style.right = 'auto';
+        textBox.style.bottom = 'auto';
     }
 
     if (domElements.tutorialStepCounter) {
         domElements.tutorialStepCounter.textContent = `Step ${stepIndex + 1} of ${tutorialData.length}`;
-    } else {
-        console.warn("APP_LOG: domElements.tutorialStepCounter not found.");
     }
 }
 
-export function positionHighlightBox(targetElement, domElementsInstance) {
-    // Using domElements via import
-    if (!domElements || !domElements.tutorialHighlightBox || !targetElement) {
-        if(domElements && domElements.tutorialHighlightBox) domElements.tutorialHighlightBox.style.display = 'none';
+export function positionHighlightBox(highlightBox, targetElement) {
+    if (!highlightBox || !targetElement) {
+        console.warn("APP_WARN: positionHighlightBox called with null highlightBox or targetElement");
+        if (domElements.tutorialHighlightBox) {
+            domElements.tutorialHighlightBox.style.display = 'none';
+            domElements.tutorialHighlightBox.style.boxShadow = 'none'; // Clear shadow
+        }
         return;
     }
+
     const rect = targetElement.getBoundingClientRect();
-    const style = window.getComputedStyle(targetElement);
-
-    if (style.display === 'none' || style.visibility === 'hidden' || rect.width === 0 || rect.height === 0) {
-        domElements.tutorialHighlightBox.style.display = 'none';
-        return;
-    }
+    console.log(`APP_LOG: positionHighlightBox - Target Element:`, targetElement, `Display: ${window.getComputedStyle(targetElement).display}`);
+    console.log(`APP_LOG: positionHighlightBox - BoundingClientRect (targetElement, viewport-relative): ${JSON.stringify(rect)}`);
     
-    Object.assign(domElements.tutorialHighlightBox.style, {
-        position: 'absolute',
-        top: `${rect.top + window.scrollY - 5}px`, 
-        left: `${rect.left + window.scrollX - 5}px`,
-        width: `${rect.width + 10}px`, 
-        height: `${rect.height + 10}px`,
-        display: 'block',
-        zIndex: '9999',
-        border: '3px solid #007bff',
-        borderRadius: '5px',
-        boxShadow: '0 0 15px rgba(0,123,255,0.5)',
-        transition: 'top 0.3s ease-in-out, left 0.3s ease-in-out, width 0.3s ease-in-out, height 0.3s ease-in-out'
-    });
+    // Ensure highlightBox is part of the overlay for correct absolute positioning context
+    // This should ideally be handled in initTutorialUI, but double-check parentage if issues persist.
+    // if (highlightBox.parentNode !== domElements.tutorialOverlay) {
+    //     console.warn("APP_WARN: positionHighlightBox - HighlightBox not child of overlay. Appending.");
+    //     domElements.tutorialOverlay.appendChild(highlightBox);
+    // }
+
+    highlightBox.style.position = 'absolute';
+    highlightBox.style.display = 'block';
+    highlightBox.style.border = 'none'; // No border for the cutout area
+    highlightBox.style.backgroundColor = 'transparent'; // Highlighted area is clear
+    highlightBox.style.zIndex = '10000'; 
+    highlightBox.style.pointerEvents = 'none'; 
+    highlightBox.style.boxSizing = 'border-box';
+    highlightBox.style.margin = '0'; 
+    highlightBox.style.padding = '0'; 
+    highlightBox.style.transition = 'none'; // Ensure no transitions interfere
+
+    // The highlightBox itself defines the clear area. Its dimensions match the target.
+    highlightBox.style.width = rect.width + 'px';
+    highlightBox.style.height = rect.height + 'px';
+    highlightBox.style.top = rect.top + 'px';
+    highlightBox.style.left = rect.left + 'px';
+
+    // The boxShadow creates the overlay effect around the clear area
+    const shadowSpread = Math.max(window.innerWidth, window.innerHeight, 500) * 2; // Ensure it covers viewport, min 500px radius
+    highlightBox.style.boxShadow = `0 0 0 ${shadowSpread}px rgba(0, 0, 0, 0.7)`;
+    
+    console.log(`APP_LOG: positionHighlightBox - Cutout styles applied: {top: ${rect.top}, left: ${rect.left}, width: ${rect.width}, height: ${rect.height}}`);
+    console.log(`APP_LOG: positionHighlightBox - Highlight box (as cutout) styled and displayed. OffsetParent:`, highlightBox.offsetParent);
 }
 
-export function positionTextBox(highlightRect, domElementsInstance) {
-    // Using domElements via import
-    if (!domElements || !domElements.tutorialTextBox) {
-        if(domElements && domElements.tutorialTextBox) domElements.tutorialTextBox.style.display = 'none';
+export function positionTextBox(textBox, step, highlightRect) {
+    if (!textBox || !step || !highlightRect) {
+        console.warn("APP_WARN: positionTextBox called with null arguments", { textBox, step, highlightRect });
+        if(textBox) textBox.style.display = 'none'; // Hide if we can't position
         return;
     }
 
-    const textBox = domElements.tutorialTextBox;
     textBox.style.display = 'block'; 
     textBox.style.position = 'absolute'; 
     textBox.style.zIndex = '10001'; 
-    textBox.style.transition = 'top 0.3s ease-in-out, left 0.3s ease-in-out, opacity 0.3s ease-in-out';
-    textBox.style.opacity = '0';
+    textBox.style.transition = 'none'; 
+    textBox.style.opacity = '0'; // Will be faded in
+
+    textBox.style.backgroundColor = 'white'; 
+    textBox.style.color = 'black'; 
+    textBox.style.padding = '1em';
+    textBox.style.border = '2px solid black';
+    textBox.style.boxSizing = 'border-box';
+    textBox.style.margin = '0';
+    textBox.style.maxWidth = '400px'; // Prevent textbox from becoming too wide
 
     requestAnimationFrame(() => {
-        const textBoxRect = textBox.getBoundingClientRect();
-        let top, left;
+        const textBoxRect = textBox.getBoundingClientRect(); 
+        let newTop, newLeft;
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        const scrollY = window.scrollY;
 
-        if (highlightRect && highlightRect.width > 0 && highlightRect.height > 0) {
-            top = highlightRect.top + highlightRect.height + 15;
-            left = highlightRect.left + (highlightRect.width / 2) - (textBoxRect.width / 2);
+        const options = {
+            verticalMargin: 15, 
+            horizontalMargin: 10,
+            // Preferred position can be 'above', 'below', 'left', 'right' - future enhancement
+            // For now, we primarily use 'above' or 'below' logic based on space.
+        };
 
-            if (left < 10) left = 10; 
-            if (left + textBoxRect.width > viewportWidth - 10) {
-                left = viewportWidth - textBoxRect.width - 10; 
+        console.log("APP_LOG: positionTextBox (rAF) - Inputs:", {
+            textBoxRect: { width: textBoxRect.width, height: textBoxRect.height },
+            highlightRect: { top: highlightRect.top, bottom: highlightRect.bottom, left: highlightRect.left, right: highlightRect.right, width: highlightRect.width, height: highlightRect.height },
+            viewportWidth,
+            viewportHeight,
+            stepPreferredPosition: step.preferredPosition, // Log if present
+            options
+        });
+
+        // --- Horizontal Positioning ---
+        // Prefer to center textbox under/over highlightRect's horizontal center.
+        newLeft = highlightRect.left + (highlightRect.width / 2) - (textBoxRect.width / 2);
+
+        // Clamp horizontal position to be within viewport
+        if (newLeft < options.horizontalMargin) {
+            newLeft = options.horizontalMargin;
+        }
+        if (newLeft + textBoxRect.width > viewportWidth - options.horizontalMargin) {
+            newLeft = viewportWidth - textBoxRect.width - options.horizontalMargin;
+            if (newLeft < options.horizontalMargin) { // If textbox is wider than viewport
+                 newLeft = options.horizontalMargin;
+                 textBox.style.width = (viewportWidth - 2 * options.horizontalMargin) + 'px'; // Adjust width
             }
-            if (top + textBoxRect.height > scrollY + viewportHeight - 10) { 
-                top = highlightRect.top - textBoxRect.height - 15;
-            }
-            if (top < scrollY + 10) { 
-                top = scrollY + 10; 
-                if (highlightRect.top - textBoxRect.height - 15 < scrollY + 10) {
-                    if (highlightRect.left + highlightRect.width + textBoxRect.width + 20 < viewportWidth) {
-                        left = highlightRect.left + highlightRect.width + 15;
-                        top = highlightRect.top + (highlightRect.height / 2) - (textBoxRect.height / 2);
-                    } else if (highlightRect.left - textBoxRect.width - 20 > 0) {
-                        left = highlightRect.left - textBoxRect.width - 15;
-                        top = highlightRect.top + (highlightRect.height / 2) - (textBoxRect.height / 2);
-                    } else {
-                        top = scrollY + viewportHeight / 2 - textBoxRect.height / 2;
-                        left = viewportWidth / 2 - textBoxRect.width / 2;
-                    }
-                    if (top < scrollY + 10) top = scrollY + 10;
-                    if (top + textBoxRect.height > scrollY + viewportHeight - 10) top = scrollY + viewportHeight - textBoxRect.height - 10;
-                }
-            }
-        } else { 
-            top = scrollY + viewportHeight / 2 - textBoxRect.height / 2;
-            left = viewportWidth / 2 - textBoxRect.width / 2;
         }
         
-        textBox.style.top = `${top}px`;
-        textBox.style.left = `${left}px`;
+        // --- Vertical Positioning ---
+        const spaceBelow = viewportHeight - (highlightRect.bottom + options.verticalMargin);
+        const fitsBelow = (textBoxRect.height <= spaceBelow);
+
+        const spaceAbove = highlightRect.top - options.verticalMargin;
+        const fitsAbove = (textBoxRect.height <= spaceAbove);
+
+        let determinedPosition = '';
+
+        if (step.preferredPosition === 'above') {
+            if (fitsAbove) {
+                newTop = highlightRect.top - textBoxRect.height - options.verticalMargin;
+                determinedPosition = 'preferred-above';
+            } else if (fitsBelow) {
+                newTop = highlightRect.bottom + options.verticalMargin;
+                determinedPosition = 'fallback-below (preferred-above-no-fit)';
+            }
+        } else if (step.preferredPosition === 'below') {
+            if (fitsBelow) {
+                newTop = highlightRect.bottom + options.verticalMargin;
+                determinedPosition = 'preferred-below';
+            } else if (fitsAbove) {
+                newTop = highlightRect.top - textBoxRect.height - options.verticalMargin;
+                determinedPosition = 'fallback-above (preferred-below-no-fit)';
+            }
+        }
+
+        // Default logic if no preference or preferred didn't fit and fallback wasn't triggered
+        if (!determinedPosition) {
+            if (fitsBelow) {
+                newTop = highlightRect.bottom + options.verticalMargin;
+                determinedPosition = 'default-below';
+            } else if (fitsAbove) {
+                newTop = highlightRect.top - textBoxRect.height - options.verticalMargin;
+                determinedPosition = 'default-above';
+            }
+        }
+        
+        // If neither above nor below fits well (or no position determined yet)
+        if (!determinedPosition) {
+            console.warn("APP_WARN: positionTextBox - Textbox cannot fit neatly above or below target. Trying to center in viewport.");
+            newTop = (viewportHeight / 2) - (textBoxRect.height / 2);
+            determinedPosition = 'fallback-center-viewport';
+
+            // Clamp centered position to viewport edges
+            if (newTop < options.verticalMargin) {
+                newTop = options.verticalMargin;
+            }
+            if (newTop + textBoxRect.height > viewportHeight - options.verticalMargin) {
+                // If still too tall, align to top and let it overflow (or set max-height on textbox)
+                newTop = options.verticalMargin; 
+                 if (textBoxRect.height > viewportHeight - 2 * options.verticalMargin) {
+                    textBox.style.height = (viewportHeight - 2 * options.verticalMargin) + 'px';
+                    textBox.style.overflowY = 'auto';
+                 }
+            }
+        } else {
+            // Final clamping for positions determined by above/below logic
+            if (newTop < options.verticalMargin) {
+                newTop = options.verticalMargin;
+                 determinedPosition += '-clamped-top';
+            }
+            if (newTop + textBoxRect.height > viewportHeight - options.verticalMargin) {
+                newTop = viewportHeight - textBoxRect.height - options.verticalMargin;
+                // Ensure it doesn't go negative if textbox is too tall for viewport
+                if (newTop < options.verticalMargin) newTop = options.verticalMargin;
+                determinedPosition += '-clamped-bottom';
+            }
+        }
+
+        textBox.style.top = newTop + 'px';
+        textBox.style.left = newLeft + 'px';
         textBox.style.opacity = '1';
+
+        console.log(`APP_LOG: positionTextBox (rAF) - Final calculated position (Top, Left): ${newTop.toFixed(2)}, ${newLeft.toFixed(2)}. Strategy: ${determinedPosition}`);
+        console.log("APP_LOG: positionTextBox (rAF) - Text box styled and displayed.");
     });
 }
 
@@ -283,6 +353,107 @@ export function closeTutorial(domElementsInstance) {
     // Using domElements via import
     console.log("APP_LOG: closeTutorial called.");
     if (domElements.tutorialOverlay) domElements.tutorialOverlay.style.display = 'none';
-    if (domElements.tutorialHighlightBox) domElements.tutorialHighlightBox.style.display = 'none';
+    if (domElements.tutorialHighlightBox) {
+        domElements.tutorialHighlightBox.style.display = 'none';
+        domElements.tutorialHighlightBox.style.boxShadow = 'none'; // Clear shadow
+    }
     if (domElements.tutorialTextBox) domElements.tutorialTextBox.style.display = 'none';
+}
+
+export function hideTutorial() { // Typically called by tutorialCloseButton
+    if (domElements.tutorialOverlay) {
+        domElements.tutorialOverlay.style.display = 'none';
+        // No need to reset overlay background if it's managed by showTutorialStep logic
+    }
+    if (domElements.tutorialHighlightBox) {
+        domElements.tutorialHighlightBox.style.display = 'none';
+        domElements.tutorialHighlightBox.style.boxShadow = 'none'; // Clear shadow
+    }
+    if (domElements.tutorialTextBox) {
+        domElements.tutorialTextBox.style.display = 'none';
+    }
+    // Reset current tutorial state if any
+    // import { state, updateState } from '../state.js'; // Assuming state management
+    // if (state.currentTutorial && state.currentTutorial.isActive) {
+    // updateState({ currentTutorial: { ...state.currentTutorial, isActive: false, currentStep: 0 } });
+    // }
+    console.log("APP_LOG: hideTutorial executed.");
+}
+
+export function initTutorialUI() {
+    if (!domElements.tutorialOverlay || !domElements.tutorialHighlightBox || !domElements.tutorialTextBox) {
+        console.error("APP_ERROR: initTutorialUI - One or more core tutorial DOM elements are missing from domElements.");
+        return;
+    }
+
+    const overlay = domElements.tutorialOverlay;
+    const highlightBox = domElements.tutorialHighlightBox;
+    const textBox = domElements.tutorialTextBox;
+
+    // Ensure overlay is in the document body first
+    if (!document.body.contains(overlay)) {
+        console.log("APP_LOG: initTutorialUI - Overlay not in body. Appending.");
+        document.body.appendChild(overlay);
+    }
+
+    // Style the overlay
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.zIndex = '9999';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.display = 'block'; // Make it block temporarily for children layout
+
+    // Append children to overlay if not already parented
+    if (highlightBox.parentNode !== overlay) {
+        console.log("APP_LOG: initTutorialUI - Appending highlightBox to overlay.");
+        overlay.appendChild(highlightBox);
+    }
+    highlightBox.style.position = 'absolute';
+    highlightBox.style.display = 'block'; // Important for offsetParent calculation
+
+    if (textBox.parentNode !== overlay) {
+        console.log("APP_LOG: initTutorialUI - Appending textBox to overlay.");
+        overlay.appendChild(textBox);
+    }
+    textBox.style.position = 'absolute';
+    textBox.style.display = 'block'; // Important for offsetParent calculation
+
+    // Defer offsetParent checks and final setup to allow browser to process DOM/style changes
+    requestAnimationFrame(() => {
+        console.log("APP_LOG: initTutorialUI (rAF) - Checking offsetParents after DOM updates:");
+        console.log("APP_LOG: initTutorialUI (rAF) - Overlay offsetParent:", overlay.offsetParent, "Computed Display:", window.getComputedStyle(overlay).display);
+        console.log("APP_LOG: initTutorialUI (rAF) - HighlightBox offsetParent:", highlightBox.offsetParent, "Computed Display:", window.getComputedStyle(highlightBox).display);
+        console.log("APP_LOG: initTutorialUI (rAF) - TextBox offsetParent:", textBox.offsetParent, "Computed Display:", window.getComputedStyle(textBox).display);
+
+        // Now that children are hopefully correctly parented and laid out, hide the overlay until needed
+        overlay.style.display = 'none';
+        console.log("APP_LOG: initTutorialUI (rAF) - Overlay display set to none.");
+
+        // Attach event listeners for tutorial buttons
+        if (domElements.tutorialNextButton) {
+            domElements.tutorialNextButton.removeEventListener('click', handleNextTutorialStep);
+            domElements.tutorialNextButton.addEventListener('click', handleNextTutorialStep);
+        } else {
+            console.warn("APP_WARN: initTutorialUI - tutorialNextButton not found in domElements.");
+        }
+        // ... (similar for prev and close buttons) ...
+        if (domElements.tutorialPrevButton) {
+            domElements.tutorialPrevButton.removeEventListener('click', handlePrevTutorialStep);
+            domElements.tutorialPrevButton.addEventListener('click', handlePrevTutorialStep);
+        } else {
+            console.warn("APP_WARN: initTutorialUI - tutorialPrevButton not found in domElements.");
+        }
+        if (domElements.tutorialCloseButton) {
+            domElements.tutorialCloseButton.removeEventListener('click', hideTutorial);
+            domElements.tutorialCloseButton.addEventListener('click', hideTutorial);
+        } else {
+            console.warn("APP_WARN: initTutorialUI - tutorialCloseButton not found in domElements.");
+        }
+        console.log("APP_LOG: initTutorialUI (rAF) - Event listeners attached.");
+    });
+
+    console.log("APP_LOG: initTutorialUI - Synchronous part complete, rAF scheduled.");
 }

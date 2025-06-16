@@ -129,7 +129,6 @@ export function generateWeeklyReportContentUI(reportOutputContainer, weeklyEmplo
 
     for (let i = 0; i < 7; i++) {
         const currDayProc = new Date(weekStartObj);
-        console.log("[LOG ui-data-reports.js] Loop iteration", i, "weekStartObj before getUTCDate:", weekStartObj, "Type:", typeof weekStartObj, "IsDate:", weekStartObj instanceof Date);
         currDayProc.setUTCDate(weekStartObj.getUTCDate() + i);
         const dStr = formatDate(currDayProc);
         const dayName = daysOfWeekNames[currDayProc.getUTCDay()];

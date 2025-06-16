@@ -6,6 +6,65 @@ import * as state from '../state.js'; // Added import for state
 // Import functions from other UI modules if needed, e.g.:
 import { renderEmployeeRoster, applyMasonryLayoutToRoster } from './ui-roster.js';
 
+export function switchView(targetSectionId) {
+    // console.log(`UI_LOG: [ui-core.js] switchView called for: ${targetSectionId}`);
+    const mainSections = [
+        { id: 'employeeLineupSection', element: domElements.employeeLineupSection, contentId: 'lineupContent', header: domElements.employeeLineupSection?.querySelector('.collapsible-header') },
+        { id: 'payoutSection', element: domElements.payoutSection, contentId: 'payoutContent', header: domElements.payoutSection?.querySelector('.collapsible-header') },
+        { id: 'weeklyReportSection', element: domElements.weeklyReportSection, contentId: 'weeklyReportContent', header: domElements.weeklyReportSection?.querySelector('.collapsible-header') },
+        { id: 'dataManagementSection', element: domElements.dataManagementSection, contentId: 'dataManagementContent', header: domElements.dataManagementSection?.querySelector('.collapsible-header') },
+        { id: 'employeeFormSection', element: domElements.employeeFormSection, contentId: null, header: null } // No collapsible content for emp mgt
+    ];
+
+    mainSections.forEach(sectionItem => {
+        if (sectionItem.element) {
+            // Ensure all main section cards are visible
+            sectionItem.element.style.display = 'block'; 
+
+            const contentElement = sectionItem.contentId ? document.getElementById(sectionItem.contentId) : null;
+            const headerElement = sectionItem.header;
+
+            if (contentElement && headerElement) {
+                if (sectionItem.id === targetSectionId) {
+                    // This is the target section
+                    const shouldBeOpen = (targetSectionId === 'employeeLineupSection') ? true : !localStorage.getItem(`collapsible_${sectionItem.contentId}_collapsed`) === 'true';
+                    if (shouldBeOpen) {
+                        if (contentElement.style.display === 'none') {
+                            headerElement.click(); // Expand if collapsed
+                        } else if (targetSectionId === 'employeeLineupSection' && typeof applyMasonryLayoutToRoster === 'function') {
+                            applyMasonryLayoutToRoster(); // Apply masonry if already open and it's the lineup
+                        }
+                    } else { // Should be open is false, but it's the target section (only for non-lineup)
+                        if (contentElement.style.display === 'none') {
+                             headerElement.click(); // Expand it anyway as it's the target
+                        }
+                    }
+                } else {
+                    // This is NOT the target section, ensure its content is collapsed
+                    if (contentElement.style.display !== 'none') {
+                        // Only click to collapse if it's not already marked as collapsed by user preference
+                        // Or, more simply, always collapse non-active sections if they are open.
+                        headerElement.click(); // Collapse if open
+                    }
+                }
+            }
+        } else if (sectionItem.id === targetSectionId) {
+            // If the target section element itself is missing, log a warning.
+            console.warn(`UI_WARN: [ui-core.js] Target section element for ${targetSectionId} not found in switchView.`);
+        }
+    });
+
+    // Special handling for employeeFormSection as it doesn't use the standard collapsible pattern
+    const employeeFormSectionItem = mainSections.find(s => s.id === 'employeeFormSection');
+    if (employeeFormSectionItem && employeeFormSectionItem.element) {
+        if (targetSectionId === 'employeeFormSection') {
+            employeeFormSectionItem.element.style.display = 'block';
+        } else {
+            employeeFormSectionItem.element.style.display = 'none';
+        }
+    }
+}
+
 
 export function populateJobPositions(selectElement, positions) {
     if (!selectElement) return;
@@ -20,7 +79,7 @@ export function populateJobPositions(selectElement, positions) {
 
 export function populateCycleStartDateSelect(cycleStartDateSelectElement, baseCycleDate, activeSelectedDateHint) {
     if (!cycleStartDateSelectElement) return;
-    console.log("UI_LOG: Populating Cycle Start Dates...");
+    // console.log("UI_LOG: Populating Cycle Start Dates...");
     cycleStartDateSelectElement.innerHTML = '';
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
@@ -65,7 +124,7 @@ export function populateCycleStartDateSelect(cycleStartDateSelectElement, baseCy
         // Fallback to a sensible default if the calculated one isn't in the list (e.g. middle option)
         cycleStartDateSelectElement.selectedIndex = Math.floor(cycleStartDateSelectElement.options.length / 2);
     }
-    console.log("UI_LOG: Cycle Start Dates populated. Default:", cycleStartDateSelectElement.value);
+    // console.log("UI_LOG: Cycle Start Dates populated. Default:", cycleStartDateSelectElement.value);
 }
 
 export function renderDayNavigation(container, dateForNav, onDaySelectCallback) {
@@ -113,7 +172,7 @@ export function updateCurrentlyViewedWeekDisplay(element, currentReportWeekStart
 }
 
 export function initializeCollapsibleSections(onSectionToggleCallback) {
-    console.log("UI_LOG: Initializing collapsible sections from ui-core.js...");
+    // console.log("UI_LOG: Initializing collapsible sections from ui-core.js...");
     document.querySelectorAll('.collapsible-header').forEach(header => {
         const contentId = header.getAttribute('aria-controls');
         const content = document.getElementById(contentId);
@@ -152,12 +211,12 @@ export function initializeCollapsibleSections(onSectionToggleCallback) {
         header.addEventListener('click', (e) => {
             // If the click is on a tutorial button, log and prevent collapse, and START THE TUTORIAL
             if (e.target.closest('.tutorial-btn')) {
-                console.log("UI_LOG: [ui-core.js] Clicked tutorial button. Event target:", e.target);
+                // console.log("UI_LOG: [ui-core.js] Clicked tutorial button. Event target:", e.target);
                 e.preventDefault(); // Prevent any default button action
                 e.stopPropagation(); // Stop event from bubbling to other listeners (like parent h2 trying to collapse)
 
                 const tutorialKey = e.target.closest('.tutorial-btn').dataset.tutorialFor || e.target.closest('.tutorial-btn').dataset.tutorial;
-                console.log(`UI_LOG: [ui-core.js] Attempting to start tutorial with key: ${tutorialKey}`);
+                // console.log(`UI_LOG: [ui-core.js] Attempting to start tutorial with key: ${tutorialKey}`);
                 if (tutorialKey && typeof window.handleStartTutorial === 'function') {
                     window.handleStartTutorial(tutorialKey);
                 } else {
@@ -168,14 +227,14 @@ export function initializeCollapsibleSections(onSectionToggleCallback) {
 
             // Regular collapsible logic
             const isCurrentlyHidden = content.style.display === 'none';
-            console.log(`UI_LOG: [ui-core.js] Header clicked for ${contentId}. Was hidden: ${isCurrentlyHidden}`);
+            // console.log(`UI_LOG: [ui-core.js] Header clicked for ${contentId}. Was hidden: ${isCurrentlyHidden}`);
             content.style.display = isCurrentlyHidden ? 'block' : 'none';
             if (indicator) indicator.textContent = isCurrentlyHidden ? '-' : '+';
             header.setAttribute('aria-expanded', String(isCurrentlyHidden));
             localStorage.setItem(`collapsible_${contentId}_collapsed`, String(!isCurrentlyHidden));
 
             if (isCurrentlyHidden) { // Content is NOW SHOWN
-                console.log(`UI_LOG: [ui-core.js] Content ${contentId} expanded, triggering updates.`);
+                // console.log(`UI_LOG: [ui-core.js] Content ${contentId} expanded, triggering updates.`);
                 if (contentId === 'payoutContent') {
                     if (typeof window.triggerDailyScoopCalculation === 'function') {
                         window.triggerDailyScoopCalculation();
@@ -236,7 +295,7 @@ export function displayImportStatus(messagesContainer, fileNameDisplay, fileName
 }
 
 export function updateDateDisplays(lineupDateElem, scoopDateElem, activeSelectedDate) {
-    console.log('[updateDateDisplays] called with:', { activeSelectedDate });
+    // console.log('[updateDateDisplays] called with:', { activeSelectedDate });
     if (lineupDateElem) lineupDateElem.textContent = formatDisplayDate(activeSelectedDate);
     if (scoopDateElem) scoopDateElem.textContent = formatDisplayDate(activeSelectedDate);
 }

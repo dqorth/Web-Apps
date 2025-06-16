@@ -135,7 +135,7 @@ export function handleToggleAddNewEmployeeFormVisibility() {
         domElements.updateEmployeeBtn,
         domElements.cancelEditBtn,
         domElements.editingEmployeeIdInput,
-        state.JOB_POSITIONS_AVAILABLE
+        state.state.jobPositions // Corrected: Pass jobPositions from state.state
     );
 }
 
@@ -175,21 +175,21 @@ export function handleAddOrUpdateEmployee(isUpdating) {
     }
     renderFullEmployeeListForManagement(
         domElements.fullEmployeeRosterContainer,
-        state.employeeRoster,
+        state.state.employeeRoster, // Corrected: Access employeeRoster from the unified state object
         handleEditEmployeeSetupFromMgmtList, 
         handleRemoveEmployeeFromMgmtList     
     );
-    toggleEmployeeFormVisibility(domElements.addEmployeeFormWrapper, domElements.toggleAddNewEmployeeFormBtn, false, null, domElements.empNameInput, domElements.empPositionsContainer, domElements.addEmployeeBtn, domElements.updateEmployeeBtn, domElements.cancelEditBtn, domElements.editingEmployeeIdInput, state.JOB_POSITIONS_AVAILABLE);
-    resetEmployeeForm(domElements.addEmployeeFormWrapper, domElements.empNameInput, domElements.empPositionsContainer, domElements.addEmployeeBtn, domElements.updateEmployeeBtn, domElements.cancelEditBtn, domElements.editingEmployeeIdInput, state.JOB_POSITIONS_AVAILABLE);
+    toggleEmployeeFormVisibility(domElements.addEmployeeFormWrapper, domElements.toggleAddNewEmployeeFormBtn, false, null, domElements.empNameInput, domElements.empPositionsContainer, domElements.addEmployeeBtn, domElements.updateEmployeeBtn, domElements.cancelEditBtn, domElements.editingEmployeeIdInput, state.state.jobPositions); // Corrected: Pass jobPositions from state.state
+    resetEmployeeForm(domElements.addEmployeeFormWrapper, domElements.empNameInput, domElements.empPositionsContainer, domElements.addEmployeeBtn, domElements.updateEmployeeBtn, domElements.cancelEditBtn, domElements.editingEmployeeIdInput, state.state.jobPositions); // Corrected: Pass jobPositions from state.state
 }
 
 export function handleCancelEditEmployee() {
-    resetEmployeeForm(domElements.addEmployeeFormWrapper, domElements.empNameInput, domElements.empPositionsContainer, domElements.addEmployeeBtn, domElements.updateEmployeeBtn, domElements.cancelEditBtn, domElements.editingEmployeeIdInput, state.JOB_POSITIONS_AVAILABLE);
-    toggleEmployeeFormVisibility(domElements.addEmployeeFormWrapper, domElements.toggleAddNewEmployeeFormBtn, false, null, domElements.empNameInput, domElements.empPositionsContainer, domElements.addEmployeeBtn, domElements.updateEmployeeBtn, domElements.cancelEditBtn, domElements.editingEmployeeIdInput, state.JOB_POSITIONS_AVAILABLE);
+    resetEmployeeForm(domElements.addEmployeeFormWrapper, domElements.empNameInput, domElements.empPositionsContainer, domElements.addEmployeeBtn, domElements.updateEmployeeBtn, domElements.cancelEditBtn, domElements.editingEmployeeIdInput, state.state.jobPositions); // Corrected: Pass jobPositions from state.state
+    toggleEmployeeFormVisibility(domElements.addEmployeeFormWrapper, domElements.toggleAddNewEmployeeFormBtn, false, null, domElements.empNameInput, domElements.empPositionsContainer, domElements.addEmployeeBtn, domElements.updateEmployeeBtn, domElements.cancelEditBtn, domElements.editingEmployeeIdInput, state.state.jobPositions); // Corrected: Pass jobPositions from state.state
 }
 
 export function handleRemoveEmployeeFromMgmtList(empId) {
-    const employee = state.employeeRoster.find(e => e.id === empId);
+    const employee = state.state.employeeRoster.find(e => e.id === empId); // Corrected: Access employeeRoster from state.state
     if (!employee) {
         console.error("Error: Employee not found for removal:", empId);
         ui.showInfoModal("Error: Employee not found.");

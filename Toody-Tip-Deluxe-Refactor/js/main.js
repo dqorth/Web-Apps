@@ -43,12 +43,14 @@ function init() {
   
   // Initialize collapsible sections, providing a callback for when sections are opened
   initializeCollapsibleSections((openedContentId) => {
-    console.log(`MAIN_LOG: Section ${openedContentId} was opened.`);
     if (openedContentId === 'lineupContent') {
         applyMasonryLayoutToRoster();
     }
     // Add other specific actions based on openedContentId if needed
   });
+
+  // Trigger Daily Scoop calculation on startup after state is loaded and UI is initialized
+  triggerDailyScoopCalculation();
 
   // Expose necessary functions to the global scope for index.html inline scripts
   // and for ui-core.js event handlers

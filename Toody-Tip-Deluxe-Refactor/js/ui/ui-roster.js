@@ -10,7 +10,7 @@ export function renderEmployeeRoster(rosterContainer, state, activeDate) {
     } catch (e) {
         dailyShiftsLog = '[unserializable]';
     }
-    console.log('[ui-roster.js] renderEmployeeRoster - ActiveDate:', activeDate, 'DailyShiftsData for this date:', dailyShiftsLog); // Diagnostic
+    // console.log('[ui-roster.js] renderEmployeeRoster - ActiveDate:', activeDate, 'DailyShiftsData for this date:', dailyShiftsLog); // Diagnostic
     if (!rosterContainer) { console.error("UI_LOG: Roster list container not found!"); return; }
     rosterContainer.innerHTML = '';
     if (!activeDate) {
@@ -70,8 +70,8 @@ export function renderEmployeeRoster(rosterContainer, state, activeDate) {
                 if (shiftsForDay) {
                     existingShift = shiftsForDay.find(s => s.employeeId === emp.id && s.positionWorked === posKey);
                 }
-                let shiftToLog = existingShift ? JSON.parse(JSON.stringify(existingShift)) : null;
-                console.log('[ui-roster.js] renderEmployeeRoster - Employee:', emp.name, 'posKey:', posKey, 'Found existingShift (pre-update call):', shiftToLog, 'ID specifically:', existingShift ? existingShift.id : 'undefined');
+                // let shiftToLog = existingShift ? JSON.parse(JSON.stringify(existingShift)) : null;
+                // console.log('[ui-roster.js] renderEmployeeRoster - Employee:', emp.name, 'posKey:', posKey, 'Found existingShift (pre-update call):', shiftToLog, 'ID specifically:', existingShift ? existingShift.id : 'undefined');
                 updateEmployeeLineupCard(li, toggleWorkedBtn, existingShift, emp, posKey);
             });
             positionGroupDiv.appendChild(ul);
@@ -82,8 +82,8 @@ export function renderEmployeeRoster(rosterContainer, state, activeDate) {
 }
 
 export function updateEmployeeLineupCard(liElement, buttonElement, shiftData, employee, positionContext) {
-    let shiftDataForLog = shiftData ? JSON.parse(JSON.stringify(shiftData)) : null;
-    console.log('[ui-roster.js] updateEmployeeLineupCard - START - Args:', { employeeName: employee ? employee.name : 'N/A', pos: positionContext, shiftData: shiftDataForLog });
+    // let shiftDataForLog = shiftData ? JSON.parse(JSON.stringify(shiftData)) : null;
+    // console.log('[ui-roster.js] updateEmployeeLineupCard - START - Args:', { employeeName: employee ? employee.name : 'N/A', pos: positionContext, shiftData: shiftDataForLog });
     if (!liElement || !buttonElement) {
         console.error('[ui-roster.js] updateEmployeeLineupCard - ERROR: liElement or buttonElement is null.', { liElement, buttonElement });
         return;
@@ -96,7 +96,7 @@ export function updateEmployeeLineupCard(liElement, buttonElement, shiftData, em
     let shiftSummaryDiv = liElement.querySelector('.shift-summary-display');
     
     if (shiftSummaryDiv) {
-        console.log('[ui-roster.js] updateEmployeeLineupCard - Removing existing shiftSummaryDiv.');
+        // console.log('[ui-roster.js] updateEmployeeLineupCard - Removing existing shiftSummaryDiv.');
         shiftSummaryDiv.remove();
     }
 
@@ -104,16 +104,16 @@ export function updateEmployeeLineupCard(liElement, buttonElement, shiftData, em
     delete buttonElement.dataset.shiftId;
 
     const hasValidShiftId = shiftData && typeof shiftData.id === 'string' && shiftData.id.trim() !== '';
-    console.log(`[ui-roster.js] updateEmployeeLineupCard - Valid Shift ID check: ${hasValidShiftId}, shiftData.id: ${shiftData ? shiftData.id : 'N/A'}`);
+    // console.log(`[ui-roster.js] updateEmployeeLineupCard - Valid Shift ID check: ${hasValidShiftId}, shiftData.id: ${shiftData ? shiftData.id : 'N/A'}`);
 
     if (hasValidShiftId) {
-        console.log('[ui-roster.js] updateEmployeeLineupCard - Condition MET: shiftData is present with a valid ID.');
+        // console.log('[ui-roster.js] updateEmployeeLineupCard - Condition MET: shiftData is present with a valid ID.');
         buttonElement.textContent = `Edit Shift (${formatTimeTo12Hour(shiftData.timeIn)})`;
         buttonElement.dataset.action = "edit";
         buttonElement.dataset.shiftId = shiftData.id;
         buttonElement.classList.add('is-editing-shift');
         buttonElement.setAttribute('aria-pressed', 'true');
-        console.log('[ui-roster.js] updateEmployeeLineupCard - Button updated for "Edit Shift":', buttonElement.outerHTML);
+        // console.log('[ui-roster.js] updateEmployeeLineupCard - Button updated for "Edit Shift":', buttonElement.outerHTML);
 
         if (employeeInfoDiv) {
             shiftSummaryDiv = document.createElement('div');
@@ -125,26 +125,26 @@ export function updateEmployeeLineupCard(liElement, buttonElement, shiftData, em
             }
             shiftSummaryDiv.textContent = summaryText;
             employeeInfoDiv.appendChild(shiftSummaryDiv);
-            console.log('[ui-roster.js] updateEmployeeLineupCard - Shift summary created and appended:', shiftSummaryDiv.outerHTML);
+            // console.log('[ui-roster.js] updateEmployeeLineupCard - Shift summary created and appended:', shiftSummaryDiv.outerHTML);
             shiftSummaryDiv.style.display = 'block'; 
-            console.log('[ui-roster.js] updateEmployeeLineupCard - shiftSummaryDiv display style set to block.');
+            // console.log('[ui-roster.js] updateEmployeeLineupCard - shiftSummaryDiv display style set to block.');
 
         } else {
             console.warn('[ui-roster.js] updateEmployeeLineupCard - employeeInfoDiv was null, cannot append shift summary.');
         }
     } else {
-        console.log('[ui-roster.js] updateEmployeeLineupCard - Condition NOT MET: No valid shiftData or shiftData.id. Setting button to "Log Shift".');
+        // console.log('[ui-roster.js] updateEmployeeLineupCard - Condition NOT MET: No valid shiftData or shiftData.id. Setting button to "Log Shift".');
         buttonElement.textContent = "Log Shift";
         buttonElement.dataset.action = "log";
         buttonElement.classList.add('is-not-working');
         buttonElement.setAttribute('aria-pressed', 'false');
-        console.log('[ui-roster.js] updateEmployeeLineupCard - Button updated for "Log Shift":', buttonElement.outerHTML);
+        // console.log('[ui-roster.js] updateEmployeeLineupCard - Button updated for "Log Shift":', buttonElement.outerHTML);
         if (shiftSummaryDiv) {
-            console.log('[ui-roster.js] updateEmployeeLineupCard - Hiding shiftSummaryDiv as there is no shift data.');
+            // console.log('[ui-roster.js] updateEmployeeLineupCard - Hiding shiftSummaryDiv as there is no shift data.');
             shiftSummaryDiv.style.display = 'none';
         }
     }
-    console.log('[ui-roster.js] updateEmployeeLineupCard - END - Employee:', employee ? employee.name : 'N/A');
+    // console.log('[ui-roster.js] updateEmployeeLineupCard - END - Employee:', employee ? employee.name : 'N/A');
 }
 
 export function applyMasonryLayoutToRoster(rosterListContainer) {
@@ -173,7 +173,7 @@ export function applyMasonryLayoutToRoster(rosterListContainer) {
     });
 }
 
-export function renderInlineShiftForm(containerElement, employee, positionWorkedContext, activeDate, existingShiftData, onSaveShift, onDeleteShift, onCancel) {
+export function renderInlineShiftForm(containerElement, employee, positionWorkedContext, activeDate, existingShiftData, onSaveShift, onDeleteShift, onCancel, originView = null) {
     if (!containerElement || !employee || !positionWorkedContext || !activeDate) {
         console.error("renderInlineShiftForm: Missing required parameters.", { containerElement, employee, positionWorkedContext, activeDate });
         if(containerElement) containerElement.innerHTML = '<p style="color:red;">Error loading form.</p>';
@@ -270,7 +270,7 @@ export function renderInlineShiftForm(containerElement, employee, positionWorked
             shiftDetails.ccTips = parseFloat(ccInput.value) || 0;
             shiftDetails.cashTips = parseFloat(cashInput.value) || 0;
         }
-        onSaveShift(event); 
+        onSaveShift(event, originView); // Pass originView
     });
     formActionsDiv.appendChild(saveBtn);
 
@@ -279,7 +279,7 @@ export function renderInlineShiftForm(containerElement, employee, positionWorked
         deleteBtn.textContent = 'Delete Shift';
         deleteBtn.classList.add('button', 'small-action-btn', 'delete-shift-btn');
         deleteBtn.style.backgroundColor = '#AA0000';
-        deleteBtn.addEventListener('click', () => onDeleteShift(existingShiftData.id, activeDate, employee.id, positionWorkedContext, containerElement.closest('li')));
+        deleteBtn.addEventListener('click', () => onDeleteShift(existingShiftData.id, activeDate, employee.id, positionWorkedContext, containerElement.closest('li'), originView)); // Pass originView
         formActionsDiv.appendChild(deleteBtn);
     }
 
@@ -288,8 +288,8 @@ export function renderInlineShiftForm(containerElement, employee, positionWorked
     cancelBtn.classList.add('button', 'small-action-btn', 'cancel-edit-inline-btn');
     cancelBtn.style.backgroundColor = '#BDBDBD';
     cancelBtn.addEventListener('click', () => {
-        console.log("[ui-roster.js] Cancel button clicked. Calling onCancel with:", employee.id, positionWorkedContext, existingShiftData);
-        onCancel(employee.id, positionWorkedContext, existingShiftData);
+        console.log("[ui-roster.js] Cancel button clicked. Calling onCancel with:", employee.id, positionWorkedContext, existingShiftData, originView);
+        onCancel(employee.id, positionWorkedContext, existingShiftData, originView); // Pass originView
     });
     formActionsDiv.appendChild(cancelBtn);
 
