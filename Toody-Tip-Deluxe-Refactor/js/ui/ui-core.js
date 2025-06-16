@@ -1,0 +1,272 @@
+// Core UI functions - General utilities, modals, navigation, etc.
+
+import { domElements } from '../domElements.js';
+import { formatDate, formatDisplayDate, getMondayOfWeek, getWeekInfoForDate, sortEmployeesByName } from '../utils.js'; // Added sortEmployeesByName
+import { JOB_POSITIONS_AVAILABLE, BASE_CYCLE_START_DATE } from '../state.js';
+// Import functions from other UI modules if needed, e.g.:
+import { renderEmployeeRoster, applyMasonryLayoutToRoster } from './ui-roster.js';
+
+
+export function populateJobPositions(selectElement, positions) {
+    if (!selectElement) return;
+    selectElement.innerHTML = ''; // Clear existing options
+    positions.forEach(position => {
+        const option = document.createElement('option');
+        option.value = position;
+        option.textContent = position;
+        selectElement.appendChild(option);
+    });
+}
+
+export function populateCycleStartDateSelect(cycleStartDateSelectElement, baseCycleDate, activeSelectedDateHint) {
+    if (!cycleStartDateSelectElement) return;
+    console.log("UI_LOG: Populating Cycle Start Dates...");
+    cycleStartDateSelectElement.innerHTML = '';
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    for (let i = -12; i <= 12; i++) {
+        const cycleStart = new Date(baseCycleDate);
+        cycleStart.setUTCDate(baseCycleDate.getUTCDate() + (i * 28));
+        const option = document.createElement('option');
+        const dateValue = formatDate(cycleStart);
+        option.value = dateValue;
+        option.textContent = formatDisplayDate(dateValue);
+        cycleStartDateSelectElement.appendChild(option);
+    }
+
+    let defaultCycleStartValue = formatDate(baseCycleDate);
+    // Use activeSelectedDateHint if provided and valid, otherwise fallback to today's cycle or base cycle
+    if (activeSelectedDateHint) {
+        const hintDate = new Date(activeSelectedDateHint + 'T00:00:00Z');
+        if (!isNaN(hintDate.getTime())) {
+            const { cycleStart } = getWeekInfoForDate(formatDate(hintDate), baseCycleDate);
+            if (cycleStart) defaultCycleStartValue = cycleStart;
+        } else {
+            console.warn("populateCycleStartDateSelect: activeSelectedDateHint was invalid", activeSelectedDateHint);
+        }
+    } else { // Fallback to today's cycle if no valid hint
+        const todayUTCStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+        for (let i = 0; i < cycleStartDateSelectElement.options.length; i++) {
+            const opt = cycleStartDateSelectElement.options[i];
+            const optDate = new Date(opt.value + "T00:00:00Z");
+            const cycleEndDate = new Date(optDate);
+            cycleEndDate.setUTCDate(optDate.getUTCDate() + 27);
+            if (todayUTCStart >= optDate && todayUTCStart <= cycleEndDate) {
+                defaultCycleStartValue = opt.value;
+                break;
+            }
+        }
+    }
+
+    if (cycleStartDateSelectElement.querySelector(`option[value="${defaultCycleStartValue}"]`)) {
+        cycleStartDateSelectElement.value = defaultCycleStartValue;
+    } else if (cycleStartDateSelectElement.options.length > 0) {
+        // Fallback to a sensible default if the calculated one isn't in the list (e.g. middle option)
+        cycleStartDateSelectElement.selectedIndex = Math.floor(cycleStartDateSelectElement.options.length / 2);
+    }
+    console.log("UI_LOG: Cycle Start Dates populated. Default:", cycleStartDateSelectElement.value);
+}
+
+export function renderDayNavigation(container, dateForNav, onDaySelectCallback) {
+    if (!container) { if (container) container.innerHTML = ''; return; }
+    container.innerHTML = '';
+    if (!dateForNav) { return; } // Don't render if no date context
+
+    const navDiv = document.createElement('div');
+    navDiv.className = 'day-nav-container';
+
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const dayValues = [1, 2, 3, 4, 5, 6, 0]; // 0 for Sunday, 1 for Monday, etc.
+    const activeDayNum = new Date(dateForNav + 'T00:00:00Z').getUTCDay();
+
+    dayValues.forEach((dayVal, index) => {
+        const btn = document.createElement('button');
+        btn.classList.add('button', 'small-action-btn', 'day-nav-btn');
+        btn.textContent = days[index];
+        btn.dataset.dayValue = String(dayVal);
+
+        if (dayVal === activeDayNum) {
+            btn.classList.add('active-day');
+        }
+
+        btn.addEventListener('click', (e) => {
+            const selectedDay = parseInt(e.target.dataset.dayValue);
+            if (onDaySelectCallback) {
+                onDaySelectCallback(selectedDay);
+            }
+        });
+        navDiv.appendChild(btn);
+    });
+    container.appendChild(navDiv);
+}
+
+export function updateCurrentlyViewedWeekDisplay(element, currentReportWeekStartDate) {
+    if (!element) return;
+    if (currentReportWeekStartDate instanceof Date && !isNaN(currentReportWeekStartDate)) {
+        const endDate = new Date(currentReportWeekStartDate);
+        endDate.setUTCDate(currentReportWeekStartDate.getUTCDate() + 6);
+        element.textContent = `Viewing: ${formatDisplayDate(formatDate(currentReportWeekStartDate))} - ${formatDisplayDate(formatDate(endDate))}`;
+    } else {
+        element.textContent = "Week: N/A";
+    }
+}
+
+export function initializeCollapsibleSections(onSectionToggleCallback) {
+    console.log("UI_LOG: Initializing collapsible sections from ui-core.js...");
+    document.querySelectorAll('.collapsible-header').forEach(header => {
+        const contentId = header.getAttribute('aria-controls');
+        const content = document.getElementById(contentId);
+        const indicator = header.querySelector('.collapse-indicator');
+        if (!content) { console.warn(`Collapsible content NOT FOUND for ID: '${contentId}'`); return; }
+
+        // Add collapse button at the bottom if not present
+        if (!content.querySelector('.collapse-bottom-btn')) {
+            const collapseBtnBottom = document.createElement('button');
+            collapseBtnBottom.className = 'button collapse-bottom-btn';
+            collapseBtnBottom.textContent = 'Collapse Section ↑';
+            collapseBtnBottom.addEventListener('click', () => header.click()); // Simulate header click
+            content.appendChild(collapseBtnBottom);
+        }
+
+        // Determine initial state from localStorage or default
+        // Default to collapsed, unless it's lineupContent or dataManagementContent
+        let startCollapsed = true; 
+        if (contentId === 'lineupContent' || contentId === 'dataManagementContent') {
+             // Check localStorage; if not set, lineupContent defaults to open, dataManagementContent to closed.
+            const storedState = localStorage.getItem(`collapsible_${contentId}_collapsed`);
+            if (storedState === null) { // Not in localStorage
+                startCollapsed = (contentId === 'dataManagementContent'); // lineup open, dataManagement closed by default
+            } else {
+                startCollapsed = storedState === 'true';
+            }
+        } else {
+             startCollapsed = localStorage.getItem(`collapsible_${contentId}_collapsed`) !== 'false';
+        }
+
+
+        content.style.display = startCollapsed ? 'none' : 'block';
+        if (indicator) indicator.textContent = startCollapsed ? '+' : '-';
+        header.setAttribute('aria-expanded', String(!startCollapsed));
+
+        header.addEventListener('click', (e) => {
+            // If the click is on a tutorial button, log and prevent collapse, and START THE TUTORIAL
+            if (e.target.closest('.tutorial-btn')) {
+                console.log("UI_LOG: [ui-core.js] Clicked tutorial button. Event target:", e.target);
+                e.preventDefault(); // Prevent any default button action
+                e.stopPropagation(); // Stop event from bubbling to other listeners (like parent h2 trying to collapse)
+
+                const tutorialKey = e.target.closest('.tutorial-btn').dataset.tutorialFor || e.target.closest('.tutorial-btn').dataset.tutorial;
+                console.log(`UI_LOG: [ui-core.js] Attempting to start tutorial with key: ${tutorialKey}`);
+                if (tutorialKey && typeof window.handleStartTutorial === 'function') {
+                    window.handleStartTutorial(tutorialKey);
+                } else {
+                    console.error("UI_LOG: [ui-core.js] Tutorial key not found or window.handleStartTutorial not available.", tutorialKey, typeof window.handleStartTutorial);
+                }
+                return; // Explicitly return to ensure no collapsible logic runs for tutorial button clicks
+            }
+
+            // Regular collapsible logic
+            const isCurrentlyHidden = content.style.display === 'none';
+            console.log(`UI_LOG: [ui-core.js] Header clicked for ${contentId}. Was hidden: ${isCurrentlyHidden}`);
+            content.style.display = isCurrentlyHidden ? 'block' : 'none';
+            if (indicator) indicator.textContent = isCurrentlyHidden ? '-' : '+';
+            header.setAttribute('aria-expanded', String(isCurrentlyHidden));
+            localStorage.setItem(`collapsible_${contentId}_collapsed`, String(!isCurrentlyHidden));
+
+            if (isCurrentlyHidden) { // Content is NOW SHOWN
+                console.log(`UI_LOG: [ui-core.js] Content ${contentId} expanded, triggering updates.`);
+                if (contentId === 'payoutContent') {
+                    if (typeof window.triggerDailyScoopCalculation === 'function') {
+                        window.triggerDailyScoopCalculation();
+                    } else {
+                        console.error('UI_ERROR: [ui-core.js] triggerDailyScoopCalculation function is not defined on window.');
+                    }
+                } else if (contentId === 'weeklyReportContent') {
+                    if (typeof window.triggerWeeklyRewindCalculation === 'function') {
+                        window.triggerWeeklyRewindCalculation();
+                    } else {
+                        console.error('UI_ERROR: [ui-core.js] triggerWeeklyRewindCalculation function is not defined on window.');
+                    }
+                } else if (contentId === 'lineupContent'){
+                    // The applyMasonryLayoutToRoster is imported and can be called directly
+                    // No need for window.applyMasonryLayoutToRoster
+                    if (typeof applyMasonryLayoutToRoster === 'function') {
+                         applyMasonryLayoutToRoster();
+                    } else {
+                        console.error('UI_ERROR: [ui-core.js] applyMasonryLayoutToRoster function is not available.');
+                    }
+                }
+                // Call the generic onSectionToggleCallback if provided
+                if (onSectionToggleCallback) {
+                    onSectionToggleCallback(contentId);
+                }
+            }
+        });
+
+        header.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                header.click();
+            }
+        });
+        if (!header.hasAttribute('tabindex')) header.setAttribute('tabindex', '0');
+    });
+}
+
+export function displayImportStatus(messagesContainer, fileNameDisplay, fileName, messages) {
+    if (fileNameDisplay) {
+        fileNameDisplay.textContent = fileName ? `Selected: ${fileName}` : "No file chosen";
+    }
+    if (messagesContainer) {
+        let html = '';
+        if (messages.success) {
+            html += `<p style="color:green;">${messages.success}</p>`;
+        }
+        if (messages.skipped) {
+            html += `<p style="color:orange;">${messages.skipped}</p>`;
+        }
+        if (messages.errors && messages.errors.length > 0) {
+            html += '<strong>Details:</strong><ul>';
+            messages.errors.forEach(m => html += `<li>${m}</li>`);
+            html += '</ul>';
+        }
+        messagesContainer.innerHTML = html || "<p>Processing complete.</p>";
+    }
+}
+
+export function updateDateDisplays(lineupDateElem, scoopDateElem, dateString) {
+    const displayDate = formatDisplayDate(dateString);
+    if (lineupDateElem) lineupDateElem.textContent = displayDate;
+    if (scoopDateElem) scoopDateElem.textContent = displayDate;
+}
+
+export function switchViewToLineup(lineupSection, formSection, lineupContentId, rosterContainer, employeeRosterData, activeDate, dailyShiftsData, jobPositions) {
+    if (formSection) formSection.style.display = 'none';
+    if (lineupSection) lineupSection.style.display = 'block';
+
+    const lineupContent = document.getElementById(lineupContentId);
+    if (lineupContent && lineupContent.style.display === 'none') {
+        const lineupHeader = lineupContent.previousElementSibling;
+        if (lineupHeader && lineupHeader.classList.contains('collapsible-header')) {
+            lineupHeader.click(); // This will also trigger applyMasonry via the collapsible logic if it's set up
+        } else {
+            lineupContent.style.display = 'block';
+            // Ensure roster functions are available if called directly
+            if (typeof renderEmployeeRoster === 'function' && typeof applyMasonryLayoutToRoster === 'function') {
+                 renderEmployeeRoster(rosterContainer, employeeRosterData, activeDate, dailyShiftsData, jobPositions);
+                 applyMasonryLayoutToRoster(rosterContainer);
+            } else {
+                console.warn("UI-CORE: renderEmployeeRoster or applyMasonryLayoutToRoster not available for switchViewToLineup when forcing display.")
+            }
+        }
+    } else if (lineupContent && lineupContent.style.display === 'block') {
+        // If already visible, still might need to re-render roster if data changed
+        if (typeof renderEmployeeRoster === 'function' && typeof applyMasonryLayoutToRoster === 'function') {
+            renderEmployeeRoster(rosterContainer, employeeRosterData, activeDate, dailyShiftsData, jobPositions);
+            applyMasonryLayoutToRoster(rosterContainer);
+        } else {
+            console.warn("UI-CORE: renderEmployeeRoster or applyMasonryLayoutToRoster not available for switchViewToLineup when re-rendering.")
+        }
+    }
+}

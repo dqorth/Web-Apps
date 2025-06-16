@@ -62,11 +62,14 @@ The bug remains relevant. The initialization sequence in `js/main.js` and the lo
 - **Result:** On application startup, the "Cycle Start" and "Week in Cycle" dropdowns now correctly default to the cycle and week containing the current actual date. The displayed date and highlighted day navigation button also reflect today's date. The application behaves as expected *for UTC*.
 - **Status:** Marked as Fixed (for UTC behavior).
 
-### 2025-06-17: Attempt 2 (Fixed - MDT)
-- **Action:** Completed the transition to MDT for all date/time logic, ensuring startup reflects MDT.
-  - Updated `js/utils.js` with `TARGET_TIMEZONE_IANA = 'America/Denver'` and refactored core date functions (`formatDate`, `formatDisplayDate`, `getMondayOfWeek`, `getWeekInfoForDate`, `findCycleAndWeekForDatePrecise`, `parseDateToMDT`, `addDaysToDate`, `getCurrentMDTDate`, `getDayOfWeekMDT`) to be MDT-aware.
-  - Updated `js/state.js` `BASE_CYCLE_START_DATE` to be MDT midnight (June 2, 2025, 00:00:00 MDT) and `currentSelectedDayOfWeek` to use MDT.
-  - Updated `js/main.js` (`init` function) to use `utils.getCurrentMDTDate()` for `today`, `utils.getDayOfWeekMDT(today)` for `todayDayOfWeek`, and ensured all subsequent logic (like `findCycleAndWeekForDatePrecise`) uses MDT-aware dates and functions. The `populateCycleStartDateSelect` and `calculateAndUpdateCurrentDate` calls now operate within an MDT context.
-  - Updated `js/events/events-date-time.js` (`calculateAndUpdateCurrentDate`, `handlePrevWeek`, `handleNextWeek`) to use MDT-aware utility functions (`utils.parseDateToMDT`, `utils.addDaysToDate`) for all date object creation and manipulation, replacing direct `new Date()` and `setUTCDate()` calls.
-- **Result:** On application startup, the application now correctly defaults to today's date and the corresponding week/cycle *in MDT*. All date displays and calculations throughout the application should now reflect Mountain Daylight Time.
-- **Status:** Marked as Fixed (MDT behavior confirmed).
+### 2025-06-17: Attempt 2 (MDT Implementation - Fixed, but with Regressions)
+- **Action:** Converted all date/time logic to use MDT (America/Denver) timezone. This involved:
+    - Adding `TARGET_TIMEZONE_IANA` to `js/utils.js`.
+    - Updating `formatDate`, `formatDisplayDate`, `getMondayOfWeek`, `getWeekInfoForDate`, `findCycleAndWeekForDatePrecise`, and `getDayOfWeekMDT` in `js/utils.js`.
+    - Updating `BASE_CYCLE_START_DATE` and `currentSelectedDayOfWeek` initialization in `js/state.js`.
+    - Updating `init` in `js/main.js` for MDT-aware date calculations and dropdown defaults.
+- **Result:** This successfully fixed the original issue; the application now correctly defaults to today's date and week in MDT.
+- **Status:** Fixed.
+- **Note on Regressions:** This fix attempt, while successful for this specific bug, introduced two subsequent bugs:
+    - `BUG-20250617-RangeError-toLocaleDateString-weekday`: Caused by an incorrect `toLocaleDateString` option in `js/state.js` during the MDT conversion.
+    - `BUG-20250615-TypeError-getDayOfWeekMDT-not-a-function`: Caused by an issue with importing/calling `getDayOfWeekMDT` in `js/state.js` during the fix for the `RangeError`.

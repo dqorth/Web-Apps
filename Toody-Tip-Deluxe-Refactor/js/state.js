@@ -1,12 +1,30 @@
+import * as utils from './utils.js'; // Import utils
+
 export let employeeRoster = [];
 export let dailyShifts = {};
 
 export const JOB_POSITIONS_AVAILABLE = ["Server", "Busser", "Shake Spinner", "Food Runner", "Host"];
-export const BASE_CYCLE_START_DATE = new Date('2025-06-02T00:00:00Z');
+// Define BASE_CYCLE_START_DATE as an MDT midnight date.
+// For '2025-06-02' MDT, this is '2025-06-02T06:00:00Z' (UTC).
+// Or, more robustly, create it from parts assuming MDT.
+const baseYear = 2025;
+const baseMonth = 5; // June (0-indexed)
+const baseDay = 2;
+// Create a UTC date that corresponds to midnight MDT on June 2, 2025
+// MDT is UTC-6. So, midnight MDT is 06:00 UTC on the same date.
+export const BASE_CYCLE_START_DATE = new Date(Date.UTC(baseYear, baseMonth, baseDay, 6, 0, 0)); 
 
 export let currentReportWeekStartDate = null;
-export let activeSelectedDate = null;
-export let currentSelectedDayOfWeek = new Date().getUTCDay(); // 0 for Sunday, 1 for Monday, etc.
+export let activeSelectedDate = null; // Should store YYYY-MM-DD string representing an MDT date
+
+// Get current day of the week in MDT
+const nowInMDT = new Date(); // Current moment
+const dayOfWeekStringMDT = nowInMDT.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/Denver' });
+const dayMap = { "Sun": 0, "Mon": 1, "Tue": 2, "Wed": 3, "Thu": 4, "Fri": 5, "Sat": 6 };
+// export let currentSelectedDayOfWeek = dayMap[dayOfWeekStringMDT]; // Old way before direct numeric attempt
+
+// Corrected initialization using getDayOfWeekMDT
+export let currentSelectedDayOfWeek = utils.getDayOfWeekMDT(new Date());
 
 // --- TUTORIAL STATE (Potentially move to a tutorial module later) ---
 export let currentTutorialSteps = [];
@@ -52,6 +70,14 @@ export const tutorials = {
         { element: '#loadStateFile', title: 'Restore Your Data', text: "If you need to restore your data from a backup, click here to select the `.json` file you previously saved. This will overwrite ALL current data in the app." }
     ]
 };
+
+// Function to get tutorial data by key
+export function getTutorialData(key) {
+    if (tutorials[key]) {
+        return { key: key, steps: tutorials[key] };
+    }
+    return null;
+}
 
 // --- State Update Functions ---
 export function setEmployeeRoster(newRoster) {
@@ -177,15 +203,61 @@ export function saveStateToLocalStorage() {
 }
 
 // Tutorial state setters
+export function setCurrentTutorial(tutorialKey, stepIndex) {
+    const data = getTutorialData(tutorialKey);
+    if (data) {
+        currentTutorialSteps = data.steps; // Store the array of steps
+        currentTutorialStepIndex = stepIndex;
+        // It might be better to store the whole tutorial object if needed elsewhere
+        // For now, this matches the previous structure of currentTutorialSteps and currentTutorialStepIndex
+    } else {
+        currentTutorialSteps = [];
+        currentTutorialStepIndex = 0;
+    }
+}
+
+export function clearCurrentTutorial() {
+    currentTutorialSteps = [];
+    currentTutorialStepIndex = 0;
+    // currentTutorialTargetElement = null; // Already handled by setCurrentTutorialTargetElement
+    // if (tutorialAnimationId) cancelAnimationFrame(tutorialAnimationId); // Already handled by setTutorialAnimationId
+    // tutorialAnimationId = null;
+}
+
+
+export function getCurrentTutorial() {
+    if (currentTutorialSteps && currentTutorialSteps.length > 0) {
+        // Reconstruct a similar object to what might have been expected
+        // This assumes there was a key stored somewhere or it's not strictly needed by consumers of getCurrentTutorial
+        // For now, let's find the key by comparing steps, which is inefficient but works for the current structure.
+        let tutorialKey = null;
+        for (const key in tutorials) {
+            if (tutorials[key] === currentTutorialSteps) { // Check if it's the same array reference
+                tutorialKey = key;
+                break;
+            }
+        }
+        return {
+            key: tutorialKey, // This might be null if not found by simple reference check
+            steps: currentTutorialSteps,
+            currentStepIndex: currentTutorialStepIndex
+        };
+    }
+    return null;
+}
+
 export function setCurrentTutorialSteps(steps) {
     currentTutorialSteps = steps;
 }
+
 export function setCurrentTutorialStepIndex(index) {
     currentTutorialStepIndex = index;
 }
+
 export function setTutorialAnimationId(id) {
     tutorialAnimationId = id;
 }
+
 export function setCurrentTutorialTargetElement(element) {
     currentTutorialTargetElement = element;
 }

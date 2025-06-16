@@ -6,6 +6,7 @@
     <title>Toody's TipSplit Deluxe!</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -178,69 +179,5 @@
         </div>
     </div>
 </div>
-
-<script>
-    function initializeCollapsibleSections() {
-        console.log("APP_LOG: Initializing collapsible sections...");
-        document.querySelectorAll('.collapsible-header').forEach(header => {
-            const contentId = header.getAttribute('aria-controls');
-            const content = document.getElementById(contentId);
-            const indicator = header.querySelector('.collapse-indicator');
-
-            // Restore previous state from localStorage
-            const isCollapsed = localStorage.getItem(`collapsible_${contentId}_collapsed`) === 'true';
-            content.style.display = isCollapsed ? 'none' : 'block';
-            if (indicator) indicator.textContent = isCollapsed ? '+' : '-';
-            header.setAttribute('aria-expanded', String(!isCollapsed));
-
-            header.addEventListener('click', (e) => {
-                // Prevent tutorial button from triggering collapse
-                // If the click is on a tutorial button, log and prevent collapse, but allow event to propagate
-                if (e.target.closest('.tutorial-btn')) { 
-                    console.log("APP_LOG: Clicked tutorial button, allowing event to propagate for tutorial handler.");
-                    // return; // Allow event to propagate
-                } else {
-                    // Toggle the display of the next sibling element (the content)
-                    const isCurrentlyHidden = content.style.display === 'none';
-                    console.log(`APP_LOG: Header clicked for ${contentId}. Was hidden: ${isCurrentlyHidden}`);
-                    content.style.display = isCurrentlyHidden ? 'block' : 'none';
-                    if(indicator) indicator.textContent = isCurrentlyHidden ? '-' : '+';
-                    header.setAttribute('aria-expanded', String(isCurrentlyHidden));
-                    localStorage.setItem(`collapsible_${contentId}_collapsed`, String(!isCurrentlyHidden));
-
-                    if (isCurrentlyHidden) { // Content is NOW SHOWN
-                        console.log(`APP_LOG: Content ${contentId} expanded, triggering updates.`);
-                        if (contentId === 'payoutContent') {
-                            // ADDED: Check if function exists
-                            if (typeof triggerDailyScoopCalculation === 'function') {
-                                triggerDailyScoopCalculation();
-                            } else {
-                                console.error('Error: triggerDailyScoopCalculation function is not defined.');
-                            }
-                        } else if (contentId === 'weeklyReportContent') {
-                            // ADDED: Check if function exists
-                            if (typeof triggerWeeklyRewindCalculation === 'function') {
-                                triggerWeeklyRewindCalculation();
-                            } else {
-                                console.error('Error: triggerWeeklyRewindCalculation function is not defined.');
-                            }
-                        } else if (contentId === 'lineupContent'){
-                            // ADDED: Check if function exists
-                            if (typeof applyMasonryLayoutToRoster === 'function') {
-                                applyMasonryLayoutToRoster();
-                            } else {
-                                console.error('Error: applyMasonryLayoutToRoster function is not defined.');
-                            }
-                        }
-                    }
-                }
-            });
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeCollapsibleSections();
-    });
-</script>
 
 </html>

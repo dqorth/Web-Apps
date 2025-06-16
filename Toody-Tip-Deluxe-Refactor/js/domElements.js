@@ -1,4 +1,11 @@
 export const domElements = {
+    // Main Navigation Tabs
+    navLineup: document.getElementById('nav-lineup'),
+    navScoop: document.getElementById('nav-scoop'),
+    navWeekly: document.getElementById('nav-weekly'),
+    navRoster: document.getElementById('nav-roster'),
+    navData: document.getElementById('nav-data'),
+
     // Global Date Controls
     cycleStartDateSelect: document.getElementById('cycleStartDateSelect'),
     weekInCycleSelect: document.getElementById('weekInCycleSelect'),
@@ -70,4 +77,14 @@ export const domElements = {
     infoModal: document.getElementById('infoModal'),
     infoMessage: document.getElementById('infoMessage'),
     infoOkBtn: document.getElementById('infoOkBtn'),
+
+    // Navigation Buttons (added for tutorial section visibility)
+    navButtons: {
+        lineup: document.getElementById('nav-lineup'),
+        roster: document.getElementById('nav-roster'),
+        scoop: document.getElementById('nav-scoop'),
+        weekly: document.getElementById('nav-weekly'),
+        data: document.getElementById('nav-data'),
+        // settings: document.getElementById('nav-settings'), // Uncomment if a settings nav item exists
+    },
 };
