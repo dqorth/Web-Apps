@@ -25,7 +25,8 @@ function init() {
   const parts = todayMDTString.split('-');
   const todayAtMDTMidnight = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
   todayAtMDTMidnight.setHours(0,0,0,0);
-  const { cycleStart: cycleStartForToday, weekNum: weekNumForToday } = utils.findCycleAndWeekForDatePrecise(todayAtMDTMidnight, state.state.BASE_CYCLE_START_DATE);
+  // Corrected: Use the directly imported BASE_CYCLE_START_DATE
+  const { cycleStart: cycleStartForToday, weekNum: weekNumForToday } = utils.findCycleAndWeekForDatePrecise(todayAtMDTMidnight, BASE_CYCLE_START_DATE);
 
   populateCycleStartDateSelect(domElements.cycleStartDateSelect, BASE_CYCLE_START_DATE, cycleStartForToday ? cycleStartForToday : state.state.activeSelectedDate);
 
