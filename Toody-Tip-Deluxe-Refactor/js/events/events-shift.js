@@ -160,7 +160,7 @@ function handleDeleteInlineShift(employeeId, positionContext, shiftId) {
             // Fallback: Re-render the entire roster if the specific element isn\'t found.
             // This might happen if the element ID construction logic has an issue or the element was unexpectedly removed.
             // Ensure all arguments are passed correctly, especially jobPositions
-            renderEmployeeRoster(domElements.rosterListContainer, state.employeeRoster, state.activeSelectedDate, state.dailyShifts, state.JOB_POSITIONS_AVAILABLE, handleRosterEmployeeClick, handleEditLoggedShiftSetup);
+            renderEmployeeRoster(domElements.rosterListContainer, state, state.activeSelectedDate);
         }
         applyMasonryLayoutToRoster(domElements.rosterListContainer);
         triggerDailyScoopCalculation(); // Ensure daily scoop is updated after deleting a shift
@@ -184,7 +184,7 @@ function handleCancelInlineShift(employeeId, positionContext, existingShiftData)
         }
     } else {
         console.warn(`Could not find roster LI for empId: ${employeeId}, posKey: ${posKeyForId} during cancel.`);
-        renderEmployeeRoster(domElements.rosterListContainer, state.employeeRoster, state.activeSelectedDate, state.dailyShifts, state.JOB_POSITIONS_AVAILABLE, handleRosterEmployeeClick, handleEditLoggedShiftSetup);
+        renderEmployeeRoster(domElements.rosterListContainer, state, state.activeSelectedDate);
     }
     applyMasonryLayoutToRoster(domElements.rosterListContainer);
 }
@@ -274,7 +274,7 @@ function handleRemoveShiftFromDailyScoop(shiftId, shiftDate, empId, posCtx) {
         triggerDailyScoopCalculation();
         if (shiftDate === state.activeSelectedDate) {
             // Pass all required arguments to renderEmployeeRoster, including callbacks
-            renderEmployeeRoster(domElements.rosterListContainer, state.employeeRoster, state.activeSelectedDate, state.dailyShifts, state.JOB_POSITIONS_AVAILABLE, handleRosterEmployeeClick, handleEditLoggedShiftSetup);
+            renderEmployeeRoster(domElements.rosterListContainer, state, state.activeSelectedDate);
             applyMasonryLayoutToRoster(domElements.rosterListContainer);
         }
     });

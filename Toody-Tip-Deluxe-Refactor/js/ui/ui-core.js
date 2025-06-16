@@ -2,7 +2,7 @@
 
 import { domElements } from '../domElements.js';
 import { formatDate, formatDisplayDate, getMondayOfWeek, getWeekInfoForDate, sortEmployeesByName } from '../utils.js'; // Added sortEmployeesByName
-import { JOB_POSITIONS_AVAILABLE, BASE_CYCLE_START_DATE } from '../state.js';
+import { BASE_CYCLE_START_DATE } from '../state.js'; // Only import BASE_CYCLE_START_DATE if needed
 // Import functions from other UI modules if needed, e.g.:
 import { renderEmployeeRoster, applyMasonryLayoutToRoster } from './ui-roster.js';
 
@@ -235,10 +235,10 @@ export function displayImportStatus(messagesContainer, fileNameDisplay, fileName
     }
 }
 
-export function updateDateDisplays(lineupDateElem, scoopDateElem, dateString) {
-    const displayDate = formatDisplayDate(dateString);
-    if (lineupDateElem) lineupDateElem.textContent = displayDate;
-    if (scoopDateElem) scoopDateElem.textContent = displayDate;
+export function updateDateDisplays(lineupDateElem, scoopDateElem, activeSelectedDate) {
+    console.log('[updateDateDisplays] called with:', { activeSelectedDate });
+    if (lineupDateElem) lineupDateElem.textContent = formatDisplayDate(activeSelectedDate);
+    if (scoopDateElem) scoopDateElem.textContent = formatDisplayDate(activeSelectedDate);
 }
 
 export function switchViewToLineup(lineupSection, formSection, lineupContentId, rosterContainer, employeeRosterData, activeDate, dailyShiftsData, jobPositions) {
@@ -254,7 +254,7 @@ export function switchViewToLineup(lineupSection, formSection, lineupContentId, 
             lineupContent.style.display = 'block';
             // Ensure roster functions are available if called directly
             if (typeof renderEmployeeRoster === 'function' && typeof applyMasonryLayoutToRoster === 'function') {
-                 renderEmployeeRoster(rosterContainer, employeeRosterData, activeDate, dailyShiftsData, jobPositions);
+                 renderEmployeeRoster(rosterContainer, state.state, activeDate);
                  applyMasonryLayoutToRoster(rosterContainer);
             } else {
                 console.warn("UI-CORE: renderEmployeeRoster or applyMasonryLayoutToRoster not available for switchViewToLineup when forcing display.")
@@ -263,7 +263,7 @@ export function switchViewToLineup(lineupSection, formSection, lineupContentId, 
     } else if (lineupContent && lineupContent.style.display === 'block') {
         // If already visible, still might need to re-render roster if data changed
         if (typeof renderEmployeeRoster === 'function' && typeof applyMasonryLayoutToRoster === 'function') {
-            renderEmployeeRoster(rosterContainer, employeeRosterData, activeDate, dailyShiftsData, jobPositions);
+            renderEmployeeRoster(rosterContainer, state.state, activeDate);
             applyMasonryLayoutToRoster(rosterContainer);
         } else {
             console.warn("UI-CORE: renderEmployeeRoster or applyMasonryLayoutToRoster not available for switchViewToLineup when re-rendering.")

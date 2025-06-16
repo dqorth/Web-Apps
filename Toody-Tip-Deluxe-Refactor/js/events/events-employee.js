@@ -156,12 +156,8 @@ export function handleRemoveEmployeeFromMgmtList(empId) {
 
         renderEmployeeRoster(
             domElements.rosterListContainer,
-            state.employeeRoster,
-            state.activeSelectedDate,
-            state.dailyShifts,
-            null, // handleRosterEmployeeClick - will be imported from events-shift.js later
-            null, // handleEditLoggedShiftSetup - will be imported from events-shift.js later
-            state.JOB_POSITIONS_AVAILABLE
+            state,
+            state.activeSelectedDate
         );
         applyMasonryLayoutToRoster(domElements.rosterListContainer);
 

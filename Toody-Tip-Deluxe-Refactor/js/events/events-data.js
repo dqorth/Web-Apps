@@ -1,5 +1,5 @@
 import { domElements } from '../domElements.js';
-import { employeeRoster, dailyShifts, setEmployeeRoster, setDailyShifts } from '../state.js'; // Added setEmployeeRoster, setDailyShifts
+import { state, setEmployeeRoster, setDailyShifts } from '../state.js'; // Use unified state object
 import { calculateAndUpdateCurrentDate } from './events-date-time.js'; // Added for UI refresh
 // import * as ui from '../ui/ui-core.js'; // For ui.showInfoModal, if needed later
 // import XLSX from 'xlsx'; // Future dependency for export
@@ -21,8 +21,8 @@ function handleDownloadState(event) {
     try {
         console.log("EVENT_LOG: [events-data.js] handleDownloadState called.");
         const stateToSave = {
-            employeeRoster: employeeRoster,
-            dailyShifts: dailyShifts
+            employeeRoster: state.employeeRoster,
+            dailyShifts: state.dailyShifts
         };
 
         const jsonData = JSON.stringify(stateToSave, null, 2); // Pretty print JSON

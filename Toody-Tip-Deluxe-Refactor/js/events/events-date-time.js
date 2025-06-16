@@ -12,6 +12,10 @@ import { renderEmployeeRoster, applyMasonryLayoutToRoster } from '../ui/ui-roste
 // calculateAndUpdateCurrentDate is also called by main.js, so it's exported.
 // It's also called by handlePrevWeek/handleNextWeek within this module.
 export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
+    console.log('[calculateAndUpdateCurrentDate] START', {
+        stateActiveSelectedDate: state.state.activeSelectedDate,
+        stateCurrentSelectedDayOfWeek: state.state.currentSelectedDayOfWeek
+    });
     const cycleStartStr = domElements.cycleStartDateSelect.value;
     const weekNum = parseInt(domElements.weekInCycleSelect.value);
 
@@ -20,8 +24,11 @@ export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
         if (domElements.scoopDateDisplay) domElements.scoopDateDisplay.textContent = "Set Cycle Start";
         state.setActiveSelectedDate(null);
         renderDayNavigation(domElements.lineupDayNavContainer, null, calculateAndUpdateCurrentDate);
-        renderEmployeeRoster(domElements.rosterListContainer, state.employeeRoster, state.activeSelectedDate, state.dailyShifts, state.JOB_POSITIONS_AVAILABLE);
+        renderEmployeeRoster(domElements.rosterListContainer, state.state, state.state.activeSelectedDate);
         applyMasonryLayoutToRoster(domElements.rosterListContainer);
+        console.log('[calculateAndUpdateCurrentDate] END (no cycle start)', {
+            stateActiveSelectedDate: state.state.activeSelectedDate
+        });
         return;
     }
     // const cycleStartDateObj = new Date(cycleStartStr + 'T00:00:00Z'); // Old UTC way
@@ -47,9 +54,9 @@ export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
     const targetDate = utils.addDaysToDate(targetWeekMonday, targetDayOffset); // MDT aware
 
     state.setActiveSelectedDate(utils.formatDate(targetDate)); // formatDate is already MDT aware
-    if (domElements.currentDateHiddenInput) domElements.currentDateHiddenInput.value = state.activeSelectedDate;
+    if (domElements.currentDateHiddenInput) domElements.currentDateHiddenInput.value = state.state.activeSelectedDate;
 
-    updateDateDisplays(domElements.lineupDateDisplay, domElements.scoopDateDisplay, state.activeSelectedDate);
+    updateDateDisplays(domElements.lineupDateDisplay, domElements.scoopDateDisplay, state.state.activeSelectedDate);
 
     // getWeekInfoForDate is MDT aware, activeSelectedDate is 'YYYY-MM-DD' MDT
     const currentWeekDateInfo = utils.getWeekInfoForDate(state.activeSelectedDate, state.BASE_CYCLE_START_DATE);
@@ -71,10 +78,13 @@ export function calculateAndUpdateCurrentDate(newDayOfWeekNum = null) {
         updateCurrentlyViewedWeekDisplay(domElements.currentlyViewedWeekDisplay, null);
     }
 
-    renderDayNavigation(domElements.lineupDayNavContainer, state.activeSelectedDate, calculateAndUpdateCurrentDate);
-    renderDayNavigation(domElements.scoopDayNavContainer, state.activeSelectedDate, calculateAndUpdateCurrentDate);
-    renderEmployeeRoster(domElements.rosterListContainer, state.employeeRoster, state.activeSelectedDate, state.dailyShifts, state.JOB_POSITIONS_AVAILABLE);
+    renderDayNavigation(domElements.lineupDayNavContainer, state.state.activeSelectedDate, calculateAndUpdateCurrentDate);
+    renderDayNavigation(domElements.scoopDayNavContainer, state.state.activeSelectedDate, calculateAndUpdateCurrentDate);
+    renderEmployeeRoster(domElements.rosterListContainer, state.state, state.state.activeSelectedDate);
     applyMasonryLayoutToRoster(domElements.rosterListContainer);
+    console.log('[calculateAndUpdateCurrentDate] END', {
+        stateActiveSelectedDate: state.state.activeSelectedDate
+    });
 
     // Conditional calculation triggers will be handled by the view switching logic in events-initialization.js
     // or directly if those views are already active.

@@ -1,6 +1,6 @@
 import { domElements } from '../domElements.js';
 import { formatDate, formatDisplayDate, sortEmployeesByName, formatTimeTo12Hour } from '../utils.js';
-import { JOB_POSITIONS_AVAILABLE } from '../state.js';
+import * as state from '../state.js';
 
 export function renderDailyPayoutResults(payoutResultsContainer, processedShifts, activeDate, onRemoveShiftCallback) {
     if (!payoutResultsContainer) { console.error("UI_LOG: Payout results div not found!"); return; }
@@ -18,7 +18,7 @@ export function renderDailyPayoutResults(payoutResultsContainer, processedShifts
     }, {});
 
     // Assuming JOB_POSITIONS_AVAILABLE is imported or passed
-    const positionOrder = ["Server", "Busser", "Food Runner", "Shake Spinner", "Host", ...JOB_POSITIONS_AVAILABLE.filter(p => !["Server", "Busser", "Food Runner", "Shake Spinner", "Host"].includes(p))];
+    const positionOrder = ["Server", "Busser", "Food Runner", "Shake Spinner", "Host", ...state.state.jobPositions.filter(p => !["Server", "Busser", "Food Runner", "Shake Spinner", "Host"].includes(p))];
 
     positionOrder.forEach(posKey => {
         if (groupedByPosition[posKey] && groupedByPosition[posKey].length > 0) {

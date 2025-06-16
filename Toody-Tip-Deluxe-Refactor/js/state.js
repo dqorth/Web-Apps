@@ -1,9 +1,18 @@
 import * as utils from './utils.js'; // Import utils
 
-export let employeeRoster = [];
-export let dailyShifts = {};
+export let state = {
+    employeeRoster: [],
+    dailyShifts: {},
+    currentReportWeekStartDate: null,
+    activeSelectedDate: null, // Should store YYYY-MM-DD string representing an MDT date
+    currentSelectedDayOfWeek: utils.getDayOfWeekMDT(new Date()),
+    jobPositions: ["Server", "Busser", "Shake Spinner", "Food Runner", "Host"], // <-- Add this line
+    currentTutorialSteps: [],
+    currentTutorialStepIndex: 0,
+    tutorialAnimationId: null,
+    currentTutorialTargetElement: null
+};
 
-export const JOB_POSITIONS_AVAILABLE = ["Server", "Busser", "Shake Spinner", "Food Runner", "Host"];
 // Define BASE_CYCLE_START_DATE as an MDT midnight date.
 // For '2025-06-02' MDT, this is '2025-06-02T06:00:00Z' (UTC).
 // Or, more robustly, create it from parts assuming MDT.
@@ -13,9 +22,6 @@ const baseDay = 2;
 // Create a UTC date that corresponds to midnight MDT on June 2, 2025
 // MDT is UTC-6. So, midnight MDT is 06:00 UTC on the same date.
 export const BASE_CYCLE_START_DATE = new Date(Date.UTC(baseYear, baseMonth, baseDay, 6, 0, 0)); 
-
-export let currentReportWeekStartDate = null;
-export let activeSelectedDate = null; // Should store YYYY-MM-DD string representing an MDT date
 
 // Get current day of the week in MDT
 const nowInMDT = new Date(); // Current moment
@@ -81,50 +87,50 @@ export function getTutorialData(key) {
 
 // --- State Update Functions ---
 export function setEmployeeRoster(newRoster) {
-    employeeRoster = newRoster;
+    state.employeeRoster = newRoster;
     saveStateToLocalStorage();
 }
 
 export function setDailyShifts(newShifts) {
-    dailyShifts = newShifts;
+    state.dailyShifts = newShifts;
     saveStateToLocalStorage();
 }
 
 export function updateEmployeeInRoster(updatedEmployee) {
-    const index = employeeRoster.findIndex(emp => emp.id === updatedEmployee.id);
+    const index = state.employeeRoster.findIndex(emp => emp.id === updatedEmployee.id);
     if (index !== -1) {
-        employeeRoster[index] = updatedEmployee;
+        state.employeeRoster[index] = updatedEmployee;
         saveStateToLocalStorage();
     }
 }
 
 export function addEmployeeToRoster(newEmployee) {
-    employeeRoster.push(newEmployee);
+    state.employeeRoster.push(newEmployee);
     saveStateToLocalStorage();
 }
 
 export function removeEmployeeFromRoster(employeeId) {
-    employeeRoster = employeeRoster.filter(emp => emp.id !== employeeId);
+    state.employeeRoster = state.employeeRoster.filter(emp => emp.id !== employeeId);
     // Also remove their shifts for the active day if any
-    if (activeSelectedDate && dailyShifts[activeSelectedDate]) {
-        dailyShifts[activeSelectedDate] = dailyShifts[activeSelectedDate].filter(s => s.employeeId !== employeeId);
-        if (dailyShifts[activeSelectedDate].length === 0) {
-            delete dailyShifts[activeSelectedDate];
+    if (state.activeSelectedDate && state.dailyShifts[state.activeSelectedDate]) {
+        state.dailyShifts[state.activeSelectedDate] = state.dailyShifts[state.activeSelectedDate].filter(s => s.employeeId !== employeeId);
+        if (state.dailyShifts[state.activeSelectedDate].length === 0) {
+            delete state.dailyShifts[state.activeSelectedDate];
         }
     }
     saveStateToLocalStorage();
 }
 
 export function getEmployeeById(employeeId) {
-    return employeeRoster.find(emp => emp.id === employeeId);
+    return state.employeeRoster.find(emp => emp.id === employeeId);
 }
 
 export function addOrUpdateShift(shiftData) {
     const { date, employeeId, positionWorked } = shiftData; // Added employeeId and positionWorked for new shift ID
     let { id } = shiftData; // id can be null for new shifts
 
-    if (!dailyShifts[date]) {
-        dailyShifts[date] = [];
+    if (!state.dailyShifts[date]) {
+        state.dailyShifts[date] = [];
     }
 
     // Generate a unique ID for new shifts
@@ -134,7 +140,7 @@ export function addOrUpdateShift(shiftData) {
     }
     
     // Retrieve employee details for the shift
-    const employee = employeeRoster.find(emp => emp.id === employeeId);
+    const employee = state.employeeRoster.find(emp => emp.id === employeeId);
     if (employee) {
         shiftData.employeeName = employee.name;
         // Correctly access payRate from employee.payRates object
@@ -151,54 +157,54 @@ export function addOrUpdateShift(shiftData) {
     }
 
 
-    const existingShiftIndex = dailyShifts[date].findIndex(s => s.id === id);
+    const existingShiftIndex = state.dailyShifts[date].findIndex(s => s.id === id);
     if (existingShiftIndex !== -1) {
-        dailyShifts[date][existingShiftIndex] = { ...dailyShifts[date][existingShiftIndex], ...shiftData };
+        state.dailyShifts[date][existingShiftIndex] = { ...state.dailyShifts[date][existingShiftIndex], ...shiftData };
     } else {
-        dailyShifts[date].push(shiftData);
+        state.dailyShifts[date].push(shiftData);
     }
     saveStateToLocalStorage();
     // Return the modified (potentially with new ID, name, payrate) or original shiftData object
-    return dailyShifts[date].find(s => s.id === id); 
+    return state.dailyShifts[date].find(s => s.id === id); 
 }
 
 export function removeShift(date, shiftId) {
-    if (dailyShifts[date]) {
-        dailyShifts[date] = dailyShifts[date].filter(s => s.id !== shiftId);
-        if (dailyShifts[date].length === 0) {
-            delete dailyShifts[date];
+    if (state.dailyShifts[date]) {
+        state.dailyShifts[date] = state.dailyShifts[date].filter(s => s.id !== shiftId);
+        if (state.dailyShifts[date].length === 0) {
+            delete state.dailyShifts[date];
         }
         saveStateToLocalStorage();
     }
 }
 
 export function setActiveSelectedDate(newDate) {
-    activeSelectedDate = newDate;
+    state.activeSelectedDate = newDate;
 }
 
 export function setCurrentSelectedDayOfWeek(newDayOfWeek) {
-    currentSelectedDayOfWeek = newDayOfWeek;
+    state.currentSelectedDayOfWeek = newDayOfWeek;
 }
 
 export function setCurrentReportWeekStartDate(newDate) {
-    currentReportWeekStartDate = newDate;
+    state.currentReportWeekStartDate = newDate;
 }
 
 export function loadStateFromLocalStorage() {
     const storedRoster = localStorage.getItem('dinerTipSplit_employeeRosterV2');
     if (storedRoster) {
-        employeeRoster = JSON.parse(storedRoster);
+        state.employeeRoster = JSON.parse(storedRoster);
     }
     const storedShifts = localStorage.getItem('dinerTipSplit_dailyShiftsV2');
     if (storedShifts) {
-        dailyShifts = JSON.parse(storedShifts);
+        state.dailyShifts = JSON.parse(storedShifts);
     }
     console.log("APP_LOG: State loaded from Local Storage.");
 }
 
 export function saveStateToLocalStorage() {
-    localStorage.setItem('dinerTipSplit_employeeRosterV2', JSON.stringify(employeeRoster));
-    localStorage.setItem('dinerTipSplit_dailyShiftsV2', JSON.stringify(dailyShifts));
+    localStorage.setItem('dinerTipSplit_employeeRosterV2', JSON.stringify(state.employeeRoster));
+    localStorage.setItem('dinerTipSplit_dailyShiftsV2', JSON.stringify(state.dailyShifts));
     console.log("APP_LOG: State saved to Local Storage.");
 }
 
@@ -206,19 +212,19 @@ export function saveStateToLocalStorage() {
 export function setCurrentTutorial(tutorialKey, stepIndex) {
     const data = getTutorialData(tutorialKey);
     if (data) {
-        currentTutorialSteps = data.steps; // Store the array of steps
-        currentTutorialStepIndex = stepIndex;
+        state.currentTutorialSteps = data.steps; // Store the array of steps
+        state.currentTutorialStepIndex = stepIndex;
         // It might be better to store the whole tutorial object if needed elsewhere
         // For now, this matches the previous structure of currentTutorialSteps and currentTutorialStepIndex
     } else {
-        currentTutorialSteps = [];
-        currentTutorialStepIndex = 0;
+        state.currentTutorialSteps = [];
+        state.currentTutorialStepIndex = 0;
     }
 }
 
 export function clearCurrentTutorial() {
-    currentTutorialSteps = [];
-    currentTutorialStepIndex = 0;
+    state.currentTutorialSteps = [];
+    state.currentTutorialStepIndex = 0;
     // currentTutorialTargetElement = null; // Already handled by setCurrentTutorialTargetElement
     // if (tutorialAnimationId) cancelAnimationFrame(tutorialAnimationId); // Already handled by setTutorialAnimationId
     // tutorialAnimationId = null;
@@ -226,41 +232,41 @@ export function clearCurrentTutorial() {
 
 
 export function getCurrentTutorial() {
-    if (currentTutorialSteps && currentTutorialSteps.length > 0) {
+    if (state.currentTutorialSteps && state.currentTutorialSteps.length > 0) {
         // Reconstruct a similar object to what might have been expected
         // This assumes there was a key stored somewhere or it's not strictly needed by consumers of getCurrentTutorial
         // For now, let's find the key by comparing steps, which is inefficient but works for the current structure.
         let tutorialKey = null;
         for (const key in tutorials) {
-            if (tutorials[key] === currentTutorialSteps) { // Check if it's the same array reference
+            if (tutorials[key] === state.currentTutorialSteps) { // Check if it's the same array reference
                 tutorialKey = key;
                 break;
             }
         }
         return {
             key: tutorialKey, // This might be null if not found by simple reference check
-            steps: currentTutorialSteps,
-            currentStepIndex: currentTutorialStepIndex
+            steps: state.currentTutorialSteps,
+            currentStepIndex: state.currentTutorialStepIndex
         };
     }
     return null;
 }
 
 export function setCurrentTutorialSteps(steps) {
-    currentTutorialSteps = steps;
+    state.currentTutorialSteps = steps;
 }
 
 export function setCurrentTutorialStepIndex(index) {
-    currentTutorialStepIndex = index;
+    state.currentTutorialStepIndex = index;
 }
 
 export function setTutorialAnimationId(id) {
-    tutorialAnimationId = id;
+    state.tutorialAnimationId = id;
 }
 
 export function setCurrentTutorialTargetElement(element) {
-    currentTutorialTargetElement = element;
+    state.currentTutorialTargetElement = element;
 }
 
 // Initial load
-loadStateFromLocalStorage();
+// loadStateFromLocalStorage(); // REMOVE this line, only call from main.js

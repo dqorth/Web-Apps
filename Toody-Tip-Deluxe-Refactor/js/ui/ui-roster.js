@@ -1,8 +1,16 @@
 import { sortEmployeesByName, formatTimeTo12Hour, calculateHoursWorked } from '../utils.js';
 // import { domElements } from '../domElements.js'; // Add if direct DOM element access from domElements.js is needed
 
-export function renderEmployeeRoster(rosterContainer, employeeRosterData, activeDate, dailyShiftsData, jobPositions) {
-    console.log('[ui-roster.js] renderEmployeeRoster - ActiveDate:', activeDate, 'DailyShiftsData for this date:', JSON.parse(JSON.stringify(dailyShiftsData))); // Diagnostic
+export function renderEmployeeRoster(rosterContainer, state, activeDate) {
+    const { employeeRoster, dailyShifts } = state;
+    // Defensive: avoid JSON.parse on undefined
+    let dailyShiftsLog;
+    try {
+        dailyShiftsLog = dailyShifts ? JSON.parse(JSON.stringify(dailyShifts)) : '{}';
+    } catch (e) {
+        dailyShiftsLog = '[unserializable]';
+    }
+    console.log('[ui-roster.js] renderEmployeeRoster - ActiveDate:', activeDate, 'DailyShiftsData for this date:', dailyShiftsLog); // Diagnostic
     if (!rosterContainer) { console.error("UI_LOG: Roster list container not found!"); return; }
     rosterContainer.innerHTML = '';
     if (!activeDate) {
@@ -10,10 +18,12 @@ export function renderEmployeeRoster(rosterContainer, employeeRosterData, active
         return;
     }
 
+    // Defensive: ensure jobPositions exists
+    const jobPositions = state.jobPositions || ["Server", "Busser", "Shake Spinner", "Food Runner", "Host"];
     const positionDisplayOrder = ["Server", "Busser", "Food Runner", "Shake Spinner", "Host", ...jobPositions.filter(p => !["Server", "Busser", "Food Runner", "Shake Spinner", "Host"].includes(p))];
 
     positionDisplayOrder.forEach(posKey => {
-        const employeesInThisPosition = employeeRosterData.filter(emp => emp.positions.includes(posKey));
+        const employeesInThisPosition = employeeRoster.filter(emp => emp.positions.includes(posKey));
         if (employeesInThisPosition.length > 0) {
             const positionGroupDiv = document.createElement('div');
             positionGroupDiv.className = 'roster-position-group';
@@ -56,7 +66,7 @@ export function renderEmployeeRoster(rosterContainer, employeeRosterData, active
                 ul.appendChild(li);
 
                 let existingShift = null;
-                const shiftsForDay = dailyShiftsData[activeDate];
+                const shiftsForDay = dailyShifts[activeDate];
                 if (shiftsForDay) {
                     existingShift = shiftsForDay.find(s => s.employeeId === emp.id && s.positionWorked === posKey);
                 }
