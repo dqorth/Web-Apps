@@ -2,7 +2,7 @@ import { domElements } from '../domElements.js';
 import * as state from '../state.js';
 import * as utils from '../utils.js';
 import * as calculations from '../calculations.js';
-import { renderDailyPayoutResults, generateWeeklyReportContentUI } from '../ui/ui-data-reports.js';
+import { renderDailyPayoutResults, generateWeeklyReportContentUI, ensureDayHeaderEventListeners } from '../ui/ui-data-reports.js';
 import { handleRemoveShiftFromDailyScoop, handleEditLoggedShiftSetup } from './events-shift.js';
 import { switchView } from '../ui/ui-core.js'; // Added import for switchView
 
@@ -71,7 +71,14 @@ export function generateWeeklyReportContent() {
     // Placeholder for now, assuming it will be available in the global scope or passed if necessary.
     const handleEditShiftCallback = typeof handleEditLoggedShiftSetup !== 'undefined' ? handleEditLoggedShiftSetup : () => console.warn("handleEditLoggedShiftSetup not yet available to generateWeeklyReportContentUI");
 
-    generateWeeklyReportContentUI(domElements.reportOutputDiv, weeklyEmployeeSummaryData, processedDailyShiftsForWeek, state.state.currentReportWeekStartDate, state.state.jobPositions, handleEditShiftCallback);    // Show/hide export button based on whether there's data to export (matching original app logic)
+    generateWeeklyReportContentUI(domElements.reportOutputDiv, weeklyEmployeeSummaryData, processedDailyShiftsForWeek, state.state.currentReportWeekStartDate, state.state.jobPositions, handleEditShiftCallback);    
+    
+    // Ensure day header event listeners are attached after content generation
+    setTimeout(() => {
+        ensureDayHeaderEventListeners();
+    }, 100);
+    
+    // Show/hide export button based on whether there's data to export (matching original app logic)
     if (domElements.exportWeeklyCSVBtn) {
         const daysWithData = processedDailyShiftsForWeek ? Object.keys(processedDailyShiftsForWeek).filter(date => 
             processedDailyShiftsForWeek[date] && processedDailyShiftsForWeek[date].length > 0

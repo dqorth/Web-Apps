@@ -173,7 +173,8 @@ export function updateCurrentlyViewedWeekDisplay(element, currentReportWeekStart
 
 export function initializeCollapsibleSections(onSectionToggleCallback) {
     // console.log("UI_LOG: Initializing collapsible sections from ui-core.js...");
-    document.querySelectorAll('.collapsible-header').forEach(header => {
+    // Exclude day headers from global collapsible initialization - they have their own logic
+    document.querySelectorAll('.collapsible-header:not(.report-day-header)').forEach(header => {
         const contentId = header.getAttribute('aria-controls');
         const content = document.getElementById(contentId);
         const indicator = header.querySelector('.collapse-indicator');

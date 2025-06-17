@@ -14,19 +14,18 @@ export function renderDefaultPayRatesUI() {
     }
 
     const container = domElements.defaultPayRatesContainer;
-    console.log("UI_LOG: Container found, clearing innerHTML");
-    container.innerHTML = '';    const defaultRates = state.getDefaultPayRates();
+    container.innerHTML = '';
+
+    const defaultRates = state.getDefaultPayRates();
     const jobPositions = state.state.jobPositions;
     console.log("UI_LOG: Default rates:", defaultRates);
     console.log("UI_LOG: Job positions:", jobPositions);
 
-    if (!jobPositions || jobPositions.length === 0) {
-        console.error("UI_LOG: No job positions found!");
-        container.innerHTML = '<p style="color: red;">No job positions configured. Please check the state.</p>';
+    if (!Array.isArray(jobPositions) || jobPositions.length === 0) {
+        container.innerHTML = '<p style="color: red;">No job positions found. Please check your configuration or reload the page.</p>';
+        console.warn("UI_LOG: No job positions found! jobPositions:", jobPositions);
         return;
     }
-
-    console.log("UI_LOG: About to create", jobPositions.length, "pay rate inputs");
 
     jobPositions.forEach((position, index) => {
         console.log(`UI_LOG: Creating input ${index + 1} for position: ${position}`);
