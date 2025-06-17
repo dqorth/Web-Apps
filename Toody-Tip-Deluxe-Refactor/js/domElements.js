@@ -49,10 +49,10 @@ export const domElements = {
     nextWeekBtn: document.getElementById('nextWeekBtn'),
     currentlyViewedWeekDisplay: document.getElementById('currentlyViewedWeekDisplay'),
     exportWeeklyCSVBtn: document.getElementById('exportWeeklyCSVBtn'),
-    reportOutputDiv: document.getElementById('reportOutput'), // Corrected from reportOutput
-
-    // Data Management View
+    reportOutputDiv: document.getElementById('reportOutput'), // Corrected from reportOutput    // Data Management View
     dataManagementSection: document.getElementById('dataManagementSection'),
+    defaultPayRatesContainer: document.getElementById('defaultPayRatesContainer'),
+    saveDefaultPayRatesBtn: document.getElementById('saveDefaultPayRatesBtn'),
     downloadStateBtn: document.getElementById('downloadStateBtn'),
     loadStateFileInput: document.getElementById('loadStateFile'), // Corrected from loadStateFile
 
@@ -65,14 +65,12 @@ export const domElements = {
     tutorialPrevBtn: document.getElementById('tutorial-prev-btn'),
     tutorialStepCounter: document.getElementById('tutorial-step-counter'),
     tutorialNextBtn: document.getElementById('tutorial-next-btn'),
-    tutorialCloseBtn: document.getElementById('tutorial-close-btn'),
-
-    // Confirmation Modal
+    tutorialCloseBtn: document.getElementById('tutorial-close-btn'),    // Confirmation Modal
     confirmRemoveModal: document.getElementById('confirmRemoveModal'),
     confirmRemoveMessage: document.getElementById('confirmRemoveMessage'),
     confirmRemoveBtn: document.getElementById('confirmRemoveBtn'),
     cancelRemoveBtn: document.getElementById('cancelRemoveBtn'),
-
+    
     // Info Modal
     infoModal: document.getElementById('infoModal'),
     infoMessage: document.getElementById('infoMessage'),

@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toody's TipSplit Deluxe!</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">    <link rel="stylesheet" href="css/styles.css">
+    <!-- ExcelJS Library for Professional XLSX Export with Styling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -131,13 +131,26 @@
                 Settings &amp; Data Management
                 <button class="button tutorial-btn" data-tutorial-for="data">How-To</button>
                 <span class="collapse-indicator">+</span>
-            </h2>
-            <div class="collapsible-content" id="dataManagementContent" style="display: none;">
-                <p>Here you can download all your data (roster and shifts) to a file for backup, or load a previously saved file to restore your state.</p>
-                <div style="display:flex; flex-wrap:wrap; gap: 15px; margin-top:15px;">
-                    <button id="downloadStateBtn" class="button">Download Save Data</button>
-                    <label for="loadStateFile" class="button" style="background-color: #4CAF50;">Load Save Data</label>
-                    <input type="file" id="loadStateFile" accept=".json" style="display: none;">
+            </h2>            <div class="collapsible-content" id="dataManagementContent" style="display: none;">
+                <!-- Default Pay Rates Section -->
+                <div class="settings-subsection">
+                    <h3>Default Pay Rates</h3>
+                    <p>Set default pay rates for each position. These will auto-populate when adding new employees.</p>
+                    <div id="defaultPayRatesContainer" class="default-pay-rates-container">
+                        <!-- Default pay rate inputs will be generated here -->
+                    </div>
+                    <button id="saveDefaultPayRatesBtn" class="button" style="background-color: #4CAF50; margin-top: 10px;">Save Default Pay Rates</button>
+                </div>
+
+                <!-- Data Management Section -->
+                <div class="settings-subsection" style="margin-top: 30px;">
+                    <h3>Data Management</h3>
+                    <p>Here you can download all your data (roster and shifts) to a file for backup, or load a previously saved file to restore your state.</p>
+                    <div style="display:flex; flex-wrap:wrap; gap: 15px; margin-top:15px;">
+                        <button id="downloadStateBtn" class="button">Download Save Data</button>
+                        <label for="loadStateFile" class="button" style="background-color: #4CAF50;">Load Save Data</label>
+                        <input type="file" id="loadStateFile" accept=".json" style="display: none;">
+                    </div>
                 </div>
             </div>
         </div>

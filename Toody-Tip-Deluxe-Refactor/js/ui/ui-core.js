@@ -186,42 +186,20 @@ export function initializeCollapsibleSections(onSectionToggleCallback) {
             collapseBtnBottom.textContent = 'Collapse Section ↑';
             collapseBtnBottom.addEventListener('click', () => header.click()); // Simulate header click
             content.appendChild(collapseBtnBottom);
-        }
-
-        // Determine initial state from localStorage or default
-        // Default to collapsed, unless it's lineupContent or dataManagementContent
-        let startCollapsed = true; 
-        if (contentId === 'lineupContent' || contentId === 'dataManagementContent') {
-             // Check localStorage; if not set, lineupContent defaults to open, dataManagementContent to closed.
-            const storedState = localStorage.getItem(`collapsible_${contentId}_collapsed`);
-            if (storedState === null) { // Not in localStorage
-                startCollapsed = (contentId === 'dataManagementContent'); // lineup open, dataManagement closed by default
-            } else {
-                startCollapsed = storedState === 'true';
-            }
-        } else {
-             startCollapsed = localStorage.getItem(`collapsible_${contentId}_collapsed`) !== 'false';
-        }
+        }        // Determine initial state from localStorage or default
+        // Default ALL sections to collapsed unless specifically overridden by localStorage
+        const storedState = localStorage.getItem(`collapsible_${contentId}_collapsed`);
+        const startCollapsed = storedState !== 'false'; // Collapsed unless localStorage explicitly says 'false'
 
 
         content.style.display = startCollapsed ? 'none' : 'block';
         if (indicator) indicator.textContent = startCollapsed ? '+' : '-';
-        header.setAttribute('aria-expanded', String(!startCollapsed));
-
-        header.addEventListener('click', (e) => {
-            // If the click is on a tutorial button, log and prevent collapse, and START THE TUTORIAL
+        header.setAttribute('aria-expanded', String(!startCollapsed));        header.addEventListener('click', (e) => {
+            // Tutorial buttons are now handled by event delegation in events-initialization.js
+            // If the click is on a tutorial button, prevent collapse but don't handle the tutorial here
             if (e.target.closest('.tutorial-btn')) {
-                // console.log("UI_LOG: [ui-core.js] Clicked tutorial button. Event target:", e.target);
                 e.preventDefault(); // Prevent any default button action
                 e.stopPropagation(); // Stop event from bubbling to other listeners (like parent h2 trying to collapse)
-
-                const tutorialKey = e.target.closest('.tutorial-btn').dataset.tutorialFor || e.target.closest('.tutorial-btn').dataset.tutorial;
-                // console.log(`UI_LOG: [ui-core.js] Attempting to start tutorial with key: ${tutorialKey}`);
-                if (tutorialKey && typeof window.handleStartTutorial === 'function') {
-                    window.handleStartTutorial(tutorialKey);
-                } else {
-                    console.error("UI_LOG: [ui-core.js] Tutorial key not found or window.handleStartTutorial not available.", tutorialKey, typeof window.handleStartTutorial);
-                }
                 return; // Explicitly return to ensure no collapsible logic runs for tutorial button clicks
             }
 

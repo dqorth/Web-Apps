@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Button Test</title>
+</head>
+<body>
+    <h1>Tutorial Button Test</h1>
+    
+    <div>
+        <h2>Test 1: Direct Button Click</h2>
+        <button class="button tutorial-btn" data-tutorial-for="roster">How-To (Roster)</button>
+        <button class="button tutorial-btn" data-tutorial-for="lineup">How-To (Lineup)</button>
+    </div>
+    
+    <div>
+        <h2>Test 2: Inside Collapsible (like original)</h2>
+        <details>
+            <summary>
+                Section Header
+                <button class="button tutorial-btn" data-tutorial-for="scoop">How-To (Scoop)</button>
+            </summary>
+            <p>Content inside collapsible section</p>
+        </details>
+    </div>
+    
+    <div id="console-output">
+        <h3>Console Output:</h3>
+        <div id="output"></div>
+    </div>
+
+    <script type="module">
+        // Import the tutorial function
+        import { handleStartTutorial } from './js/events/events-tutorial.js';
+        
+        // Set up button handlers like the app does
+        document.querySelectorAll('.tutorial-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const tutorialKey = e.target.dataset.tutorialFor;
+                if (tutorialKey) {
+                    const output = document.getElementById('output');
+                    const newLine = document.createElement('div');
+                    newLine.textContent = `Tutorial button clicked: ${tutorialKey}`;
+                    output.appendChild(newLine);
+                    
+                    // Try to call the tutorial function
+                    try {
+                        handleStartTutorial(tutorialKey);
+                        newLine.textContent += ' - SUCCESS';
+                        newLine.style.color = 'green';
+                    } catch (error) {
+                        newLine.textContent += ` - ERROR: ${error.message}`;
+                        newLine.style.color = 'red';
+                    }
+                }
+            });
+        });
+        
+        console.log('Tutorial button test initialized');
+    </script>
+</body>
+</html>

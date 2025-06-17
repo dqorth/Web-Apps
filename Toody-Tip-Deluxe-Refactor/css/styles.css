@@ -500,15 +500,14 @@
             background-color: rgba(0, 0, 0, 0.7);
             z-index: 9998;
             display: none; /* Hidden by default */
-        }
-        #tutorial-highlight-box {
+        }        #tutorial-highlight-box {
             position: fixed;
             z-index: 9999;
             border: 3px dashed var(--primary-red);
             background-color: rgba(229, 57, 53, 0.1);
             border-radius: var(--border-radius);
             box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
-            transition: all 0.3s ease-in-out;
+            transition: top 0.3s ease-in-out, left 0.3s ease-in-out, width 0.3s ease-in-out, height 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
             pointer-events: none; /* Allows clicking through */
         }
         #tutorial-text-box {
@@ -523,7 +522,7 @@
             max-width: 350px;
             font-size: 1em;
             line-height: 1.5;
-            transition: top 0.3s ease-in-out, left 0.3s ease-in-out;
+            transition: top 0.3s ease-in-out, left 0.3s ease-in-out, opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
         }
         #tutorial-text-box h4 {
             font-family: var(--font-display);
@@ -545,4 +544,55 @@
         #tutorial-step-counter {
             font-size: 0.9em;
             font-weight: bold;
+        }
+
+        /* Settings Subsections */
+        .settings-subsection {
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            background-color: #f9f9f9;
+            margin-bottom: 15px;
+        }
+        
+        .settings-subsection h3 {
+            font-family: var(--font-display);
+            color: var(--primary-red);
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+        
+        .default-pay-rates-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .default-pay-rate-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .default-pay-rate-item label {
+            font-weight: 600;
+            color: var(--accent-black);
+            font-size: 0.95em;
+        }
+        
+        .default-pay-rate-item input {
+            padding: var(--input-padding);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            background-color: var(--pure-white);
+            transition: border-color 0.3s ease;
+        }
+        
+        .default-pay-rate-item input:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 5px rgba(229, 57, 53, 0.3);
         }

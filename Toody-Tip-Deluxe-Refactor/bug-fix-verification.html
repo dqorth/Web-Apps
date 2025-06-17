@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bug Fix Verification Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { border: 1px solid #ddd; padding: 20px; margin: 10px 0; }
+        .success { color: green; font-weight: bold; }
+        .failure { color: red; font-weight: bold; }
+        .pending { color: orange; font-weight: bold; }
+        .test-step { margin: 10px 0; padding: 10px; background: #f9f9f9; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        iframe { width: 100%; height: 600px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h1>Bug Fix Verification Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Instructions</h2>
+        <p>This page will help you verify that all the bug fixes are working correctly.</p>
+        <button onclick="openMainApp()">Open Main App in New Tab</button>
+        <button onclick="loadAppInFrame()">Load App in Frame Below</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Checklist</h2>
+        
+        <div class="test-step">
+            <strong>Test 1: Collapsible Sections Default State</strong>
+            <ul>
+                <li>Load the main application</li>
+                <li>Verify all sections ("The Lineup", "The Weekly Rewind", "Settings & Data Management") are collapsed on load</li>
+                <li>Only headers should be visible with "+" indicators</li>
+            </ul>
+            <label>
+                <input type="checkbox" id="test1"> 
+                <span class="pending">✓ All sections collapsed on load</span>
+            </label>
+        </div>
+
+        <div class="test-step">
+            <strong>Test 2: Data Management Tutorial ActionsBefore</strong>
+            <ul>
+                <li>Ensure "Settings & Data Management" section is collapsed</li>
+                <li>Click the "How-To" button in the "Settings & Data Management" header</li>
+                <li>Verify the section automatically expands before highlighting the Download State button</li>
+            </ul>
+            <label>
+                <input type="checkbox" id="test2"> 
+                <span class="pending">✓ Data tutorial auto-expands section</span>
+            </label>
+        </div>
+
+        <div class="test-step">
+            <strong>Test 3: Weekly Report Tutorial ActionsBefore</strong>
+            <ul>
+                <li>Ensure "The Weekly Rewind" section is collapsed</li>
+                <li>Click the "How-To" button in the "The Weekly Rewind" header</li>
+                <li>Verify the section automatically expands before highlighting navigation elements</li>
+            </ul>
+            <label>
+                <input type="checkbox" id="test3"> 
+                <span class="pending">✓ Weekly tutorial auto-expands section</span>
+            </label>
+        </div>
+
+        <div class="test-step">
+            <strong>Test 4: Weekly Export Button Visibility</strong>
+            <ul>
+                <li>Add multiple employees to the roster</li>
+                <li>Log shifts for at least 2 different days</li>
+                <li>Navigate to "The Weekly Rewind" section</li>
+                <li>Verify the "Export This Week" button appears when there are multiple days of data</li>
+            </ul>
+            <label>
+                <input type="checkbox" id="test4"> 
+                <span class="pending">✓ Export button appears with sufficient data</span>
+            </label>
+        </div>
+
+        <div class="test-step">
+            <strong>Test 5: Tutorial Text Box Positioning</strong>
+            <ul>
+                <li>Start any tutorial</li>
+                <li>Verify tutorial text boxes don't overlap the highlighted elements</li>
+                <li>Check that text boxes are positioned clearly visible</li>
+            </ul>
+            <label>
+                <input type="checkbox" id="test5"> 
+                <span class="pending">✓ Tutorial text boxes positioned correctly</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results Summary</h2>
+        <div id="results-summary">
+            <p>Complete the tests above to see results...</p>
+        </div>
+        <button onclick="generateReport()">Generate Bug Report Updates</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Application Frame</h2>
+        <iframe id="app-frame" src="" style="display: none;"></iframe>
+    </div>
+
+    <script>
+        function openMainApp() {
+            window.open('index.html', '_blank');
+        }
+
+        function loadAppInFrame() {
+            const frame = document.getElementById('app-frame');
+            frame.src = 'index.html';
+            frame.style.display = 'block';
+        }
+
+        function updateTestResult(testId, passed) {
+            const checkbox = document.getElementById(testId);
+            const span = checkbox.nextElementSibling;
+            if (passed) {
+                span.className = 'success';
+                span.textContent = span.textContent.replace('✓', '✅');
+                checkbox.checked = true;
+            } else {
+                span.className = 'failure';
+                span.textContent = span.textContent.replace('✓', '❌');
+                checkbox.checked = false;
+            }
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const total = checkboxes.length;
+            const passed = Array.from(checkboxes).filter(cb => cb.checked).length;
+            
+            const summary = document.getElementById('results-summary');
+            summary.innerHTML = `
+                <p><strong>Test Results: ${passed}/${total} tests passed</strong></p>
+                <p>Status: ${passed === total ? 
+                    '<span class="success">All bugs fixed! ✅</span>' : 
+                    '<span class="pending">Some issues remain</span>'}</p>
+            `;
+        }
+
+        function generateReport() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const results = Array.from(checkboxes).map((cb, index) => ({
+                test: `Test ${index + 1}`,
+                passed: cb.checked,
+                description: cb.nextElementSibling.textContent
+            }));
+
+            console.log('=== BUG FIX VERIFICATION REPORT ===');
+            results.forEach(result => {
+                console.log(`${result.test}: ${result.passed ? 'PASS' : 'FAIL'} - ${result.description}`);
+            });
+
+            alert('Check the browser console for the detailed test report that can be added to bug tracking logs.');
+        }
+
+        // Auto-check tests every few seconds for demo purposes
+        // In real testing, users would manually check these
+        document.addEventListener('DOMContentLoaded', () => {
+            updateSummary();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExcelJS Styling Test</title>
+    <!-- ExcelJS Library for Advanced XLSX Export with Styling -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #e53935;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #c62828;
+        }
+        .feature-list {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .feature-list h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        .feature-list ul li {
+            margin: 8px 0;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .comparison div {
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .sheetjs {
+            background-color: #ffebee;
+            border-left: 4px solid #f44336;
+        }
+        .exceljs {
+            background-color: #e8f5e8;
+            border-left: 4px solid #4caf50;
+        }
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>ExcelJS vs SheetJS Styling Comparison</h1>
+        
+        <div class="feature-list">
+            <h3>✅ ExcelJS Free Styling Features</h3>
+            <ul>
+                <li><strong>Complete Cell Styling:</strong> Borders, backgrounds, fonts, alignment</li>
+                <li><strong>Header Formatting:</strong> Bold text, background colors, font colors</li>
+                <li><strong>Zebra Striping:</strong> Alternating row background colors</li>
+                <li><strong>Professional Borders:</strong> Thin, thick, double borders with colors</li>
+                <li><strong>Currency Formatting:</strong> Built-in number and currency formats</li>
+                <li><strong>Column Auto-Sizing:</strong> Automatic column width adjustment</li>
+                <li><strong>Cell Alignment:</strong> Center, left, right, top, bottom alignment</li>
+                <li><strong>Rich Text:</strong> Multiple fonts and colors within single cells</li>
+            </ul>
+        </div>
+
+        <div class="comparison">
+            <div class="sheetjs">
+                <h3>❌ SheetJS Community</h3>
+                <ul>
+                    <li>❌ No visual styling in free version</li>
+                    <li>❌ No borders or colors</li>
+                    <li>❌ Requires Pro license for styling</li>
+                    <li>✅ Good data export capability</li>
+                    <li>✅ Fast performance</li>
+                </ul>
+            </div>
+            <div class="exceljs">
+                <h3>✅ ExcelJS Free</h3>
+                <ul>
+                    <li>✅ Complete visual styling support</li>
+                    <li>✅ Professional formatting</li>
+                    <li>✅ Headers, borders, colors</li>
+                    <li>✅ Zebra striping</li>
+                    <li>✅ 100% free and open source</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>ExcelJS Styling Test</h2>
+            <p>This test will create a professionally styled Excel file using ExcelJS with all the features that were missing in SheetJS:</p>
+            
+            <button onclick="testExcelJSStyling()">Test ExcelJS with Full Styling</button>
+            <button onclick="compareLibraries()">Compare Both Libraries</button>
+            
+            <div id="results"></div>
+        </div>
+
+        <div class="feature-list">
+            <h3>🎯 Expected ExcelJS Results</h3>
+            <ul>
+                <li><strong>Red Header Row:</strong> White text on red background with borders</li>
+                <li><strong>Zebra Striping:</strong> Alternating light yellow and white data rows</li>
+                <li><strong>Professional Borders:</strong> Thin borders around all cells</li>
+                <li><strong>Currency Formatting:</strong> Proper $ formatting with decimals</li>
+                <li><strong>Center Alignment:</strong> Headers centered, data properly aligned</li>
+                <li><strong>Auto-fit Columns:</strong> Columns sized to content</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function testExcelJSStyling() {
+            try {
+                console.log("Starting ExcelJS styling test...");
+                showStatus("info", "🔄 Creating styled Excel file with ExcelJS...");
+
+                // Create workbook and worksheet
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Styled Report');
+
+                // Sample data matching the app's structure
+                const headers = ["Employee", "Position", "Shift Time", "Hours", "Wage", "Total Sales", "CC Tips", "Cash Tips", "Tip Out", "Tip In", "Tips for Taxes"];
+                const sampleData = [
+                    ["John Doe", "Server", "09:00-17:30", 8.5, 127.50, 1234.56, 185.18, 45.20, 23.50, 0, 230.38],
+                    ["Jane Smith", "Server", "17:00-23:00", 6.0, 90.00, 890.25, 133.54, 32.10, 18.75, 0, 165.64],
+                    ["Mike Wilson", "Cook", "10:00-18:00", 8.0, 120.00, 0, 0, 0, 0, 25.50, 22.50],
+                    ["Sarah Johnson", "Busser", "18:00-24:00", 6.0, 75.00, 0, 0, 0, 0, 35.75, 35.75],
+                    ["Alex Chen", "Host", "16:00-22:00", 6.0, 84.00, 0, 0, 0, 0, 18.25, 18.25]
+                ];
+
+                // Add headers with professional styling
+                const headerRow = worksheet.addRow(headers);
+                headerRow.height = 25;
+
+                // Style header row
+                headerRow.eachCell((cell, colNumber) => {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FFE53935' } // Red background
+                    };
+                    cell.font = {
+                        color: { argb: 'FFFFFFFF' }, // White text
+                        bold: true,
+                        size: 12
+                    };
+                    cell.alignment = {
+                        vertical: 'middle',
+                        horizontal: 'center'
+                    };
+                    cell.border = {
+                        top: { style: 'thin', color: { argb: 'FF000000' } },
+                        left: { style: 'thin', color: { argb: 'FF000000' } },
+                        bottom: { style: 'thin', color: { argb: 'FF000000' } },
+                        right: { style: 'thin', color: { argb: 'FF000000' } }
+                    };
+                });
+
+                // Add data rows with zebra striping
+                sampleData.forEach((rowData, index) => {
+                    const row = worksheet.addRow(rowData);
+                    const isEvenRow = (index + 1) % 2 === 0; // +1 because headers are row 1
+                    
+                    row.eachCell((cell, colNumber) => {
+                        // Zebra striping
+                        cell.fill = {
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: isEvenRow ? 'FFFFF9C4' : 'FFFFFFFF' } // Light yellow or white
+                        };
+                        
+                        // Borders
+                        cell.border = {
+                            top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+                            left: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+                            bottom: { style: 'thin', color: { argb: 'FFCCCCCC' } },
+                            right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
+                        };
+
+                        // Currency formatting for monetary columns
+                        if ([5, 6, 7, 8, 9, 10, 11].includes(colNumber)) { // Wage, Sales, Tips columns
+                            cell.numFmt = '"$"#,##0.00';
+                        }
+                        
+                        // Hours formatting
+                        if (colNumber === 4) { // Hours column
+                            cell.numFmt = '0.00';
+                        }
+
+                        // Center alignment for numeric data
+                        if ([4, 5, 6, 7, 8, 9, 10, 11].includes(colNumber)) {
+                            cell.alignment = { horizontal: 'center' };
+                        }
+                    });
+                });
+
+                // Auto-fit columns
+                worksheet.columns.forEach((column, index) => {
+                    let maxLength = 0;
+                    const columnLetter = String.fromCharCode(65 + index); // A, B, C, etc.
+                    
+                    worksheet.getColumn(columnLetter).eachCell({ includeEmpty: true }, (cell) => {
+                        const columnLength = cell.value ? cell.value.toString().length : 10;
+                        if (columnLength > maxLength) {
+                            maxLength = columnLength;
+                        }
+                    });
+                    
+                    column.width = Math.min(Math.max(maxLength + 2, 12), 25); // Min 12, max 25
+                });
+
+                // Generate and download file
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ExcelJS_Styled_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showStatus("success", `
+                    <strong>✅ ExcelJS Test Complete!</strong><br>
+                    Downloaded: ${a.download}<br><br>
+                    <strong>Professional styling features applied:</strong><br>
+                    • Red header row with white bold text<br>
+                    • Zebra striping (alternating row colors)<br>
+                    • Professional borders on all cells<br>
+                    • Currency formatting ($1,234.56)<br>
+                    • Proper alignment and column sizing<br>
+                    • Business-ready professional appearance
+                `);
+
+                console.log("ExcelJS styling test completed successfully");
+
+            } catch (error) {
+                console.error("ExcelJS test failed:", error);
+                showStatus("error", `<strong>❌ Test Failed:</strong><br>Error: ${error.message}`);
+            }
+        }
+
+        async function compareLibraries() {
+            try {
+                showStatus("info", "🔄 Creating comparison files with both libraries...");
+
+                // Test SheetJS (current implementation)
+                await testSheetJS();
+                
+                // Test ExcelJS (new implementation)
+                await testExcelJSStyling();
+
+                showStatus("success", `
+                    <strong>📊 Library Comparison Complete!</strong><br><br>
+                    <strong>Files Downloaded:</strong><br>
+                    • SheetJS_Basic_Export.xlsx (plain, no styling)<br>
+                    • ExcelJS_Styled_Report.xlsx (professional styling)<br><br>
+                    <strong>Recommendation:</strong> Switch to ExcelJS for professional Excel exports with complete styling support!
+                `);
+
+            } catch (error) {
+                console.error("Comparison test failed:", error);
+                showStatus("error", `<strong>❌ Comparison Failed:</strong><br>Error: ${error.message}`);
+            }
+        }
+
+        async function testSheetJS() {
+            // Create basic SheetJS export for comparison
+            const wb = XLSX.utils.book_new();
+            const headers = ["Employee", "Position", "Hours", "Wage", "Tips"];
+            const data = [
+                headers,
+                ["John Doe", "Server", 8.5, 127.50, 230.38],
+                ["Jane Smith", "Server", 6.0, 90.00, 165.64]
+            ];
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, "Basic Export");
+            XLSX.writeFile(wb, "SheetJS_Basic_Export.xlsx");
+        }
+
+        function showStatus(type, message) {
+            const results = document.getElementById('results');
+            results.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Fix Verification</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-box { border: 2px solid #333; padding: 20px; margin: 10px 0; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        pre { background: #f0f0f0; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        <h2>Quick Fix Verification</h2>
+        <button onclick="testJavaScriptSyntax()">Test JS Syntax Fix</button>
+        <button onclick="testFunctionFlow()">Test Function Flow</button>
+        <button onclick="openMainApp()">Open Main App</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        function openMainApp() {
+            window.open('index.html', '_blank');
+        }
+
+        async function testJavaScriptSyntax() {
+            log('<h3>Testing JavaScript Syntax Fix</h3>');
+            
+            try {
+                const response = await fetch('./js/state.js');
+                const code = await response.text();
+                
+                // Check if the formatting issues are fixed
+                const hasProperDataFormat = !code.includes('text: "...",            actionsBefore:');
+                const hasProperWeeklyFormat = !code.includes('text: "...",             actionsBefore:');
+                
+                log(`✓ Data tutorial formatting fixed: ${hasProperDataFormat}`, hasProperDataFormat ? 'pass' : 'fail');
+                log(`✓ Weekly tutorial formatting fixed: ${hasProperWeeklyFormat}`, hasProperWeeklyFormat ? 'pass' : 'fail');
+                
+                // Try to find actionsBefore in both tutorials
+                const dataSection = code.match(/data:\s*\[([\s\S]*?)\]/);
+                const weeklySection = code.match(/weekly:\s*\[([\s\S]*?)\]/);
+                
+                if (dataSection) {
+                    const hasDataActionsBefore = dataSection[1].includes('actionsBefore');
+                    log(`✓ Data tutorial has actionsBefore: ${hasDataActionsBefore}`, hasDataActionsBefore ? 'pass' : 'fail');
+                }
+                
+                if (weeklySection) {
+                    const hasWeeklyActionsBefore = weeklySection[1].includes('actionsBefore');
+                    log(`✓ Weekly tutorial has actionsBefore: ${hasWeeklyActionsBefore}`, hasWeeklyActionsBefore ? 'pass' : 'fail');
+                }
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'fail');
+            }
+        }
+
+        async function testFunctionFlow() {
+            log('<h3>Testing Function Flow</h3>');
+            
+            try {
+                // Test if the expected functions exist in the code
+                const appLogicResponse = await fetch('./js/events/events-app-logic.js');
+                const appLogicCode = await appLogicResponse.text();
+                
+                const hasGenerateWeeklyReport = appLogicCode.includes('export function generateWeeklyReportContent');
+                const hasTriggerWeeklyRewind = appLogicCode.includes('export function triggerWeeklyRewindCalculation');
+                const hasExportButtonLogic = appLogicCode.includes('exportWeeklyCSVBtn.style.display');
+                
+                log(`✓ generateWeeklyReportContent function exists: ${hasGenerateWeeklyReport}`, hasGenerateWeeklyReport ? 'pass' : 'fail');
+                log(`✓ triggerWeeklyRewindCalculation function exists: ${hasTriggerWeeklyRewind}`, hasTriggerWeeklyRewind ? 'pass' : 'fail');
+                log(`✓ Export button visibility logic exists: ${hasExportButtonLogic}`, hasExportButtonLogic ? 'pass' : 'fail');
+                
+                // Test tutorial function flow
+                const tutorialResponse = await fetch('./js/ui/ui-tutorial.js');
+                const tutorialCode = await tutorialResponse.text();
+                
+                const hasHandleDynamicStepActions = tutorialCode.includes('async function handleDynamicStepActions');
+                const hasActionBeforeHandling = tutorialCode.includes('step.actionsBefore');
+                const hasExpandCollapsible = tutorialCode.includes('expandCollapsible');
+                
+                log(`✓ handleDynamicStepActions function exists: ${hasHandleDynamicStepActions}`, hasHandleDynamicStepActions ? 'pass' : 'fail');
+                log(`✓ step.actionsBefore handling exists: ${hasActionBeforeHandling}`, hasActionBeforeHandling ? 'pass' : 'fail');
+                log(`✓ expandCollapsible logic exists: ${hasExpandCollapsible}`, hasExpandCollapsible ? 'pass' : 'fail');
+                
+            } catch (error) {
+                log(`Error: ${error.message}`, 'fail');
+            }
+        }
+    </script>
+</body>
+</html>

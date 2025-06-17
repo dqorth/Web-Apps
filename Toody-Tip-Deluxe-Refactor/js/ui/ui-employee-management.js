@@ -1,5 +1,6 @@
 import { domElements } from '../domElements.js';
 import { sortEmployeesByName } from '../utils.js';
+import * as state from '../state.js';
 
 export function renderFullEmployeeListForManagement(container, employeeRosterData, onEditCallback, onRemoveCallback) {
     if (!container) { console.error("UI_LOG: Full employee roster container not found!"); return; }
@@ -53,10 +54,10 @@ export function renderEmpPositionsWithPayRates(positionsContainer, jobPositionsL
     jobPositionsList.forEach(pos => {
         const posIdentifier = pos.replace(/\s+/g, '');
         const groupDiv = document.createElement('div');
-        groupDiv.className = 'position-entry-group';
-
-        const isSelected = editingEmpData ? editingEmpData.positions.includes(pos) : false;
-        const currentPayRateValue = (editingEmpData && editingEmpData.payRates && editingEmpData.payRates[pos] !== undefined) ? String(editingEmpData.payRates[pos]) : '';
+        groupDiv.className = 'position-entry-group';        const isSelected = editingEmpData ? editingEmpData.positions.includes(pos) : false;
+        const currentPayRateValue = (editingEmpData && editingEmpData.payRates && editingEmpData.payRates[pos] !== undefined) 
+            ? String(editingEmpData.payRates[pos]) 
+            : String(state.getDefaultPayRateForPosition(pos) || '');
 
         const roleToggleButton = document.createElement('button');
         roleToggleButton.type = 'button';

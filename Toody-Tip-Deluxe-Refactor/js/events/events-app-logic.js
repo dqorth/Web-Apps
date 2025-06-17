@@ -9,6 +9,7 @@ import { switchView } from '../ui/ui-core.js'; // Added import for switchView
 // --- App Logic/Helper functions that involve state and UI updates ---
 
 export function generateWeeklyReportContent() {
+    console.log(`APP_LOG: generateWeeklyReportContent called - currentReportWeekStartDate:`, state.state.currentReportWeekStartDate);
     // console.log("[LOG events-app-logic.js] generateWeeklyReportContent called. currentReportWeekStartDate:", state.state.currentReportWeekStartDate, "Type:", typeof state.state.currentReportWeekStartDate, "IsDate:", state.state.currentReportWeekStartDate instanceof Date);
     if (!state.state.currentReportWeekStartDate) {
         if (domElements.reportOutputDiv) domElements.reportOutputDiv.innerHTML = "<p>Use date selector to establish a week context first.</p>";
@@ -70,7 +71,19 @@ export function generateWeeklyReportContent() {
     // Placeholder for now, assuming it will be available in the global scope or passed if necessary.
     const handleEditShiftCallback = typeof handleEditLoggedShiftSetup !== 'undefined' ? handleEditLoggedShiftSetup : () => console.warn("handleEditLoggedShiftSetup not yet available to generateWeeklyReportContentUI");
 
-    generateWeeklyReportContentUI(domElements.reportOutputDiv, weeklyEmployeeSummaryData, processedDailyShiftsForWeek, state.state.currentReportWeekStartDate, state.state.jobPositions, handleEditShiftCallback);
+    generateWeeklyReportContentUI(domElements.reportOutputDiv, weeklyEmployeeSummaryData, processedDailyShiftsForWeek, state.state.currentReportWeekStartDate, state.state.jobPositions, handleEditShiftCallback);    // Show/hide export button based on whether there's data to export (matching original app logic)
+    if (domElements.exportWeeklyCSVBtn) {
+        const daysWithData = processedDailyShiftsForWeek ? Object.keys(processedDailyShiftsForWeek).filter(date => 
+            processedDailyShiftsForWeek[date] && processedDailyShiftsForWeek[date].length > 0
+        ).length : 0;
+        const hasDataToExport = daysWithData > 1;
+        domElements.exportWeeklyCSVBtn.style.display = hasDataToExport ? 'inline-block' : 'none';
+        console.log(`APP_LOG: Export button visibility set to: ${hasDataToExport ? 'visible' : 'hidden'} (${daysWithData} days with data)`);
+        console.log(`APP_LOG: processedDailyShiftsForWeek keys:`, Object.keys(processedDailyShiftsForWeek || {}));
+        console.log(`APP_LOG: domElements.exportWeeklyCSVBtn:`, domElements.exportWeeklyCSVBtn);
+    } else {
+        console.warn(`APP_WARN: domElements.exportWeeklyCSVBtn not found!`);
+    }
 }
 
 
@@ -101,9 +114,12 @@ export function triggerDailyScoopCalculation() {
 }
 
 export function triggerWeeklyRewindCalculation() {
+    console.log(`APP_LOG: triggerWeeklyRewindCalculation called`);
     if (!state.state.currentReportWeekStartDate) { // Corrected: Access currentReportWeekStartDate from state.state
+        console.log(`APP_LOG: triggerWeeklyRewindCalculation - No currentReportWeekStartDate set`);
         if (domElements.reportOutputDiv) domElements.reportOutputDiv.innerHTML = "<p>Week context not set. Navigate using main date controls or weekly navigation.</p>";
         return;
     }
+    console.log(`APP_LOG: triggerWeeklyRewindCalculation - Calling generateWeeklyReportContent`);
     generateWeeklyReportContent(); // Internal call to the function within this module
 }

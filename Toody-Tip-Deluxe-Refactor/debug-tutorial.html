@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Test Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-info { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .button { background: #007cba; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        .button:hover { background: #005a87; }
+        #console-output { background: #000; color: #0f0; padding: 15px; margin: 10px 0; height: 400px; overflow-y: auto; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Tutorial System Diagnostic</h1>
+    <div class="test-info">
+        <p>This page loads the main application and then runs diagnostic tests on the tutorial system.</p>
+        <p><strong>Instructions:</strong> Open the browser console (F12) to see detailed test results.</p>
+    </div>
+      <button class="button" onclick="runDiagnostic()">Run Tutorial Diagnostic</button>
+    <button class="button" onclick="testRosterTutorial()">Test Roster Tutorial</button>
+    <button class="button" onclick="testLineupTutorial()">Test Lineup Tutorial</button>
+    <button class="button" onclick="testPositioning()">Test Text Box Positioning</button>
+    <button class="button" onclick="testAnimations()">Test Animations</button>
+    <button class="button" onclick="clearConsoleOutput()">Clear Output</button>
+    
+    <div id="console-output"></div>
+    
+    <!-- Load the main application in an iframe -->
+    <iframe id="appFrame" src="./index.html" style="width: 100%; height: 600px; border: 1px solid #ccc; margin-top: 20px;"></iframe>
+    
+    <script>
+        let originalConsoleLog = console.log;
+        let consoleOutput = document.getElementById('console-output');
+        
+        // Capture console output and display it on the page
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            consoleOutput.textContent += args.join(' ') + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+        
+        function clearConsoleOutput() {
+            consoleOutput.textContent = '';
+        }
+        
+        function getAppWindow() {
+            const iframe = document.getElementById('appFrame');
+            return iframe.contentWindow;
+        }
+        
+        function getAppDocument() {
+            const iframe = document.getElementById('appFrame');
+            return iframe.contentDocument || iframe.contentWindow.document;
+        }
+        
+        function runDiagnostic() {
+            console.log("=== TUTORIAL SYSTEM DIAGNOSTIC TEST ===");
+            
+            const appDoc = getAppDocument();
+            const appWin = getAppWindow();
+            
+            if (!appDoc || !appWin) {
+                console.log("✗ Cannot access application iframe");
+                return;
+            }
+            
+            // Test 1: Check if DOM elements exist
+            console.log("\n1. CHECKING TUTORIAL DOM ELEMENTS:");
+            const tutorialElements = [
+                'tutorial-overlay',
+                'tutorial-highlight-box', 
+                'tutorial-text-box',
+                'tutorial-title',
+                'tutorial-text',
+                'tutorial-step-counter',
+                'tutorial-next-btn',
+                'tutorial-prev-btn',
+                'tutorial-close-btn'
+            ];
+
+            let missingElements = [];
+            tutorialElements.forEach(id => {
+                const element = appDoc.getElementById(id);
+                if (element) {
+                    console.log(`✓ ${id} found`);
+                } else {
+                    console.log(`✗ ${id} MISSING`);
+                    missingElements.push(id);
+                }
+            });
+
+            // Test 2: Check tutorial buttons
+            console.log("\n2. CHECKING TUTORIAL TRIGGER BUTTONS:");
+            const tutorialButtons = appDoc.querySelectorAll('.tutorial-btn');
+            console.log(`Found ${tutorialButtons.length} tutorial buttons`);
+            tutorialButtons.forEach((btn, index) => {
+                const tutorialFor = btn.getAttribute('data-tutorial-for');
+                console.log(`  Button ${index + 1}: data-tutorial-for="${tutorialFor}"`);
+            });
+
+            // Test 3: Check if global function exists
+            console.log("\n3. CHECKING GLOBAL FUNCTIONS:");
+            if (typeof appWin.handleStartTutorial === 'function') {
+                console.log("✓ window.handleStartTutorial is available");
+            } else {
+                console.log("✗ window.handleStartTutorial is NOT available");
+            }
+            
+            console.log("\n=== DIAGNOSTIC COMPLETE ===");
+        }
+        
+        function testRosterTutorial() {
+            const appWin = getAppWindow();
+            const appDoc = getAppDocument();
+            
+            if (!appWin || !appDoc) {
+                console.log("✗ Cannot access application iframe");
+                return;
+            }
+            
+            console.log("\n=== TESTING ROSTER TUTORIAL ===");
+            
+            if (typeof appWin.handleStartTutorial === 'function') {
+                try {
+                    console.log("Starting roster tutorial...");
+                    appWin.handleStartTutorial('roster');
+                    
+                    // Check if overlay becomes visible
+                    setTimeout(() => {
+                        const overlay = appDoc.getElementById('tutorial-overlay');
+                        if (overlay && overlay.style.display === 'block') {
+                            console.log("✓ Tutorial overlay is visible - SUCCESS!");
+                        } else {
+                            console.log("✗ Tutorial overlay is not visible");
+                            console.log("Overlay found:", !!overlay);
+                            console.log("Display style:", overlay ? overlay.style.display : 'N/A');
+                        }
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.log("✗ Error starting tutorial:", error.message);
+                }
+            } else {
+                console.log("✗ handleStartTutorial function not available");
+            }
+        }
+          function testLineupTutorial() {
+            const appWin = getAppWindow();
+            if (!appWin) {
+                console.log("✗ Cannot access application iframe");
+                return;
+            }
+            
+            console.log("\n=== TESTING LINEUP TUTORIAL ===");
+            
+            if (typeof appWin.handleStartTutorial === 'function') {
+                try {
+                    console.log("Starting lineup tutorial...");
+                    appWin.handleStartTutorial('lineup');
+                } catch (error) {
+                    console.log("✗ Error starting tutorial:", error.message);
+                }
+            } else {
+                console.log("✗ handleStartTutorial function not available");
+            }
+        }
+        
+        function testPositioning() {
+            const appWin = getAppWindow();
+            const appDoc = getAppDocument();
+            
+            if (!appWin || !appDoc) {
+                console.log("✗ Cannot access application iframe");
+                return;
+            }
+            
+            console.log("\n=== TESTING TEXT BOX POSITIONING ===");
+            
+            if (typeof appWin.handleStartTutorial === 'function') {
+                try {
+                    console.log("Starting roster tutorial to test positioning...");
+                    appWin.handleStartTutorial('roster');
+                    
+                    setTimeout(() => {
+                        const overlay = appDoc.getElementById('tutorial-overlay');
+                        const textBox = appDoc.getElementById('tutorial-text-box');
+                        const highlightBox = appDoc.getElementById('tutorial-highlight-box');
+                        
+                        if (overlay && textBox && highlightBox) {
+                            const textBoxRect = textBox.getBoundingClientRect();
+                            const highlightRect = highlightBox.getBoundingClientRect();
+                            
+                            console.log("Text box position:", {
+                                top: textBoxRect.top,
+                                left: textBoxRect.left,
+                                width: textBoxRect.width,
+                                height: textBoxRect.height
+                            });
+                            
+                            console.log("Highlight box position:", {
+                                top: highlightRect.top,
+                                left: highlightRect.left,
+                                width: highlightRect.width,
+                                height: highlightRect.height
+                            });
+                            
+                            // Check for overlap
+                            const hasOverlap = !(
+                                textBoxRect.left + textBoxRect.width < highlightRect.left ||
+                                textBoxRect.left > highlightRect.left + highlightRect.width ||
+                                textBoxRect.top + textBoxRect.height < highlightRect.top ||
+                                textBoxRect.top > highlightRect.top + highlightRect.height
+                            );
+                            
+                            if (hasOverlap) {
+                                console.log("✗ ISSUE: Text box is overlapping with highlighted element!");
+                            } else {
+                                console.log("✓ Text box is NOT overlapping with highlighted element");
+                            }
+                            
+                        } else {
+                            console.log("✗ Could not find tutorial elements");
+                        }
+                    }, 1500);
+                    
+                } catch (error) {
+                    console.log("✗ Error starting tutorial:", error.message);
+                }
+            } else {
+                console.log("✗ handleStartTutorial function not available");
+            }
+        }
+        
+        function testAnimations() {
+            const appWin = getAppWindow();
+            const appDoc = getAppDocument();
+            
+            if (!appWin || !appWin.handleStartTutorial) {
+                console.log("✗ Cannot access application iframe or tutorial functions");
+                return;
+            }
+            
+            console.log("\n=== TESTING ANIMATIONS ===");
+            
+            console.log("Starting tutorial and monitoring for smooth animations...");
+            appWin.handleStartTutorial('roster');
+            
+            setTimeout(() => {
+                const textBox = appDoc.getElementById('tutorial-text-box');
+                const highlightBox = appDoc.getElementById('tutorial-highlight-box');
+                
+                if (textBox && highlightBox) {
+                    const textBoxStyle = window.getComputedStyle(textBox);
+                    const highlightBoxStyle = window.getComputedStyle(highlightBox);
+                    
+                    console.log("Text box transition:", textBoxStyle.transition);
+                    console.log("Highlight box transition:", highlightBoxStyle.transition);
+                    
+                    if (textBoxStyle.transition.includes('top') && textBoxStyle.transition.includes('left')) {
+                        console.log("✓ Text box has position transitions");
+                    } else {
+                        console.log("✗ Text box missing position transitions");
+                    }
+                    
+                    if (highlightBoxStyle.transition.includes('top') && highlightBoxStyle.transition.includes('left')) {
+                        console.log("✓ Highlight box has position transitions");
+                    } else {
+                        console.log("✗ Highlight box missing position transitions");
+                    }
+                    
+                    // Test step navigation to see animations
+                    console.log("Testing step navigation animations...");
+                    const nextBtn = appDoc.getElementById('tutorial-next-btn');
+                    if (nextBtn) {
+                        nextBtn.click();
+                        console.log("✓ Clicked next button - observe for smooth animation");
+                    }
+                    
+                } else {
+                    console.log("✗ Could not find tutorial elements");
+                }
+            }, 1000);
+        }
+        
+        // Wait for iframe to load before enabling tests
+        document.getElementById('appFrame').onload = function() {
+            console.log("Application iframe loaded. Tests are now available.");
+        };
+    </script>
+</body>
+</html>

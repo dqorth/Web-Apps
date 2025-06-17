@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Styling Debug Test</title>
+    <!-- SheetJS Library for XLSX Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #e53935;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #c62828;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Excel Styling Debug Test</h1>
+        <p>This page tests Excel styling functionality to debug why formatting isn't being applied.</p>
+        
+        <div class="test-section">
+            <h3>1. Basic Styling Test</h3>
+            <button onclick="testBasicStyling()">Test Basic Excel Styling</button>
+            <div id="basic-styling-status" class="status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. SheetJS Version Check</h3>
+            <button onclick="checkSheetJSVersion()">Check SheetJS Capabilities</button>
+            <div id="version-status" class="status"></div>
+            <pre id="version-details"></pre>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. Alternative Styling Approach</h3>
+            <button onclick="testAlternativeStyling()">Test Alternative Styling</button>
+            <div id="alt-styling-status" class="status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. Cell Type Test</h3>
+            <button onclick="testCellTypes()">Test Cell Types and Formats</button>
+            <div id="cell-types-status" class="status"></div>
+        </div>
+    </div>
+
+    <script>
+        window.testBasicStyling = function() {
+            const status = document.getElementById('basic-styling-status');
+            
+            try {
+                // Create simple test with styling
+                const wb = XLSX.utils.book_new();
+                const data = [
+                    ['Name', 'Value', 'Notes'],
+                    ['Test 1', '100', 'First test'],
+                    ['Test 2', '200', 'Second test']
+                ];
+                
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                
+                // Define styling
+                const headerStyle = {
+                    font: { color: { rgb: "FFFFFF" }, bold: true },
+                    fill: { fgColor: { rgb: "E53935" } },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    border: {
+                        top: { style: "thin", color: { auto: 1 } },
+                        bottom: { style: "thin", color: { auto: 1 } },
+                        left: { style: "thin", color: { auto: 1 } },
+                        right: { style: "thin", color: { auto: 1 } }
+                    }
+                };
+                
+                const cellStyle = {
+                    border: {
+                        top: { style: "thin", color: { auto: 1 } },
+                        bottom: { style: "thin", color: { auto: 1 } },
+                        left: { style: "thin", color: { auto: 1 } },
+                        right: { style: "thin", color: { auto: 1 } }
+                    }
+                };
+                
+                // Apply styling to header row
+                const range = XLSX.utils.decode_range(ws['!ref']);
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellAddress = XLSX.utils.encode_cell({r: 0, c: C});
+                    if(!ws[cellAddress]) ws[cellAddress] = {v: ""};
+                    ws[cellAddress].s = headerStyle;
+                }
+                
+                // Apply styling to data rows
+                for (let R = 1; R <= range.e.r; ++R) {
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const cellAddress = XLSX.utils.encode_cell({r: R, c: C});
+                        if(!ws[cellAddress]) ws[cellAddress] = {v: ""};
+                        ws[cellAddress].s = cellStyle;
+                    }
+                }
+                
+                XLSX.utils.book_append_sheet(wb, ws, "Styling Test");
+                XLSX.writeFile(wb, 'basic_styling_test.xlsx');
+                
+                status.className = 'status success';
+                status.innerHTML = '✅ Basic styling test exported! Check the downloaded file for formatting.';
+                
+            } catch (error) {
+                status.className = 'status error';
+                status.innerHTML = '❌ Basic styling test failed: ' + error.message;
+            }
+        };
+
+        window.checkSheetJSVersion = function() {
+            const status = document.getElementById('version-status');
+            const details = document.getElementById('version-details');
+            
+            try {
+                const info = {
+                    version: XLSX.version || 'Unknown',
+                    SSF: typeof XLSX.SSF !== 'undefined',
+                    utils: typeof XLSX.utils !== 'undefined',
+                    writeFile: typeof XLSX.writeFile === 'function',
+                    stylingSupport: 'Testing...'
+                };
+                
+                // Test if styling is supported by checking for style property
+                const testWS = XLSX.utils.aoa_to_sheet([['test']]);
+                const testCell = testWS['A1'];
+                testCell.s = { font: { bold: true } };
+                
+                info.stylingSupport = testCell.s ? 'Supported' : 'Not Supported';
+                
+                status.className = 'status info';
+                status.innerHTML = '📋 SheetJS capabilities analyzed';
+                details.textContent = JSON.stringify(info, null, 2);
+                
+            } catch (error) {
+                status.className = 'status error';
+                status.innerHTML = '❌ Version check failed: ' + error.message;
+                details.textContent = error.stack;
+            }
+        };
+
+        window.testAlternativeStyling = function() {
+            const status = document.getElementById('alt-styling-status');
+            
+            try {
+                // Try different styling approach
+                const wb = XLSX.utils.book_new();
+                const data = [
+                    ['Employee', 'Position', 'Hours'],
+                    ['John Doe', 'Server', '8.0'],
+                    ['Jane Smith', 'Host', '6.5']
+                ];
+                
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                
+                // Set column widths
+                ws['!cols'] = [
+                    {wch: 15}, // Employee
+                    {wch: 12}, // Position  
+                    {wch: 8}   // Hours
+                ];
+                
+                // Try simpler styling approach
+                if (ws['A1']) {
+                    ws['A1'].s = { 
+                        font: { bold: true, color: { rgb: "FFFFFF" } },
+                        fill: { fgColor: { rgb: "E53935" } }
+                    };
+                }
+                if (ws['B1']) {
+                    ws['B1'].s = { 
+                        font: { bold: true, color: { rgb: "FFFFFF" } },
+                        fill: { fgColor: { rgb: "E53935" } }
+                    };
+                }
+                if (ws['C1']) {
+                    ws['C1'].s = { 
+                        font: { bold: true, color: { rgb: "FFFFFF" } },
+                        fill: { fgColor: { rgb: "E53935" } }
+                    };
+                }
+                
+                XLSX.utils.book_append_sheet(wb, ws, "Alt Styling");
+                XLSX.writeFile(wb, 'alternative_styling_test.xlsx');
+                
+                status.className = 'status success';
+                status.innerHTML = '✅ Alternative styling test exported!';
+                
+            } catch (error) {
+                status.className = 'status error';
+                status.innerHTML = '❌ Alternative styling failed: ' + error.message;
+            }
+        };
+
+        window.testCellTypes = function() {
+            const status = document.getElementById('cell-types-status');
+            
+            try {
+                const wb = XLSX.utils.book_new();
+                const data = [
+                    ['Type', 'Value', 'Format'],
+                    ['Number', 123.45, 'Number'],
+                    ['Currency', 99.99, 'Currency'],
+                    ['Percentage', 0.75, 'Percentage']
+                ];
+                
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                
+                // Set cell types and formats
+                if (ws['B2']) {
+                    ws['B2'].t = 'n'; // number
+                    ws['B2'].z = '0.00'; // format
+                }
+                if (ws['B3']) {
+                    ws['B3'].t = 'n'; // number
+                    ws['B3'].z = '$0.00'; // currency format
+                }
+                if (ws['B4']) {
+                    ws['B4'].t = 'n'; // number
+                    ws['B4'].z = '0.00%'; // percentage format
+                }
+                
+                XLSX.utils.book_append_sheet(wb, ws, "Cell Types");
+                XLSX.writeFile(wb, 'cell_types_test.xlsx');
+                
+                status.className = 'status success';
+                status.innerHTML = '✅ Cell types test exported!';
+                
+            } catch (error) {
+                status.className = 'status error';
+                status.innerHTML = '❌ Cell types test failed: ' + error.message;
+            }
+        };
+
+        // Auto-run version check on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(checkSheetJSVersion, 500);
+        });
+    </script>
+</body>
+</html>

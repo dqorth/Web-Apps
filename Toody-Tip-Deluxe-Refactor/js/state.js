@@ -1,4 +1,5 @@
 import * as utils from './utils.js'; // Import utils
+import * as domElements from './domElements.js'; // Import domElements
 
 export let state = {
     employeeRoster: [],
@@ -7,10 +8,19 @@ export let state = {
     activeSelectedDate: null, // Should store YYYY-MM-DD string representing an MDT date
     currentSelectedDayOfWeek: utils.getDayOfWeekMDT(new Date()),
     jobPositions: ["Server", "Busser", "Shake Spinner", "Food Runner", "Host"], // <-- Add this line
+    defaultPayRates: { // New: Default pay rates for each position
+        "Server": 15.00,
+        "Busser": 12.00,
+        "Shake Spinner": 13.00,
+        "Food Runner": 12.50,
+        "Host": 11.50
+    },
     currentTutorialSteps: [],
     currentTutorialStepIndex: 0,
     tutorialAnimationId: null,
-    currentTutorialTargetElement: null
+    currentTutorialTargetElement: null,
+    tutorialScrollResizeHandler: null, // Added to store scroll/resize handler reference
+    tutorialRevertActions: [] // Stores actions to revert UI changes made by tutorial
 };
 
 // Define BASE_CYCLE_START_DATE as an MDT midnight date.
@@ -53,9 +63,41 @@ export const tutorials = {
     lineup: [
         { element: '.top-date-controls', title: 'Set the Date', text: "First, use these controls to select the correct payroll Cycle and Week you want to work on." },
         { element: '#lineupDayNavContainer', title: 'Select the Day', text: "Next, click a day of the week to view or log shifts for that specific date." },
-        { element: '#rosterListContainer .employee-info strong', fallbackElement: '#rosterListContainer', title: 'Log a Shift', text: "Click an employee\'s name to open the form where you can log their shift details for the selected day." },
-        { element: '.inline-shift-form-container', isDynamic: true, dynamicTrigger: '#rosterListContainer .employee-info strong', title: 'Enter Shift Details', text: "Enter the clock-in and clock-out times. For servers, also fill in their sales and tips." },
-        { element: '.log-specific-shift-btn', isDynamic: true, dynamicTrigger: '#rosterListContainer .employee-info strong', title: 'Save the Shift', text: "Click here to save the shift. The employee\'s card will update with a summary, and the button will change to 'Edit Shift'." },
+        { 
+            element: '#rosterListContainer .employee-info strong', 
+            fallbackElement: '#rosterListContainer', 
+            title: 'Log a Shift', 
+            text: "Click an employee\\\'s name to open the form where you can log their shift details for the selected day.",
+            actionsBefore: [{ 
+                type: 'expandCollapsible', 
+                triggerSelector: '#employeeLineupSection h2.collapsible-header[aria-controls="lineupContent"]', 
+                contentSelector: '#lineupContent' 
+            }]
+        },
+        { 
+            element: '.inline-shift-form-container', 
+            isDynamic: true, 
+            dynamicTrigger: '#rosterListContainer .employee-info strong', 
+            title: 'Enter Shift Details', 
+            text: "Enter the clock-in and clock-out times. For servers, also fill in their sales and tips.",
+            actionsBefore: [{ 
+                type: 'expandCollapsible', 
+                triggerSelector: '#employeeLineupSection h2.collapsible-header[aria-controls="lineupContent"]', 
+                contentSelector: '#lineupContent' 
+            }]
+        },
+        { 
+            element: '.log-specific-shift-btn', 
+            isDynamic: true, 
+            dynamicTrigger: '#rosterListContainer .employee-info strong', 
+            title: 'Save the Shift', 
+            text: "Click here to save the shift. The employee\\\'s card will update with a summary, and the button will change to \'Edit Shift\'.",
+            actionsBefore: [{ 
+                type: 'expandCollapsible', 
+                triggerSelector: '#employeeLineupSection h2.collapsible-header[aria-controls="lineupContent"]', 
+                contentSelector: '#lineupContent' 
+            }]
+        },
         { element: '#showAddEmployeeFormBtn', title: 'Manage Roster', text: "Need to add a new employee or edit an existing one? Click this button to jump to the Roster Management page." }
     ],
     scoop: [
@@ -63,17 +105,41 @@ export const tutorials = {
         { element: '#payoutResults', title: 'Daily Payouts', text: "This table shows the calculated breakdown of wages, tips, and take-home pay for everyone who worked on the selected day." },
         { element: '.support-tip-detail', fallbackElement: '#payoutResults', title: 'Tip-In Details', text: "For support staff (like Bussers), you can see a detailed breakdown of which servers tipped them out and how much." },
         { element: '.remove-shift-from-scoop-btn', fallbackElement: '#payoutResults', title: 'Delete a Shift', text: "If a shift was logged by mistake, you can permanently remove it by clicking the 'Del' button in its row." }
-    ],
-    weekly: [
-         { element: '.week-navigation', title: 'Navigate Weeks', text: "Use the 'Prev Week' and 'Next Week' buttons to browse through different weekly reports." },
+    ],    weekly: [         { 
+             element: '.week-navigation', 
+             title: 'Navigate Weeks', 
+             text: "Use the 'Prev Week' and 'Next Week' buttons to browse through different weekly reports.",
+             actionsBefore: [
+                 { type: 'expandCollapsible', triggerSelector: '#weeklyReportSection h2.collapsible-header', contentSelector: '#weeklyReportContent' }
+             ]
+         },
          { element: '#reportOutput .data-table-container:first-of-type', fallbackElement: '#reportOutput', title: 'Weekly Totals', text: "This first table summarizes the total earnings (wages and tips) for each employee across the entire selected week." },
          { element: '#reportOutput .report-day-header', fallbackElement: '#reportOutput', title: 'Daily Breakdown', text: "Below the weekly summary, you\'ll find a detailed, day-by-day breakdown of all shifts that were logged." },
          { element: '.edit-shift-from-weekly-btn', fallbackElement: '#reportOutput', title: 'Quick Edit', text: "Made a mistake? Click 'Edit' on any shift in this report to instantly jump back to 'The Lineup' section with the correct form open, ready for you to make changes." },
-         { element: '#exportWeeklyCSVBtn', title: 'Export to Excel', text: "Click here to download a beautifully formatted Excel file (.xlsx) of this week\'s report, complete with separate tabs for daily details and weekly totals." }
-    ],
-    data: [
-        { element: '#downloadStateBtn', title: 'Backup Your Data', text: "Click this to save ALL your data—roster and every logged shift—to a single JSON file on your computer. It\'s a great idea to do this regularly as a backup!" },
-        { element: '#loadStateFile', title: 'Restore Your Data', text: "If you need to restore your data from a backup, click here to select the `.json` file you previously saved. This will overwrite ALL current data in the app." }
+         { element: '#exportWeeklyCSVBtn', title: 'Export to Excel', text: "Click here to download a beautifully formatted Excel file (.xlsx) of this week\'s report, complete with separate tabs for daily details and weekly totals." }    ],data: [
+        { 
+            element: '#defaultPayRatesContainer', 
+            title: 'Default Pay Rates', 
+            text: "Set up default pay rates for each position here. When you add a new employee, these rates will automatically pre-fill the pay rate fields, saving you time!",
+            actionsBefore: [
+                { type: 'expandCollapsible', triggerSelector: '#dataManagementSection h2.collapsible-header', contentSelector: '#dataManagementContent' }
+            ]
+        },
+        { 
+            element: '#saveDefaultPayRatesBtn', 
+            title: 'Save Pay Rate Changes', 
+            text: "After adjusting any default pay rates, don't forget to click this button to save your changes. These defaults will be used for all new employees you add." 
+        },
+        { 
+            element: '#downloadStateBtn', 
+            title: 'Backup Your Data', 
+            text: "Click this to save ALL your data—roster and every logged shift—to a single JSON file on your computer. It\'s a great idea to do this regularly as a backup!"
+        },
+        { 
+            element: 'label[for="loadStateFile"]', 
+            title: 'Restore Your Data', 
+            text: "If you need to restore your data from a backup, click here to select the `.json` file you previously saved. This will overwrite ALL current data in the app." 
+        }
     ]
 };
 
@@ -199,12 +265,17 @@ export function loadStateFromLocalStorage() {
     if (storedShifts) {
         state.dailyShifts = JSON.parse(storedShifts);
     }
+    const storedDefaultPayRates = localStorage.getItem('dinerTipSplit_defaultPayRatesV2');
+    if (storedDefaultPayRates) {
+        state.defaultPayRates = JSON.parse(storedDefaultPayRates);
+    }
     console.log("APP_LOG: State loaded from Local Storage.");
 }
 
 export function saveStateToLocalStorage() {
     localStorage.setItem('dinerTipSplit_employeeRosterV2', JSON.stringify(state.employeeRoster));
     localStorage.setItem('dinerTipSplit_dailyShiftsV2', JSON.stringify(state.dailyShifts));
+    localStorage.setItem('dinerTipSplit_defaultPayRatesV2', JSON.stringify(state.defaultPayRates));
     console.log("APP_LOG: State saved to Local Storage.");
 }
 
@@ -225,6 +296,7 @@ export function setCurrentTutorial(tutorialKey, stepIndex) {
 export function clearCurrentTutorial() {
     state.currentTutorialSteps = [];
     state.currentTutorialStepIndex = 0;
+    state.tutorialRevertActions = []; // Clear revert actions
     // currentTutorialTargetElement = null; // Already handled by setCurrentTutorialTargetElement
     // if (tutorialAnimationId) cancelAnimationFrame(tutorialAnimationId); // Already handled by setTutorialAnimationId
     // tutorialAnimationId = null;
@@ -268,5 +340,157 @@ export function setCurrentTutorialTargetElement(element) {
     state.currentTutorialTargetElement = element;
 }
 
+// --- Tutorial Revert Action Management ---
+export function addTutorialRevertAction(action) {
+    state.tutorialRevertActions.push(action);
+    console.log("APP_LOG: Added tutorial revert action:", action, "Current stack:", state.tutorialRevertActions);
+}
+
+export function clearTutorialRevertActions() {
+    state.tutorialRevertActions = [];
+    console.log("APP_LOG: Cleared tutorial revert actions.");
+}
+
+export function executeAndClearTutorialRevertActions() {
+    console.log("APP_LOG: Executing tutorial revert actions. Stack:", JSON.parse(JSON.stringify(state.tutorialRevertActions)));
+    // Execute in reverse order (LIFO)
+    while (state.tutorialRevertActions.length > 0) {
+        const action = state.tutorialRevertActions.pop();
+        try {
+            console.log("APP_LOG: Reverting action:", action);
+            if (action.type === 'click' && action.target) {
+                // This assumes the target is a selector string if element isn't available
+                // For now, handleDynamicStepActions stores the actual element.
+                // If it could become detached, storing a selector would be more robust.
+                const targetElement = (typeof action.target === 'string') ? document.querySelector(action.target) : action.target;
+                if (targetElement && typeof targetElement.click === 'function') {
+                    // Avoid re-clicking the addShiftButton if a close-shift-form action is also queued for it
+                    // This check is a bit simplistic; a more robust way would be to ensure the form is actually open
+                    // or that the click target isn't the one that opens the form we are trying to close.
+                    let shouldClick = true;
+                    if (targetElement.id === 'addShiftButton' || targetElement.classList.contains('edit-shift-btn')) {
+                        if (state.tutorialRevertActions.some(a => a.type === 'close-shift-form')) {
+                            // If a specific close action is pending, maybe this click is redundant or harmful.
+                            // For now, we allow the click, but this is an area for refinement.
+                        }
+                    }
+                    if (shouldClick) {
+                        targetElement.click();
+                        console.log("APP_LOG: Reverted by click:", targetElement);
+                    }
+                } else {
+                    console.warn("APP_WARN: Revert action 'click' failed, target not clickable or not found:", action.target);
+                }
+            } else if (action.type === 'toggle-collapse' && action.target && action.hasOwnProperty('sectionExpandedByTutorial')) {
+                const triggerElement = (typeof action.target === 'string') ? document.querySelector(action.target) : action.target;
+                if (triggerElement && typeof triggerElement.click === 'function') {
+                    const contentId = triggerElement.getAttribute('aria-controls');
+                    const contentElement = contentId ? document.getElementById(contentId) : null;
+                    const isCurrentlyExpanded = triggerElement.getAttribute('aria-expanded') === 'true' || 
+                                              (contentElement && window.getComputedStyle(contentElement).display !== 'none');
+
+                    if (action.sectionExpandedByTutorial && isCurrentlyExpanded) {
+                        // Only click to collapse if the tutorial expanded it AND it's still expanded.
+                        triggerElement.click();
+                        console.log("APP_LOG: Reverted by toggle-collapse (click to collapse):", triggerElement);
+                    } else if (!action.sectionExpandedByTutorial && !isCurrentlyExpanded && contentElement) {
+                        // This case is less common for tutorials but handles if tutorial collapsed something
+                        // triggerElement.click();
+                        // console.log("APP_LOG: Reverted by toggle-collapse (click to expand):", triggerElement);
+                        // For now, tutorials primarily expand, so this branch might not be hit.
+                        // If a tutorial *collapses* something, this logic would need to be confirmed.
+                    } else {
+                        console.log("APP_LOG: Revert action \'toggle-collapse\' skipped. Conditions not met (expandedByTutorial, isCurrentlyExpanded):", 
+                                    { expandedByTutorial: action.sectionExpandedByTutorial, isCurrentlyExpanded }, triggerElement);
+                    }
+                } else {
+                     console.warn("APP_WARN: Revert action \'toggle-collapse\' failed, trigger not clickable or not found:", action.target);
+                }
+            } else if (action.type === 'toggle-class' && action.target && action.className) {
+                const targetElement = (typeof action.target === 'string') ? document.querySelector(action.target) : action.target;
+                if (targetElement) {
+                    if (action.shouldHaveClass) { // If it should have the class after revert
+                        targetElement.classList.add(action.className);
+                        console.log(`APP_LOG: Reverted by adding class '${action.className}' to:`, targetElement);
+                    } else { // If it should NOT have the class after revert
+                        targetElement.classList.remove(action.className);
+                        console.log(`APP_LOG: Reverted by removing class '${action.className}' from:`, targetElement);
+                    }
+                } else {
+                    console.warn("APP_WARN: Revert action 'toggle-class' failed, target not found:", action.target);
+                }
+            } else if (action.type === 'close-shift-form') {
+                console.log("APP_LOG: Attempting to revert by closing shift form.");
+                const inlineFormContainer = document.querySelector('.inline-shift-form-container');
+                
+                if (inlineFormContainer && (inlineFormContainer.style.display !== 'none' && inlineFormContainer.offsetParent !== null)) {
+                    // Try to find the specific cancel button for inline forms first
+                    const inlineCancelBtn = inlineFormContainer.querySelector('.cancel-edit-inline-btn');
+                    if (inlineCancelBtn) {
+                        inlineCancelBtn.click();
+                        console.log("APP_LOG: Reverted by clicking .cancel-edit-inline-btn in .inline-shift-form-container.");
+                    } else if (domElements.cancelShiftButton) { 
+                        // Fallback to generic cancel button if specific one isn't found but form container is visible
+                        domElements.cancelShiftButton.click();
+                        console.log("APP_LOG: Reverted by clicking generic cancelShiftButton (inline form container was visible).");
+                    } else {
+                        console.warn("APP_WARN: Revert action 'close-shift-form' failed. Inline form container visible, but no cancel button found (.cancel-edit-inline-btn or generic).");
+                    }
+                } else if (domElements.shiftForm && domElements.shiftForm.style.display !== 'none' && domElements.cancelShiftButton) {
+                    // Fallback for older/other shift form structures if inline one isn't active
+                    domElements.cancelShiftButton.click();
+                    console.log("APP_LOG: Reverted by clicking cancel shift button (generic form).");
+                } else if (domElements.shiftFormModal && domElements.shiftFormModal.style.display !== 'none' && domElements.cancelShiftButton) {
+                    // Fallback if it's a modal structure
+                    domElements.cancelShiftButton.click();
+                    console.log("APP_LOG: Reverted by clicking cancel shift button in modal.");
+                } else {
+                    console.warn("APP_WARN: Revert action 'close-shift-form' failed. No known shift form seems to be open or cancel button not found.");
+                }
+            }
+            // Add more revert action types as needed
+        } catch (error) {
+            console.error("APP_ERROR: Error during tutorial revert action:", action, error);
+        }
+    }
+    console.log("APP_LOG: Finished executing and cleared tutorial revert actions.");
+}
+
+
 // Initial load
 // loadStateFromLocalStorage(); // REMOVE this line, only call from main.js
+
+// --- Default Pay Rates Management ---
+export function getDefaultPayRates() {
+    return { ...state.defaultPayRates }; // Return a copy to prevent external modification
+}
+
+export function setDefaultPayRate(position, rate) {
+    if (typeof rate === 'number' && rate >= 0) {
+        state.defaultPayRates[position] = rate;
+        saveStateToLocalStorage();
+        console.log(`APP_LOG: Default pay rate for ${position} set to $${rate}`);
+    } else {
+        console.error(`APP_ERROR: Invalid pay rate for ${position}: ${rate}`);
+    }
+}
+
+export function updateDefaultPayRates(newRates) {
+    // Validate all rates before updating
+    for (const [position, rate] of Object.entries(newRates)) {
+        if (typeof rate !== 'number' || rate < 0) {
+            console.error(`APP_ERROR: Invalid pay rate for ${position}: ${rate}`);
+            return false;
+        }
+    }
+    
+    // Update all rates
+    state.defaultPayRates = { ...state.defaultPayRates, ...newRates };
+    saveStateToLocalStorage();
+    console.log('APP_LOG: Default pay rates updated:', state.defaultPayRates);
+    return true;
+}
+
+export function getDefaultPayRateForPosition(position) {
+    return state.defaultPayRates[position] || 0;
+}

@@ -3,6 +3,7 @@ import * as uiCore from '../ui/ui-core.js';
 import * as uiTutorial from '../ui/ui-tutorial.js';
 import * as uiEmployeeManagement from '../ui/ui-employee-management.js'; // For togglePayRateInputVisibility
 import * as uiRoster from '../ui/ui-roster.js'; // For applyMasonryLayoutToRoster
+import * as uiDefaultPayRates from '../ui/ui-default-pay-rates.js';
 
 import { handleCycleOrWeekChange, handlePrevWeek, handleNextWeek } from './events-date-time.js';
 import { 
@@ -60,11 +61,10 @@ function initializeEventListeners() {
     // Weekly Report View
     if (domElements.prevWeekBtn) domElements.prevWeekBtn.addEventListener('click', handlePrevWeek);
     if (domElements.nextWeekBtn) domElements.nextWeekBtn.addEventListener('click', handleNextWeek);
-    if (domElements.exportWeeklyCSVBtn) domElements.exportWeeklyCSVBtn.addEventListener('click', handleExportToXLSX);
-
-    // Data Management View
+    if (domElements.exportWeeklyCSVBtn) domElements.exportWeeklyCSVBtn.addEventListener('click', handleExportToXLSX);    // Data Management View
     if (domElements.downloadStateBtn) domElements.downloadStateBtn.addEventListener('click', handleDownloadState);
     if (domElements.loadStateFileInput) domElements.loadStateFileInput.addEventListener('change', handleLoadState);
+    if (domElements.saveDefaultPayRatesBtn) domElements.saveDefaultPayRatesBtn.addEventListener('click', handleSaveDefaultPayRates);
 
     // Tutorial System
     if (domElements.tutorialNextBtn) domElements.tutorialNextBtn.addEventListener('click', handleNextTutorialStep);
@@ -92,8 +92,23 @@ function initializeEventListeners() {
         resizeTimer = setTimeout(() => {
             if (domElements.employeeLineupSection && domElements.employeeLineupSection.style.display !== 'none') {
                 uiRoster.applyMasonryLayoutToRoster(domElements.rosterListContainer);
+            }        }, 250);
+    });    // Tutorial button event listeners (direct, like original app)
+    const tutorialButtons = document.querySelectorAll('.tutorial-btn');
+    console.log("APP_LOG: Found", tutorialButtons.length, "tutorial buttons to attach listeners to");
+    
+    tutorialButtons.forEach((btn, index) => {
+        const tutorialKey = btn.dataset.tutorialFor;
+        
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Stop the click from bubbling up to the collapsible header
+            const clickedTutorialKey = e.target.dataset.tutorialFor;
+            
+            if (clickedTutorialKey) {
+                console.log("APP_LOG: Tutorial button clicked for:", clickedTutorialKey);
+                handleStartTutorial(clickedTutorialKey);
             }
-        }, 250);
+        });
     });
 
     // Tab/View switching listeners
@@ -116,9 +131,12 @@ function initializeEventListeners() {
     // General Click Logger (for debugging event propagation)
     document.body.addEventListener('click', function(event) {
         console.log('DEBUG_CLICK_LISTENER: [js/events/events-initialization.js] document.body click detected. Target:', event.target);
-    }, true); // Use capture phase for this general logger
+    }, true); // Use capture phase for this general logger    console.log("EVENT_LOG: All event listeners initialized from events-initialization.js");
+}
 
-    console.log("EVENT_LOG: All event listeners initialized from events-initialization.js");
+// Handler for saving default pay rates
+function handleSaveDefaultPayRates() {
+    uiDefaultPayRates.saveDefaultPayRates();
 }
 
 // Expose initializeEventListeners for main.js
